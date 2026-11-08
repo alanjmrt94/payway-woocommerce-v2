@@ -1,0 +1,61 @@
+# =============================================================================
+# payway-woocommerce-v2 — superficie pública (producto)
+#
+# Se versiona:
+#   wc-gateway-payway/  LICENSE  README.md  CHANGELOG.md
+#   docs/manual/  docs/license.md  docs/compatibility-matrix.md  docs/README.md
+#   .vscode/settings.json
+#   ci/.gitkeep
+#
+# El tooling de desarrollo/CI vive fuera de este árbol público (carpeta ci/).
+# =============================================================================
+
+# --- Tooling local (no publicar) --------------------------------------------
+# NO usar "ci/" a secas: impediría re-incluir .gitkeep.
+ci/*
+!ci/.gitkeep
+
+# Symlinks / carpetas locales de desarrollo
+/bin
+/docker
+/tests
+/.cursor
+
+# --- Dependencias si alguien corre composer en la raíz ----------------------
+/vendor/
+/composer.json
+/composer.lock
+/phpunit.xml.dist
+/phpcs.xml.dist
+/phpstan.neon.dist
+
+# --- Secretos ---------------------------------------------------------------
+.env
+.env.*
+
+# --- Artefactos / caches ----------------------------------------------------
+*.zip
+.phpunit.result.cache
+.phpunit.cache/
+.phpstan/
+.phpcs-cache
+coverage/
+clover.xml
+/tmp/
+/temp/
+
+# --- IDEs -------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# --- SO ---------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Logs -------------------------------------------------------------------
+*.log
