@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -38,9 +59,9 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			plugins_url('assets/images/card-logos.png', WC_PAYWAY_PLUGIN_FILE)
 		);
 		$this->order_button_text	= __( 'Pay with Payway', 'wc-gateway-payway' );
-		$this->method_title			= __( 'Payway Payment Gateway', 'wc-gateway-payway' );
-		$this->method_description	= __( 'Payway allows customers to pay directly through your site.', 'wc-gateway-payway' );
-		$this->supports				= array('products');
+		$this->method_title			= __( 'Payway Payment Community', 'wc-gateway-payway' );
+		$this->method_description	= __( 'Fork independiente para WooCommerce. No es un producto oficial de Payway.', 'wc-gateway-payway' );
+		$this->supports				= array( 'products' );
 
 		// Load the settings.
 		$this->init_form_fields();
@@ -86,32 +107,35 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 */
 	public function order_process_before_gateway( $builder ) {
 		$data = $builder->get_checkout_form_data();
-		$plan = false;
 
-		if (
-			isset($data['rule_id'])
-			&& isset($data['installments'])
-			&& $data['rule_id']
-			&& $data['installments']
+		// Prefer validated fee_plan from Integrity Validator when present.
+		$plan = isset( $data['fee_plan'] ) && ! empty( $data['fee_plan'] )
+			? $data['fee_plan']
+			: false;
+
+		if ( ! $plan
+			&& ! empty( $data['rule_id'] )
+			&& ! empty( $data['installments'] )
 		) {
-			$rule_id = $data['rule_id'];
-			$installments = $data['installments'];
-
-			$plan = WC_Payway_Promotion_Factory::get_applied_fee_plan( $rule_id,  $installments );
+			$plan = WC_Payway_Promotion_Factory::get_applied_fee_plan(
+				(int) $data['rule_id'],
+				(int) $data['installments']
+			);
 		}
 
-		if ( $plan && $builder->get_order()) {
+		if ( $plan && $builder->get_order() ) {
 			$order = $builder->get_order();
-			$total = $order->get_total();
+			$total = (float) $order->get_total();
 
-			$coefficient = $plan->coefficient;
-			$new_total = $total * $coefficient;
-			$charge = $new_total - $total;
+			$coefficient = is_object( $plan )
+				? (float) $plan->coefficient
+				: (float) ( $plan['coefficient'] ?? 1 );
+			$new_total   = $total * $coefficient;
+			$charge      = $new_total - $total;
 
-			// Ensure there's a charge that needs to be billed
-			if ( $charge > 0) {
+			if ( $charge > 0 ) {
 				$fee = new WC_Order_Item_Fee();
-				$fee->set_name( __('Financing Cost', 'wc-gateway-payway') );
+				$fee->set_name( __( 'Financing Cost', 'wc-gateway-payway' ) );
 				$fee->set_amount( $charge );
 				$fee->set_total( $charge );
 
@@ -131,9 +155,20 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function needs_setup() {
-		// TODO: implement config check so admin user gets redirected if there're missing fields
-		// for now, we'll force the redirection
-		return true;
+		$env = wc_payway_is_sandbox_enabled() ? 'sandbox' : 'production';
+		if ( 'sandbox' === $env ) {
+			return ! (
+				wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_SANDBOX_SITE_ID )
+				&& wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_SANDBOX_PUBLIC_KEY )
+				&& wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_SANDBOX_PRIVATE_KEY )
+			);
+		}
+
+		return ! (
+			wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_PRODUCTION_SITE_ID )
+			&& wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_PRODUCTION_PUBLIC_KEY )
+			&& wc_payway_get_config_option( WC_Payway_Config_Interface::FIELD_PRODUCTION_PRIVATE_KEY )
+		);
 	}
 
 	/**
@@ -195,7 +230,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			?>
 			<div class="inline error">
 				<p>
-					<strong><?php esc_html_e( 'Gateway disabled', 'woocommerce' ); ?></strong>: <?php esc_html_e( 'Payway Gateway does not support your store currency.', 'wp-gateway-payway' ); ?>
+					<strong><?php esc_html_e( 'Gateway disabled', 'woocommerce' ); ?></strong>: <?php esc_html_e( 'Payway Gateway does not support your store currency.', 'wc-gateway-payway' ); ?>
 				</p>
 			</div>
 			<?php
@@ -233,7 +268,31 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function validate_fields() {
-		// wc_add_notice( '', 'error' );
+		$posted = array(
+			'token'        => isset( $_POST['payway_gateway_cc_token'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_token'] ) ) : '',
+			'bin'          => isset( $_POST['payway_gateway_cc_bin'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_bin'] ) ) : '',
+			'last_digits'  => isset( $_POST['payway_gateway_cc_last_digits'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_last_digits'] ) ) : '',
+			'cc_type'      => isset( $_POST['payway_gateway_cc_type'] ) ? absint( wp_unslash( $_POST['payway_gateway_cc_type'] ) ) : 0,
+			'door_number'  => isset( $_POST['payway_gateway_cc_holder_door_number'] ) ? absint( wp_unslash( $_POST['payway_gateway_cc_holder_door_number'] ) ) : 0,
+			'rule_id'      => 0,
+			'card_id'      => 0,
+			'installments' => 0,
+		);
+
+		if ( isset( $_POST['payway_gateway_cc_installments'] ) ) {
+			$parts = explode( '-', sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_installments'] ) ) );
+			$posted['rule_id']      = isset( $parts[0] ) ? absint( $parts[0] ) : 0;
+			$posted['card_id']      = isset( $parts[1] ) ? absint( $parts[1] ) : 0;
+			$posted['installments'] = isset( $parts[2] ) ? absint( $parts[2] ) : 0;
+		}
+
+		$validation = WC_Payway_Integrity_Validator::validate_checkout_selection( $posted );
+		if ( is_wp_error( $validation ) ) {
+			wc_add_notice( $validation->get_error_message(), 'error' );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -243,100 +302,119 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	public function process_payment( $order_id ) {
-		// Loads all files required to execute the payment request
 		Payway()->init_payway_request_includes();
 
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return array(
+				'result'   => 'failure',
+				'refresh'  => true,
+				'messages' => WC_Payway_Errors::message( WC_Payway_Errors::INTERNAL ),
+			);
+		}
+
+		// Idempotencia: si ya hay transaction_id, no reprocesar.
+		$existing_tx = WC_Payway_Meta::get_order_transaction_id( $order_id, true );
+		if ( $existing_tx && $order->is_paid() ) {
+			return array(
+				'result'   => 'success',
+				'redirect' => $this->get_return_url( $order ),
+			);
+		}
+
 		try {
-			$order = wc_get_order( $order_id );
 			$builder = new WC_Payway_Request_Builder();
+			$builder->set_checkout_form_data( wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-			// Retrieve custom payment fields
-			// till we find a better way to hook up into WC process
-			$request_data = $builder->set_checkout_form_data( $_POST )
-				->set_order( $order )
-				->process();
-
-			// Store the Fee Plan selected by the Customer into the Order
-			$this->update_order_meta_promotion(
-				$order,
+			$validated = WC_Payway_Integrity_Validator::validate_checkout_selection(
 				$builder->get_checkout_form_data()
 			);
+			if ( is_wp_error( $validated ) ) {
+				wc_add_notice( $validated->get_error_message(), 'error' );
+				$order->update_status(
+					'failed',
+					$validated->get_error_message()
+				);
+				return array(
+					'result'   => 'failure',
+					'refresh'  => true,
+					'messages' => $validated->get_error_message(),
+				);
+			}
 
-			// Execute the Gateway call
+			// Sobrescribe datos del builder con valores validados en servidor.
+			$builder->set_validated_checkout_data( $validated );
+			$request_data = $builder->set_order( $order )->process();
+
+			// Forzar payment_method_id desde tarjeta validada (mitiga #71).
+			if ( isset( $validated['payment_method_id'] ) ) {
+				$request_data['payment_method_id'] = (int) $validated['payment_method_id'];
+			}
+
+			$this->update_order_meta_promotion( $order, $validated );
+
 			$request = new WC_Payway_Request();
 			$request->pay( $request_data );
 
 			if ( $request->get_success() ) {
+				$result_payload = $request->get_result();
+				$status         = is_array( $result_payload ) ? ( $result_payload['status'] ?? '' ) : '';
+
+				if ( $status && ! in_array( $status, array( 'approved', 'accredited' ), true ) ) {
+					throw new Exception( WC_Payway_Errors::message( WC_Payway_Errors::ISSUER_REJECTED ) );
+				}
+
 				$order->payment_complete( $request->get_transaction_id() );
-
-				// currently isn't needed to execute the stock reduction
-				// for those products that are marked as `manage stock`,
-				// it's happening without manually executing it
-				//
-				// $order->reduce_order_stock();
-
-				// Update WC_Order custom fields for custom metabox display
-				$this->update_order_meta( $request->get_result(), $order );
-
-				// Leave an Order message, without notifying
+				$this->update_order_meta( $result_payload, $order );
 				$this->add_success_note_to_order( $order );
 
-				$result = array(
+				return array(
 					'result'   => 'success',
-					'redirect' => $this->get_return_url( $order )
-				);
-			} else {
-				wc_add_notice(
-					__('Payment error: ', 'wc-gateway-payway') . json_encode($request->get_error_messages()),
-					'error'
-				);
-
-				// Leave an Order message, without notifying
-				$this->add_failure_note_to_order(
-					$order,
-					json_encode($request->get_error_messages())
-				);
-
-				// Cancel the Order
-				$message = 'Order cancelled due to an error while processing in the gateway: ' . json_encode($request->get_error_messages());
-				$order->update_status(
-					'cancelled',
-					__( $message, 'wc-gateway-payway' )
-				);
-
-				$result = array(
-					'result'   => 'failure',
-					'refresh' => true,
-					'messages' => json_encode($request->get_error_messages())
+					'redirect' => $this->get_return_url( $order ),
 				);
 			}
 
-			return $result;
-
-		} catch ( Exception $e ) {
-			// TODO: log the error through custom wc_get_logger() implementation
+			$error_text = wp_json_encode( $request->get_error_messages() );
 			wc_add_notice(
-				__('Payment error:', 'wc-gateway-payway') . $e->getMessage(),
+				__( 'Payment error: ', 'wc-gateway-payway' ) . $error_text,
 				'error'
 			);
-
-			// Leave an Order message, without notifying
-			$this->add_failure_note_to_order(
-				$order,
-				$e->getMessage()
-			);
-
-			// Cancel the Order
-			$message = 'Order cancelled due to an error while processing in the gateway: ' . $e->getMessage();
+			$this->add_failure_note_to_order( $order, $error_text );
 			$order->update_status(
-				'cancelled',
-				__( $message, 'wc-gateway-payway' )
+				'failed',
+				sprintf(
+					/* translators: %s: gateway error */
+					__( 'Pago fallido en la pasarela: %s', 'wc-gateway-payway' ),
+					$error_text
+				)
 			);
 
 			return array(
-				'result' => 'failure',
-				'refresh' => true,
-				'messages' => $e->getMessage()
+				'result'   => 'failure',
+				'refresh'  => true,
+				'messages' => $error_text,
+			);
+
+		} catch ( Exception $e ) {
+			wc_payway_get_logger()->error( $e->getMessage() );
+			wc_add_notice(
+				__( 'Payment error: ', 'wc-gateway-payway' ) . $e->getMessage(),
+				'error'
+			);
+			$this->add_failure_note_to_order( $order, $e->getMessage() );
+			$order->update_status(
+				'failed',
+				sprintf(
+					/* translators: %s: exception message */
+					__( 'Pago fallido: %s', 'wc-gateway-payway' ),
+					$e->getMessage()
+				)
+			);
+
+			return array(
+				'result'   => 'failure',
+				'refresh'  => true,
+				'messages' => $e->getMessage(),
 			);
 		}
 	}

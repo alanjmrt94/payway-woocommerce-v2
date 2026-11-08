@@ -1,30 +1,48 @@
 <?php
 /**
- * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
  */
-
 /**
- * TODO: implement cache for getting Settings to avoid hitting db too many times
- * - configuration settings could be cached (and cleaned/warmed up)
- *   when saving WC Settings admin section
- * - this interface loading, shouldn't be required to be done, `Payway()` is in charge
+ * Core helpers — Payway Payment Community
+ *
+ * @package wc-gateway-payway
  */
 
-// review an alternative load process
+defined( 'ABSPATH' ) || exit;
+
 include_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-config-interface.php';
 include_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-rest-interface.php';
 
 /**
- * Returns the main instance of PaywayWC::class.
+ * Returns the main instance of PaywayWC.
+ *
+ * @return PaywayWC
  */
 function Payway() {
 	return PaywayWC::instance();
 }
 
 /**
- * Retrieves the Payment code
- * which is used by WooCommerce to identify the Payment Gateway
+ * Retrieves the Payment code used by WooCommerce.
  *
  * @return string
  */
@@ -35,14 +53,14 @@ function wc_payway_get_payment_code() {
 /**
  * @return WC_Payway_Logger
  */
-function wc_payway_get_logger( ) {
+function wc_payway_get_logger() {
 	return WC_Payway_Logger::instance();
 }
 
 /**
- * Whether plugin is configured to work in test mode
+ * Whether plugin is configured to work in test mode.
  *
- * @return boolean
+ * @return bool
  */
 function wc_payway_is_sandbox_enabled() {
 	return 'yes' === wc_payway_get_config_option(
@@ -51,9 +69,9 @@ function wc_payway_is_sandbox_enabled() {
 }
 
 /**
- * Whether Cybersource is enabled or not in the configuration
+ * Whether Cybersource is enabled.
  *
- * @return boolean
+ * @return bool
  */
 function wc_payway_config_is_cs_enabled() {
 	return 'yes' === wc_payway_get_config_option(
@@ -62,32 +80,33 @@ function wc_payway_config_is_cs_enabled() {
 }
 
 /**
- * Returns an array with credentials for the specified environment
- * returned array contains: `site_id`, `public_key` and `private_key`
+ * Returns credentials for the specified environment.
+ * Never include private_key unless explicitly requested (backend only).
  *
- * Avoid using this method directly. Use `wc_payway_get_<environment>_credentials()` instead
- *
- * @param boolean $sandbox Whether to return creds from sandbox or production
- * @param boolean $include_private_key Whether to include private key or not
+ * @param bool $sandbox Whether to return sandbox credentials.
+ * @param bool $include_private_key Whether to include private key.
  * @return array
  */
 function wc_payway_get_credentials( $sandbox = true, $include_private_key = false ) {
-	$data = [];
+	$data    = array();
 	$options = wc_payway_get_config_options();
+	if ( ! is_array( $options ) ) {
+		$options = array();
+	}
 
 	if ( $sandbox ) {
-		$data['creds']['site_id'] = $options[WC_Payway_Config_Interface::FIELD_SANDBOX_SITE_ID] ?? '';
-		$data['creds']['public_key'] = $options[WC_Payway_Config_Interface::FIELD_SANDBOX_PUBLIC_KEY] ?? '';
+		$data['creds']['site_id']    = $options[ WC_Payway_Config_Interface::FIELD_SANDBOX_SITE_ID ] ?? '';
+		$data['creds']['public_key'] = $options[ WC_Payway_Config_Interface::FIELD_SANDBOX_PUBLIC_KEY ] ?? '';
 
 		if ( $include_private_key ) {
-			$data['creds']['private_key'] = $options[WC_Payway_Config_Interface::FIELD_SANDBOX_PRIVATE_KEY] ?? '';
+			$data['creds']['private_key'] = $options[ WC_Payway_Config_Interface::FIELD_SANDBOX_PRIVATE_KEY ] ?? '';
 		}
 	} else {
-		$data['creds']['site_id'] = $options[WC_Payway_Config_Interface::FIELD_PRODUCTION_SITE_ID] ?? '';
-		$data['creds']['public_key'] = $options[WC_Payway_Config_Interface::FIELD_PRODUCTION_PUBLIC_KEY] ?? '';
+		$data['creds']['site_id']    = $options[ WC_Payway_Config_Interface::FIELD_PRODUCTION_SITE_ID ] ?? '';
+		$data['creds']['public_key'] = $options[ WC_Payway_Config_Interface::FIELD_PRODUCTION_PUBLIC_KEY ] ?? '';
 
 		if ( $include_private_key ) {
-			$data['creds']['private_key'] = $options[WC_Payway_Config_Interface::FIELD_PRODUCTION_PRIVATE_KEY] ?? '';
+			$data['creds']['private_key'] = $options[ WC_Payway_Config_Interface::FIELD_PRODUCTION_PRIVATE_KEY ] ?? '';
 		}
 	}
 
@@ -95,9 +114,9 @@ function wc_payway_get_credentials( $sandbox = true, $include_private_key = fals
 }
 
 /**
- * Retrieves Sandbox credentials, including the site id
+ * Sandbox credentials. Private key never included by default.
  *
- * @param boolean $include_private_key whether to include private key or not
+ * @param bool $include_private_key whether to include private key.
  * @return array
  */
 function wc_payway_get_sandbox_credentials( $include_private_key = false ) {
@@ -105,44 +124,51 @@ function wc_payway_get_sandbox_credentials( $include_private_key = false ) {
 }
 
 /**
- * Retrieves Production credentials, including the site id
+ * Production credentials. Private key never included by default (SEC-01).
  *
- * @param boolean $include_private_key whether to include private key or not
+ * @param bool $include_private_key whether to include private key.
  * @return array
  */
-function wc_payway_get_production_credentials( $include_private_key = true ) {
+function wc_payway_get_production_credentials( $include_private_key = false ) {
 	return wc_payway_get_credentials( false, $include_private_key );
 }
 
 /**
+ * Builds checkout promotions payload for the storefront.
+ *
  * @return array
  */
 function wc_payway_checkout_promotions() {
 	$promotions = WC_Payway_Promotion_Factory::get_applicable_promotions();
-	$banks = $cards = $plans = array();
+	$banks      = $cards = $plans = array();
 
-	// If there're no Promotions configured, exit
 	if ( empty( $promotions ) ) {
 		return array();
 	}
 
 	foreach ( $promotions as $promo ) {
-		$banks[$promo->bank_id] = array('name' => $promo->bank_name, 'value' => $promo->bank_id);
-		$cards[$promo->bank_id][$promo->card_code] = array('name' => $promo->card_name, 'value' => $promo->card_code);
+		$banks[ $promo->bank_id ]                          = array(
+			'name'  => $promo->bank_name,
+			'value' => $promo->bank_id,
+		);
+		$cards[ $promo->bank_id ][ $promo->card_code ]     = array(
+			'name'  => $promo->card_name,
+			'value' => $promo->card_code,
+		);
 
-		if ($promo->fee_plans) {
-			$list = json_decode($promo->fee_plans);
+		if ( $promo->fee_plans ) {
+			$list = json_decode( $promo->fee_plans );
 
-			foreach ($list as $plan) {
-				$plans[$promo->bank_id][$promo->card_code][] = [
-					'fee_period' => $plan->fee_period,
+			foreach ( (array) $list as $plan ) {
+				$plans[ $promo->bank_id ][ $promo->card_code ][] = array(
+					'fee_period'  => $plan->fee_period,
 					'fee_to_send' => $plan->fee_to_send,
 					'coefficient' => $plan->coefficient,
-					'tea' => $plan->tea,
-					'cft' => $plan->cft,
-					'rule_id' => $promo->id,
-					'rule_name' => $promo->rule_name
-				];
+					'tea'         => $plan->tea,
+					'cft'         => $plan->cft,
+					'rule_id'     => $promo->id,
+					'rule_name'   => $promo->rule_name,
+				);
 			}
 		}
 	}
@@ -150,55 +176,56 @@ function wc_payway_checkout_promotions() {
 	return array(
 		'banks' => $banks,
 		'cards' => $cards,
-		'plans' => $plans
+		'plans' => $plans,
 	);
 }
 
 /**
- * Builds storefront required configuration for JS initialization
- * includes: public/private keys, endpoint url and if CS is enabled or not
+ * Storefront config for JS. Never exposes private_key.
  *
- * @param boolean $encode_as_json
- * @return array|JSON
+ * @param bool $encode_as_json
+ * @return array|string
  */
-function wc_payway_storefront_options($encode_as_json = false) {
+function wc_payway_storefront_options( $encode_as_json = false ) {
 	$config_options = wc_payway_get_config_options();
-
-	if ( wc_payway_is_sandbox_enabled() ) {
-		$options = wc_payway_get_sandbox_credentials();
-		$url = WC_Payway_Rest_Interface::SANDBOX_URL;
-		$sandbox = true;
-	} else {
-		$options = wc_payway_get_production_credentials();
-		$url = WC_Payway_Rest_Interface::PRODUCTION_URL;
-		$sandbox = false;
+	if ( ! is_array( $config_options ) ) {
+		$config_options = array();
 	}
 
-	$options[WC_Payway_Config_Interface::FIELD_CYBERSOURCE_ENABLED] = (
-		'yes' === $config_options[WC_Payway_Config_Interface::FIELD_CYBERSOURCE_ENABLED])
-			? true
-			: false;
+	if ( wc_payway_is_sandbox_enabled() ) {
+		$options  = wc_payway_get_sandbox_credentials( false );
+		$url      = WC_Payway_Rest_Interface::SANDBOX_URL;
+		$sandbox  = true;
+	} else {
+		$options  = wc_payway_get_production_credentials( false );
+		$url      = WC_Payway_Rest_Interface::PRODUCTION_URL;
+		$sandbox  = false;
+	}
 
-	$options['endpoint_url'] = $url;
-	$options['sandbox_enabled'] = $sandbox;
-	$options['promotions'] = wc_payway_checkout_promotions();
+	$options[ WC_Payway_Config_Interface::FIELD_CYBERSOURCE_ENABLED ] = (
+		isset( $config_options[ WC_Payway_Config_Interface::FIELD_CYBERSOURCE_ENABLED ] )
+		&& 'yes' === $config_options[ WC_Payway_Config_Interface::FIELD_CYBERSOURCE_ENABLED ]
+	);
 
-	return !$encode_as_json
+	$options['endpoint_url']     = $url;
+	$options['sandbox_enabled']  = $sandbox;
+	$options['promotions']       = wc_payway_checkout_promotions();
+
+	// Defensa en profundidad: nunca filtrar private_key al frontend.
+	if ( isset( $options['creds']['private_key'] ) ) {
+		unset( $options['creds']['private_key'] );
+	}
+
+	return ! $encode_as_json
 		? $options
-		: json_encode( $options );
+		: wp_json_encode( $options );
 }
 
 /**
- * Returns the current day in numeric format
- *
- * Usually used to compare `applicable_days` of a Promotion
- * 0 (for Sunday) through 6 (for Saturday)
- *
- * @see https://www.php.net/manual/en/function.date.php
- * @see https://www.php.net/manual/en/datetime.format.php
+ * Current day number 0 (Sunday) through 6 (Saturday).
  *
  * @return string
  */
 function wc_payway_get_current_day_number() {
-	return date('w');
+	return date( 'w' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 }

@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -91,51 +112,53 @@ class WC_Payway_Request_Builder {
 	 * @return $this
 	 */
 	public function set_checkout_form_data( $post_data ) {
-		$rule_id = false;
-		$card_id = false;
-		$installments = false;
+		$rule_id      = 0;
+		$card_id      = 0;
+		$installments = 0;
 
 		/**
 		 * Installment dropdown option value
-		 *
-		 * built with the following structure: <rule_id>-<card_id>-<fee_to_send>
-		 * @var array
+		 * structure: <rule_id>-<card_id>-<fee_to_send>
 		 */
-		if ( isset( $post_data['payway_gateway_cc_installments'])) {
-			$cc_installments = explode('-', $post_data['payway_gateway_cc_installments']);
-			$rule_id = isset( $cc_installments[0] )
-				? (int) $cc_installments[0]
-				: false;
-			$card_id = isset( $cc_installments[1] )
-				? (int) $cc_installments[1]
-				: false;
-			$installments = isset( $cc_installments[2] )
-				? (int) $cc_installments[2]
-				: false;
+		if ( isset( $post_data['payway_gateway_cc_installments'] ) ) {
+			$cc_installments = explode( '-', sanitize_text_field( (string) $post_data['payway_gateway_cc_installments'] ) );
+			$rule_id         = isset( $cc_installments[0] ) ? absint( $cc_installments[0] ) : 0;
+			$card_id         = isset( $cc_installments[1] ) ? absint( $cc_installments[1] ) : 0;
+			$installments    = isset( $cc_installments[2] ) ? absint( $cc_installments[2] ) : 0;
 		}
 
 		$this->checkout_posted_data = array(
-			'rule_id' => $rule_id,
-			'card_id' => $card_id,
+			'rule_id'      => $rule_id,
+			'card_id'      => $card_id,
 			'installments' => $installments,
-			'token' => isset($post_data['payway_gateway_cc_token'])
-				? $post_data['payway_gateway_cc_token']
-				: false,
-			'bin' => isset($post_data['payway_gateway_cc_bin'])
-				? $post_data['payway_gateway_cc_bin']
-				: false,
-			'last_digits' => isset($post_data['payway_gateway_cc_last_digits'])
-				? $post_data['payway_gateway_cc_last_digits']
-				: false,
-			'cc_type' => isset($post_data['payway_gateway_cc_type'])
-				? $post_data['payway_gateway_cc_type']
-				: false,
-			'door_number'=> isset($post_data['payway_gateway_cc_holder_door_number'])
-				? $post_data['payway_gateway_cc_holder_door_number']
-				: false
-			
+			'token'        => isset( $post_data['payway_gateway_cc_token'] )
+				? sanitize_text_field( (string) $post_data['payway_gateway_cc_token'] )
+				: '',
+			'bin'          => isset( $post_data['payway_gateway_cc_bin'] )
+				? preg_replace( '/\D/', '', (string) $post_data['payway_gateway_cc_bin'] )
+				: '',
+			'last_digits'  => isset( $post_data['payway_gateway_cc_last_digits'] )
+				? preg_replace( '/\D/', '', (string) $post_data['payway_gateway_cc_last_digits'] )
+				: '',
+			'cc_type'      => isset( $post_data['payway_gateway_cc_type'] )
+				? absint( $post_data['payway_gateway_cc_type'] )
+				: 0,
+			'door_number'  => isset( $post_data['payway_gateway_cc_holder_door_number'] )
+				? absint( $post_data['payway_gateway_cc_holder_door_number'] )
+				: 0,
 		);
 
+		return $this;
+	}
+
+	/**
+	 * Replaces checkout data with server-validated values.
+	 *
+	 * @param array $validated
+	 * @return $this
+	 */
+	public function set_validated_checkout_data( array $validated ) {
+		$this->checkout_posted_data = array_merge( $this->checkout_posted_data, $validated );
 		return $this;
 	}
 
@@ -165,12 +188,10 @@ class WC_Payway_Request_Builder {
 	 *
 	 * @return array data to be sent to the Gateway
 	 */
-	public function process()
-	{
-		$request = $this->request;
+	public function process() {
 		$result = array();
 
-		do_action('wc_payway_request_builder_process_before', $this);
+		do_action( 'wc_payway_request_builder_process_before', $this );
 
 		foreach ( $this->processors as $name => $processor ) {
 			$result = $this->merge(
@@ -179,7 +200,7 @@ class WC_Payway_Request_Builder {
 			);
 		}
 
-		do_action('wc_payway_request_builder_process_after', $this);
+		do_action( 'wc_payway_request_builder_process_after', $this );
 
 		return $result;
 	}

@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 /**
@@ -23,7 +44,7 @@ interface WC_Payway_Activator_Interface {
 	 * @see wc-gateway-payway/index.php
 	 * @var string
 	 */
-	const WC_PAYWAY_VERSION_VALUE = '0.3.3';
+	const WC_PAYWAY_VERSION_VALUE = '1.0.0';
 
 	/**
 	 * @var string
@@ -31,9 +52,11 @@ interface WC_Payway_Activator_Interface {
 	const WC_PAYWAY_SDK_VERSION = 'payway_gateway_sdk_version';
 
 	/**
+	 * Vendored Decidir SDK version (composer.lock).
+	 *
 	 * @var string
 	 */
-	const WC_PAYWAY_SDK_VERSION_VALUE = '1.5.0';
+	const WC_PAYWAY_SDK_VERSION_VALUE = '1.4.0';
 
 	/**
 	 * @var string
