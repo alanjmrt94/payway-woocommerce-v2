@@ -1,24 +1,73 @@
 <?php
 /**
- * Plugin Name: Payway Payment Gateway for WooCommerce
- * Plugin URI: https://www.prismamediosdepago.com.ar
- * Description: Payway payment gateway integration for WooCommerce
- * Version: 0.3.3
- * Author: IURCO - Prisma SA
- * Author URI: https://iurco.com/
+ * Plugin Name: Payway Payment Community
+ * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
+ * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
+ * Version: 1.0.0
+ * Author: Alan Martinez
+ * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
  * Domain Path: /i18n/languages
- * License: GPLv2 or later
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Requires Plugins: woocommerce
+ *
+ * WordPress requires at least: 5.8.3
  * Requires at least: 5.8.3
+ * PHP requires at least: 7.4
  * Requires PHP: 7.4
+ * WooCommerce requires at least: 6.0
+ * WooCommerce tested up to: 9.4
+ * WC requires at least: 6.0
+ * WC tested up to: 9.4
+ * MySQL requires at least: 5.7
+ * MariaDB requires at least: 10.2
+ *
+ * Compatibilidad declarada (v1):
+ * - WordPress:    mínimo 5.8.3 — recomendado última estable
+ * - WooCommerce:  mínimo 6.0 — probado hasta 9.4 — recomendado última estable
+ * - PHP:          mínimo 7.4 — recomendado 8.1 o superior
+ * - MySQL:        mínimo 5.7 — recomendado 8.0 o superior
+ * - MariaDB:      mínimo 10.2 — recomendado 10.4 o superior
+ *
+ * Nota: las claves "Requires at least", "Requires PHP", "WC requires at least" y
+ * "WC tested up to" se conservan porque WordPress y WooCommerce las leen de forma
+ * automática. Las líneas con nombre completo son documentación legible para humanos.
+ *
+ * Copyright (C) 2026 Alan Martinez
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  * @package wc-gateway-payway
- * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
+ * @author Alan Martinez (alanjmrt94)
+ * @license GPL-2.0-or-later
+ *
+ * Atribución: basado en el plugin original de IURCO / Prisma SA (payway-ar/plugin-woocommerce).
+ * Este fork es un desarrollo independiente. No está respaldado ni certificado por Payway.
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 if ( ! defined( 'WC_PAYWAY_PLUGIN_FILE' ) ) {
 	define( 'WC_PAYWAY_PLUGIN_FILE', __FILE__ );
+}
+
+if ( ! defined( 'WC_PAYWAY_PLUGIN_SLUG' ) ) {
+	define( 'WC_PAYWAY_PLUGIN_SLUG', 'wc-gateway-payway' );
 }
 
 // Include the main Payway class.
@@ -26,20 +75,11 @@ if ( ! class_exists( 'PaywayWC', false ) ) {
 	include_once dirname( WC_PAYWAY_PLUGIN_FILE ) . '/includes/class-payway-wc.php';
 }
 
-/**
- * Introduce class to handle activate/deactivate/uninstall hooks
- * This should be moved into the PaywayWC class and refactor the entire plugin initialization
- * Currently this (along with the next few global functions), is requiered to retrieve the plugin version
- * from the database and the codebase (WC_Payway_Activator::class)
- *
- */
 require_once 'includes/interfaces/class-wc-payway-activator-interface.php';
 require_once 'includes/class-payway-activator.php';
 
-
 /**
  * Returns Payway Gateway configuration options
- * if not set, `get_option` returns `false`
  *
  * @return array|bool
  */
@@ -49,7 +89,6 @@ function wc_payway_get_config_options() {
 
 /**
  * Returns specific option value
- * If given option isn't found, `false` is returned
  *
  * @param string $name config option to retrieve
  * @return mixed
@@ -57,8 +96,8 @@ function wc_payway_get_config_options() {
 function wc_payway_get_config_option( $name ) {
 	$options = wc_payway_get_config_options();
 
-	return ($options && isset($options[$name]))
-		? $options[$name]
+	return ( $options && isset( $options[ $name ] ) )
+		? $options[ $name ]
 		: false;
 }
 
@@ -74,7 +113,7 @@ function wc_payway_get_version() {
 }
 
 /**
- * Returns the version value that the database holds
+ * Returns the SDK version value that the database holds
  *
  * @return string
  */
@@ -85,9 +124,7 @@ function wc_payway_get_sdk_version() {
 }
 
 /**
- * Returns the version value that the database holds
- * It's just a reference to display in a Status Report page
- * Please rely and use `wc_payway_get_version` along the entire codebase
+ * Returns the version declared in the codebase
  *
  * @return string
  */
@@ -96,9 +133,7 @@ function wc_payway_get_version_in_codebase() {
 }
 
 /**
- * Returns the version value that the database holds
- * It's just a reference to display in a Status Report page
- * Please rely and use `wc_payway_get_sdk_version` along the entire codebase
+ * Returns the SDK version declared in the codebase
  *
  * @return string
  */
@@ -106,19 +141,31 @@ function wc_payway_get_sdk_version_in_codebase() {
 	return WC_Payway_Activator_Interface::WC_PAYWAY_SDK_VERSION_VALUE;
 }
 
-// Registers activation process
-register_activation_hook( __FILE__, array( 'WC_Payway_Activator', 'activate' ));
-// register_deactivation_hook( __FILE__, array( 'WC_Payway_Activator', 'deactivate' ) );
+/**
+ * Whether debug logging is enabled in gateway settings
+ *
+ * @return bool
+ */
+function wc_payway_is_debug_enabled() {
+	return 'yes' === wc_payway_get_config_option(
+		WC_Payway_Config_Interface::FIELD_DEBUG_ENABLED
+	);
+}
 
-// Registers uninstall process
+register_activation_hook( __FILE__, array( 'WC_Payway_Activator', 'activate' ) );
 register_uninstall_hook( __FILE__, array( 'WC_Payway_Activator', 'uninstall' ) );
 
-// Initialize Payway class
-add_action( 'plugins_loaded', array( 'PaywayWC', 'instance'));
+add_action( 'plugins_loaded', array( 'PaywayWC', 'instance' ) );
 
-/**
- * Returns the main instance of PaywayWC::class.
- */
-// function Payway() {
-// 	return PaywayWC::instance();
-// }
+add_action(
+	'before_woocommerce_init',
+	static function () {
+		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				'custom_order_tables',
+				WC_PAYWAY_PLUGIN_FILE,
+				true
+			);
+		}
+	}
+);

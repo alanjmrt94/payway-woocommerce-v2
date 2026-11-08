@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -120,24 +141,20 @@ final class PaywayWC {
 	 * Includes required classes
 	 */
 	private function includes() {
-		// Core classes
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-logger.php';
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-activator.php';
-
-		// Interfaces classes
+		require_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-config-interface.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-meta-interface.php';
 
-		// Classes and Factories
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-compatibility.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-errors.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-logger.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-activator.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-core-functions.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-bank-factory.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-card-factory.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-promotion-factory.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-integrity-validator.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-meta.php';
 
-		// Core functions
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-core-functions.php';
-
-		// Admin menu creation
 		if ( is_admin() ) {
 			require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-menu.php';
 		}
@@ -177,7 +194,7 @@ final class PaywayWC {
 		load_plugin_textdomain(
 			'wc-gateway-payway',
 			false,
-			dirname( plugin_basename( WC_PAYWAY_PLUGIN_FILE)) . '/i18n/languages'
+			dirname( plugin_basename( WC_PAYWAY_PLUGIN_FILE ) ) . '/i18n/languages'
 		);
 	}
 
@@ -185,8 +202,9 @@ final class PaywayWC {
 	 * Hook into actions and filters.
 	 */
 	private function init_hooks() {
-		// registers an action to process all language files
-		add_action( 'before_wc_payway_gateway_init', array( $this, 'load_localization_files' ));
+		// Carga temprano para i18n en checkout (#33/#43).
+		add_action( 'init', array( $this, 'load_localization_files' ), 0 );
+		add_action( 'before_wc_payway_gateway_init', array( $this, 'load_localization_files' ) );
 
 		// adds Payway into the Payment Gateways list
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'payway_add_gateway_class'));
@@ -233,64 +251,64 @@ final class PaywayWC {
 		$payment_data = WC_Payway_Meta::get_order_payment_data( $order_id, true );
 		$promo = WC_Payway_Meta::get_order_promotion( $order_id, true );
 		?>
-			<h3><?php _e('Payway Payment Information', 'wc-gateway-payway'); ?></h3>
-			<?php if ( $payway_transaction_id ): ?>
+			<h3><?php esc_html_e( 'Payway Payment Information', 'wc-gateway-payway' ); ?></h3>
+			<?php if ( $payway_transaction_id ) : ?>
 			<div>
-				<strong><?php _e('Trans. ID', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $payway_transaction_id; ?></span>
+				<strong><?php esc_html_e( 'Trans. ID', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) $payway_transaction_id ); ?></span>
 			</div>
 			<?php endif; ?>
-			<?php if ( $payway_site_transaction_id ): ?>
+			<?php if ( $payway_site_transaction_id ) : ?>
 			<div>
-				<strong><?php _e('Site Trans. ID', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $payway_site_transaction_id; ?></span>
+				<strong><?php esc_html_e( 'Site Trans. ID', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) $payway_site_transaction_id ); ?></span>
 			</div>
 			<?php endif; ?>
-			<?php if ( !empty($payment_data) && isset($payment_data['status_details']) ): ?>
+			<?php if ( ! empty( $payment_data ) && isset( $payment_data['status_details'] ) ) : ?>
 			<?php $status = $payment_data['status_details']; ?>
 			<div>
-				<strong><?php _e('Ticket', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $status['ticket']; ?></span>
+				<strong><?php esc_html_e( 'Ticket', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $status['ticket'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('CC Auth Code', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $status['card_authorization_code']; ?></span>
+				<strong><?php esc_html_e( 'CC Auth Code', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $status['card_authorization_code'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('CC Address Code', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $status['address_validation_code']; ?></span>
+				<strong><?php esc_html_e( 'CC Address Code', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $status['address_validation_code'] ?? '' ) ); ?></span>
 			</div>
 			<?php endif; ?>
-			<?php if ( !empty($payment_data) && isset($payment_data['cybersource']) ): ?>
+			<?php if ( ! empty( $payment_data ) && isset( $payment_data['cybersource'] ) ) : ?>
 			<?php $cybersource = $payment_data['cybersource']; ?>
 			<div>
-				<strong><?php _e('CS Decision', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo $cybersource['decision']; ?></span>
+				<strong><?php esc_html_e( 'CS Decision', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $cybersource['decision'] ?? '' ) ); ?></span>
 			</div>
 			<?php endif; ?>
-			<?php if ( !empty($promo) && is_array($promo)): ?>
+			<?php if ( ! empty( $promo ) && is_array( $promo ) ) : ?>
 			<div>
-				<h4><?php _e('Fee Plans configuration', 'wc-gateway-payway'); ?></h4>
+				<h4><?php esc_html_e( 'Fee Plans configuration', 'wc-gateway-payway' ); ?></h4>
 			</div>
 			<div>
-				<strong><?php _e('Period', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo isset($promo['fee_period']) ? $promo['fee_period'] : ''; ?></span>
+				<strong><?php esc_html_e( 'Period', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $promo['fee_period'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('Coeficient', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo isset($promo['coefficient']) ? $promo['coefficient'] : ''; ?></span>
+				<strong><?php esc_html_e( 'Coeficient', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $promo['coefficient'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('TEA', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo isset($promo['tea']) ? $promo['tea'] : ''; ?></span>
+				<strong><?php esc_html_e( 'TEA', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $promo['tea'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('CFT', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo isset($promo['cft']) ? $promo['cft'] : ''; ?></span>
+				<strong><?php esc_html_e( 'CFT', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $promo['cft'] ?? '' ) ); ?></span>
 			</div>
 			<div>
-				<strong><?php _e('Fee to send', 'wc-gateway-payway'); ?>:</strong>
-				<span><?php echo isset($promo['fee_to_send']) ? $promo['fee_to_send'] : ''; ?></span>
+				<strong><?php esc_html_e( 'Fee to send', 'wc-gateway-payway' ); ?>:</strong>
+				<span><?php echo esc_html( (string) ( $promo['fee_to_send'] ?? '' ) ); ?></span>
 			</div>
 			<?php endif; ?>
 		<?php
