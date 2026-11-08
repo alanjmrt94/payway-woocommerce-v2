@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 $gateway_identifier = $this->id;
@@ -13,7 +34,7 @@ $description = $this->get_option('description');
 	<?php if (!empty($description)) : ?>
 		<hr style="border: 1px solid #ddd;">
 		<p class="fieldset-description">
-			<?php echo $description; ?>
+			<?php echo wp_kses_post( $description ); ?>
 		</p>
 		<hr style="border: 1px solid #ddd; margin: 20px 0;">
 	<?php endif; ?>
@@ -229,19 +250,19 @@ jQuery(function ( $ ) {
 		},
 
 		log: function() {
-			//This fun here update the cart_total value when the user changes the shipping method
-			this.mapAmountFromDom();
+			// Total siempre desde el servidor (WC), no desde montos visibles del DOM (#64 FX).
+			this.refreshCartTotalFromServer();
 
 			if ( this.config.sandboxEnabled && typeof console === 'object' ) {
 				console.log( '** payway', ...arguments );
 			}
 		},
 
-		mapAmountFromDom() {
-			this.cart_total = parseFloat(document.querySelectorAll('.amount')[document.querySelectorAll('.amount').length - 1].textContent
-			.replace(/\./g, '')
-			.replace(/[^0-9,-]+/g,"")
-			.replace(',', '.'));
+		refreshCartTotalFromServer: function () {
+			var serverTotal = parseFloat( wc_gateway_payway_params.cart_total, 10 );
+			if ( ! isNaN( serverTotal ) && serverTotal > 0 ) {
+				this.cart_total = serverTotal;
+			}
 		},
 
 		_attachListeners: function () {

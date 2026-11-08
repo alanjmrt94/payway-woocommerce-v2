@@ -15,7 +15,7 @@ jQuery( function( $ ) {
        testmode: wc_gateway_payway_params.test_mode || true,
        credentials: {
          publicKey: wc_gateway_payway_params.creds.public_key,
-         privateKey: wc_gateway_payway_params.creds.private_key,
+         // privateKey never exposed to the storefront (SEC-01).
          siteId: wc_gateway_payway_params.creds.site_id,
        },
        // when enabled, SDK needs to be initialized with `false`

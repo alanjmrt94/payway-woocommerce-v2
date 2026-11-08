@@ -1,7 +1,28 @@
 <?php
 /**
+ * Payway Payment Community — gateway de pago para WooCommerce (fork independiente).
+ * Copyright (C) 2026 Alan Martinez
+ *
+ * Based on prior work © IURCO / Prisma SA where applicable.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ * @package wc-gateway-payway
+ * @license GPL-2.0-or-later
+ */
+/**
  * @author IURCO - Prisma SA
- * @copyright Copyright © 2022 IURCO and PRISMA. All rights reserved.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -159,12 +180,19 @@ $title = $is_creation
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
 				</form>
 		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ): ?>
-			<?php //TODO: implement a backend notice whether success/error happened ?>
-			<?php wp_verify_nonce( '_wpnonce_payway-delete-card-' . $params['card_id'] ); ?>
-			<?php $result = $this->delete_card( $params['card_id'] ); ?>
-			<?php $redirect = remove_query_arg( array( 'action' ) ); ?>
-			<?php wp_redirect( $redirect ); ?>
-			<?php die(); ?>
+			<?php
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				wp_die( esc_html__( 'No tenés permisos para esta acción.', 'wc-gateway-payway' ) );
+			}
+			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, '_wpnonce_payway-delete-card-' . $params['card_id'] ) ) {
+				wp_die( esc_html__( 'Nonce inválido. No se eliminó la tarjeta.', 'wc-gateway-payway' ) );
+			}
+			$this->delete_card( $params['card_id'] );
+			$redirect = remove_query_arg( array( 'action', 'card_id', '_wpnonce' ) );
+			wp_safe_redirect( $redirect );
+			exit;
+			?>
 		<?php else: ?>
 			<p>You shouldn't be here...</p>
 		<?php endif; ?>
