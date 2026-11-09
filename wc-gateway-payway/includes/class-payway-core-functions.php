@@ -210,6 +210,9 @@ function wc_payway_storefront_options( $encode_as_json = false ) {
 	$options['endpoint_url']     = $url;
 	$options['sandbox_enabled']  = $sandbox;
 	$options['promotions']       = wc_payway_checkout_promotions();
+	$options['i18n']             = array(
+		'please_select' => __( 'Please select...', 'wc-gateway-payway' ),
+	);
 
 	// Defensa en profundidad: nunca filtrar private_key al frontend.
 	if ( isset( $options['creds']['private_key'] ) ) {

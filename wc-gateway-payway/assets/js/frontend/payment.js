@@ -45,6 +45,9 @@ console.log('begin PaywayCheckoutForm');
       // if CS needs to be active
       disableCybersource: !Boolean(wc_gateway_payway_params.cybersource_enabled),
       promotions: wc_gateway_payway_params.promotions,
+      i18n: ( wc_gateway_payway_params.i18n && typeof wc_gateway_payway_params.i18n === 'object' )
+        ? wc_gateway_payway_params.i18n
+        : { please_select: 'Please select...' },
       form: {
         id: '#payway_gateway-cc-form',
         fields: {
@@ -373,7 +376,7 @@ console.log('attaching event listeners...', $( this.config.form.fields.bankDropd
 
     // default option
     $bankField.empty()
-      .append( $('<option>', { value: '', text: 'Por favor seleccione...'}));
+      .append( $('<option>', { value: '', text: context.config.i18n.please_select }));
 
     $.each( context.config.promotions.banks, function ( i, bank ) {
       $bankField.append($('<option>', {
@@ -400,13 +403,13 @@ this.log('onBankChange', e);
     $installmentsDropdown.empty()
       .append($('<option>', {
         value: '',
-        text: 'Por favor seleccione...'
+        text: context.config.i18n.please_select
       }));
 
     $cardField.empty()
       .append($('<option>', {
         value: '',
-        text: 'Por favor seleccione...'
+        text: context.config.i18n.please_select
       }));
 
     $.each( context.config.promotions.cards[bankId], function ( i, card ) {
@@ -439,7 +442,7 @@ this.log('onBankChange', e);
     $installmentsField.empty()
       .append($('<option>', {
         value: '',
-        text: 'Por favor seleccione...'
+        text: context.config.i18n.please_select
       }));
 
     this.log(bankId, cardId);
@@ -462,7 +465,14 @@ this.log('onBankChange', e);
 
       this.log(total, charge, installmentPrice, feePeriod);
 
+      var feeToSend = parseInt(plan.fee_to_send, 10);
+      var periodNum = parseInt(feePeriod, 10);
+      var isMipyme =
+        (periodNum === 3 && feeToSend === 13) ||
+        (periodNum === 6 && feeToSend === 16);
+
       optionText = feePeriod +
+        (isMipyme ? ' MiPyME' : '') +
         ' x ' +
         accounting.formatMoney(installmentPrice, context.config.currencySettings) +
         ' (' + accounting.formatMoney((total + charge), context.config.currencySettings) + ')'

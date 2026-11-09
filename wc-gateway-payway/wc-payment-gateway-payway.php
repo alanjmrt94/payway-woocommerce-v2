@@ -563,86 +563,75 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	private function enqueueStorefrontScripts() {
-		//@TODO: most likely this shouldn't be hardcoded and depends on other factors, like SDK version
-		$scriptUrl = 'https://live.decidir.com/static/v2.5/decidir.js';
+		$version = defined( 'WC_PAYWAY_PLUGIN_VERSION' ) ? WC_PAYWAY_PLUGIN_VERSION : '1.1.0';
+
 		wp_register_script(
 			'woocommerce-gateway-payway-sdk',
-			$scriptUrl,
+			'https://live.decidir.com/static/v2.5/decidir.js',
 			array(),
 			'2.5',
 			false
 		);
-		wp_enqueue_script('woocommerce-gateway-payway-sdk');
+		wp_enqueue_script( 'woocommerce-gateway-payway-sdk' );
 
-		// wp_enqueue_script('payway_js', 'https://live.decidir.com/static/v2/decidir.js');
-
-		/**
-		 * Introduce WC JS lib to control price format
-		 * @see WC_Widget_Price_Filter
-		 */
 		wp_register_script(
 			'woocommerce-accounting',
-			// we're forcing to always use `min` version
 			WC()->plugin_url() . '/assets/js/accounting/accounting.min.js',
 			array( 'jquery' ),
 			'0.4.2'
 		);
 
-		// Implements accounting.js configuration
 		wp_localize_script(
 			'woocommerce-accounting',
 			'wc_gateway_payway_accounting_format',
 			array(
 				'precision' => wc_get_price_decimals(),
-				'symbol'  => get_woocommerce_currency_symbol(),
-				'decimal'  => esc_attr( wc_get_price_decimal_separator() ),
-				'thousand' => esc_attr( wc_get_price_thousand_separator() ),
-				'format' => esc_attr( str_replace(
-					array( '%1$s', '%2$s' ),
-					array( '%s', '%v' ),
-					get_woocommerce_price_format()
-				))
+				'symbol'    => get_woocommerce_currency_symbol(),
+				'decimal'   => esc_attr( wc_get_price_decimal_separator() ),
+				'thousand'  => esc_attr( wc_get_price_thousand_separator() ),
+				'format'    => esc_attr(
+					str_replace(
+						array( '%1$s', '%2$s' ),
+						array( '%s', '%v' ),
+						get_woocommerce_price_format()
+					)
+				),
 			)
 		);
 
-		// JS that takes care of all Form interations
-		// wp_register_script(
-		// 	'woocommerce-gateway-payway-payment',
-		// 	plugins_url('assets/js/frontend/payment.js', WC_PAYWAY_PLUGIN_FILE),
-		// 	array(
-		// 		'jquery',
-		// 		'wc-checkout',
-		// 		'woocommerce-gateway-payway-sdk',
-		// 		'woocommerce-accounting'
-		// 	),
-		// 	null
-		// );
+		wp_register_script(
+			'woocommerce-gateway-payway-checkout-core',
+			plugins_url( 'assets/js/frontend/payway-checkout-core.js', WC_PAYWAY_PLUGIN_FILE ),
+			array( 'jquery', 'woocommerce-gateway-payway-sdk' ),
+			$version,
+			true
+		);
 
-		// Storefront styling
+		wp_register_script(
+			'woocommerce-gateway-payway-classic-checkout',
+			plugins_url( 'assets/js/frontend/payway-classic-checkout.js', WC_PAYWAY_PLUGIN_FILE ),
+			array(
+				'jquery',
+				'wc-checkout',
+				'woocommerce-gateway-payway-sdk',
+				'woocommerce-gateway-payway-checkout-core',
+				'woocommerce-accounting',
+			),
+			$version,
+			true
+		);
+
 		wp_register_style(
 			'woocommerce-gateway-payway-styles',
-			plugins_url('assets/css/style.css', WC_PAYWAY_PLUGIN_FILE)
+			plugins_url( 'assets/css/style.css', WC_PAYWAY_PLUGIN_FILE ),
+			array(),
+			$version
 		);
 		wp_enqueue_style( 'woocommerce-gateway-payway-styles' );
 
-		// JS handling card changes
-		// wp_register_script(
-		// 	'woocommerce_gateway_payway_form_card',
-		// 	plugins_url('assets/js/card.js', WC_PAYWAY_PLUGIN_FILE),
-		// 	array('jquery', 'woocommerce-gateway-payway-sdk')
-		// );
-		// wp_enqueue_script('woocommerce_gateway_payway_form_card');
-
-		// JS that takes care of all Form interation
-		// wp_register_script(
-		// 	'woocommerce_gateway_payway_form',
-		// 	plugins_url('assets/js/form.js', WC_PAYWAY_PLUGIN_FILE),
-		// 	array('jquery', 'woocommerce-gateway-payway-sdk')
-		// );
-		// wp_enqueue_script('woocommerce_gateway_payway_form');
-
-		wp_enqueue_script('woocommerce-accounting');
-		// wp_enqueue_script('woocommerce-gateway-payway-payment');
+		wp_enqueue_script( 'woocommerce-accounting' );
+		wp_enqueue_script( 'woocommerce-gateway-payway-checkout-core' );
+		wp_enqueue_script( 'woocommerce-gateway-payway-classic-checkout' );
 	}
 
 	/**
