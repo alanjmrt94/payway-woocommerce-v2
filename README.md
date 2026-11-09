@@ -4,7 +4,7 @@ Gateway de pago para WooCommerce basado en Payway/Decidir. Es un **fork independ
 
 > No está desarrollado, respaldado ni soportado por Payway. El mantenimiento corre por cuenta de Alan Martinez ([alanjmrt94](https://github.com/alanjmrt94)).
 
-**Versión actual:** ver header `Version:` en [`wc-gateway-payway/index.php`](wc-gateway-payway/index.php) · detalle en [`CHANGELOG.md`](CHANGELOG.md) · release [v1.1.1](https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.1).
+**Versión actual:** ver header `Version:` en [`wc-gateway-payway/index.php`](wc-gateway-payway/index.php) · detalle en [`CHANGELOG.md`](CHANGELOG.md) · release [v1.1.2](https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.2).
 
 Partió del plugin original [payway-ar/plugin-woocommerce](https://github.com/payway-ar/plugin-woocommerce) **0.3.3** y lo mantiene como fork Community (misma carpeta `wc-gateway-payway` y tablas `prisma_payway_*` para migrar sin romper datos).
 

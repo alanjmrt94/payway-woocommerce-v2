@@ -26,7 +26,7 @@ Partió del perfil default y se actualizó in-place (mismos volúmenes):
 | WooCommerce | 9.4.0 | **11.2.2** (pasó por 7 → 9 → 11) |
 | PHP | 8.1 | **8.1.34** |
 | MariaDB | 10.11 | **10.11.19** |
-| Plugin | — | **1.1.1** |
+| Plugin | — | **1.1.2** |
 | HPOS | on | on |
 | Pago sandbox | — | OK pedido **#25** (Blocks / Store API, `approved`) |
 

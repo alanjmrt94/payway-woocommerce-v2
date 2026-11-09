@@ -335,6 +335,18 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			);
 		}
 
+		$lock_key = 'payway_pay_lock_' . (int) $order_id;
+		if ( get_transient( $lock_key ) ) {
+			$busy = WC_Payway_Errors::message( WC_Payway_Errors::PAYMENT_IN_PROGRESS );
+			wc_add_notice( __( 'Payment error: ', 'wc-gateway-payway' ) . $busy, 'error' );
+			return array(
+				'result'   => 'failure',
+				'refresh'  => true,
+				'messages' => $busy,
+			);
+		}
+		set_transient( $lock_key, 1, 30 );
+
 		try {
 			$builder = new WC_Payway_Request_Builder();
 			$builder->set_checkout_form_data( WC_Payway_Checkout_Request::get_raw_payment_fields() );
@@ -443,6 +455,8 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 				'refresh'  => true,
 				'messages' => $friendly,
 			);
+		} finally {
+			delete_transient( $lock_key );
 		}
 	}
 

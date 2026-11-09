@@ -5,6 +5,25 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [1.1.2] — 2026-11-09
+
+### Fixed
+
+- Cybersource: montos de `purchase_totals` en unidades mayores (un solo ×100 en el SDK); line items en minor units sin doble strip/escala.
+- Idempotencia: `site_transaction_id` estable `payway-{order_id}` + lock transient 30s en `process_payment`.
+- Checkout: rechazos tipados desde `status_details.error.type` (`invalid_card` → `PPC_CARD_001`; emisor → `PPC_PAY_002`).
+
+### Changed
+
+- Versión del plugin a **1.1.2**.
+- Cache de promociones aplicables (transient por día, invalidación en CRUD banks/cards/promos; filtro `payway_skip_promo_cache`).
+
+### UAT
+
+- Lab `recommended`: pedido **#28** approved / CS green / STID `payway-28`; pedido **#29** failed con UI tipada (John Doe).
+
+---
+
 ## [1.1.1] — 2026-11-09
 
 ### Fixed
@@ -102,6 +121,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[1.1.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.2
 [1.1.1]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.1
 [1.1.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.0
 [1.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.0.0

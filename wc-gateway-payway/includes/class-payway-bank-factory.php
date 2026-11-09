@@ -120,6 +120,10 @@ class WC_Payway_Bank_Factory {
 			array( '%s', '%s' )
 		);
 
+		if ( class_exists( 'WC_Payway_Promotion_Factory' ) ) {
+			WC_Payway_Promotion_Factory::invalidate_applicable_promotions_cache();
+		}
+
 		return $wpdb->insert_id;
 	}
 
@@ -144,10 +148,14 @@ class WC_Payway_Bank_Factory {
 			throw new Exception( $update->get_error_message() );
 		}
 
+		if ( class_exists( 'WC_Payway_Promotion_Factory' ) ) {
+			WC_Payway_Promotion_Factory::invalidate_applicable_promotions_cache();
+		}
+
 		// When record exists but isn't updated (cause same data has been posted)
 		// $wpdb->update() returns a zero integer, we need to normalize our response
 		// to avoid showing an error when everything went OK but nothing gets saved
-		return is_numeric($update)
+		return is_numeric( $update )
 			? true
 			: false;
 	}
@@ -160,11 +168,16 @@ class WC_Payway_Bank_Factory {
 	public static function delete_bank( $bank_id ) {
 		global $wpdb;
 
-		return (bool) $wpdb->delete(
+		$deleted = (bool) $wpdb->delete(
 			self::get_table_name(),
-			[ 'id' => $bank_id ],
-			[ '%d' ]
+			array( 'id' => $bank_id ),
+			array( '%d' )
 		);
+		if ( $deleted && class_exists( 'WC_Payway_Promotion_Factory' ) ) {
+			WC_Payway_Promotion_Factory::invalidate_applicable_promotions_cache();
+		}
+
+		return $deleted;
 	}
 
 	/**

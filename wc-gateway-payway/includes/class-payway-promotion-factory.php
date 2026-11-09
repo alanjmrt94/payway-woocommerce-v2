@@ -162,7 +162,32 @@ class WC_Payway_Promotion_Factory {
 	}
 
 	/**
-	 * Returns all promotions that should be used to Checkout
+	 * Transient key for applicable promotions (keyed by weekday).
+	 *
+	 * @param int|null $day
+	 * @return string
+	 */
+	public static function get_applicable_promotions_cache_key( $day = null ) {
+		if ( null === $day ) {
+			$day = wc_payway_get_current_day_number();
+		}
+		return 'payway_applicable_promos_d' . (int) $day;
+	}
+
+	/**
+	 * Drop cached applicable-promotion queries (all weekdays).
+	 *
+	 * @return void
+	 */
+	public static function invalidate_applicable_promotions_cache() {
+		for ( $day = 0; $day <= 7; $day++ ) {
+			delete_transient( self::get_applicable_promotions_cache_key( $day ) );
+		}
+	}
+
+	/**
+	 * Returns all promotions that should be used at Checkout.
+	 * `applicable_days` is filtered in SQL via find_in_set.
 	 *
 	 * @return (array[stdClass]|object|null) database query results
 	 */
@@ -173,12 +198,20 @@ class WC_Payway_Promotion_Factory {
 			WC_Payway_Activator::ensure_core_schema();
 		}
 
-		$promotion_table = self::get_promotion_table_name();
-		$bank_table = self::get_banks_table_name();
-		$card_table = self::get_cards_table_name();
-
-		//TODO: remains `applicable_days` implementation filter
 		$current_day = wc_payway_get_current_day_number();
+		$cache_key   = self::get_applicable_promotions_cache_key( $current_day );
+		$skip_cache  = (bool) apply_filters( 'payway_skip_promo_cache', false );
+
+		if ( ! $skip_cache ) {
+			$cached = get_transient( $cache_key );
+			if ( false !== $cached && is_array( $cached ) ) {
+				return $cached;
+			}
+		}
+
+		$promotion_table = self::get_promotion_table_name();
+		$bank_table      = self::get_banks_table_name();
+		$card_table      = self::get_cards_table_name();
 
 		$query = "SELECT promos.*,
 			bank.name as 'bank_name',
@@ -202,7 +235,16 @@ class WC_Payway_Promotion_Factory {
 			promos.card_id ASC;
 		";
 
-		return $wpdb->get_results( $query );
+		$results = $wpdb->get_results( $query );
+		if ( ! is_array( $results ) ) {
+			$results = array();
+		}
+
+		if ( ! $skip_cache ) {
+			set_transient( $cache_key, $results, 5 * MINUTE_IN_SECONDS );
+		}
+
+		return $results;
 	}
 
 	/**
@@ -310,6 +352,8 @@ class WC_Payway_Promotion_Factory {
 			array( '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%d', '%s', '%s' )
 		);
 
+		self::invalidate_applicable_promotions_cache();
+
 		return $wpdb->insert_id;
 	}
 
@@ -360,10 +404,12 @@ class WC_Payway_Promotion_Factory {
 			throw new Exception( $update->get_error_message() );
 		}
 
+		self::invalidate_applicable_promotions_cache();
+
 		// When record exists but isn't updated (cause same data has been posted)
 		// $wpdb->update() returns a zero integer, we need to normalize our response
 		// to avoid showing an error when everything went OK but nothing gets saved
-		return is_numeric($update)
+		return is_numeric( $update )
 			? true
 			: false;
 	}
@@ -377,11 +423,16 @@ class WC_Payway_Promotion_Factory {
 	public static function delete_promotion( $record_id ) {
 		global $wpdb;
 
-		return (bool) $wpdb->delete(
+		$deleted = (bool) $wpdb->delete(
 			self::get_promotion_table_name(),
-			[ 'id' => $record_id ],
-			[ '%d' ]
+			array( 'id' => $record_id ),
+			array( '%d' )
 		);
+		if ( $deleted ) {
+			self::invalidate_applicable_promotions_cache();
+		}
+
+		return $deleted;
 	}
 
 	/**

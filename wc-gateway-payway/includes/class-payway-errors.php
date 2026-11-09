@@ -44,6 +44,8 @@ class WC_Payway_Errors {
 	const VALIDATION_PAYMENT_METHOD = 'PPC_VAL_005';
 	const PROCESSING                = 'PPC_PAY_001';
 	const ISSUER_REJECTED           = 'PPC_PAY_002';
+	const PAYMENT_IN_PROGRESS       = 'PPC_PAY_003';
+	const INVALID_CARD              = 'PPC_CARD_001';
 	const CS_ADDRESS                = 'PPC_CS_001';
 	const CS_CUSTOMER_DATA          = 'PPC_CS_002';
 	const COMPATIBILITY             = 'PPC_COMPAT_001';
@@ -68,6 +70,8 @@ class WC_Payway_Errors {
 			self::VALIDATION_PAYMENT_METHOD => __( 'The card identifier (payment_method_id) is not valid for this merchant.', 'wc-gateway-payway' ),
 			self::PROCESSING                => __( 'An error occurred while processing the payment.', 'wc-gateway-payway' ),
 			self::ISSUER_REJECTED           => __( 'The payment was declined by the issuer or the processor.', 'wc-gateway-payway' ),
+			self::PAYMENT_IN_PROGRESS       => __( 'A payment is already being processed for this order. Please wait a moment and try again.', 'wc-gateway-payway' ),
+			self::INVALID_CARD              => __( 'The card is invalid or not enabled for this merchant. Please try another card.', 'wc-gateway-payway' ),
 			self::CS_ADDRESS                => __( 'We could not validate your billing or shipping address for fraud prevention. Please complete both addresses (street and number) and try again.', 'wc-gateway-payway' ),
 			self::CS_CUSTOMER_DATA          => __( 'Some checkout details required for fraud prevention are missing or invalid. Please review your contact and address information and try again.', 'wc-gateway-payway' ),
 			self::COMPATIBILITY             => __( 'Environment incompatibility detected. Check the plugin version matrix.', 'wc-gateway-payway' ),
@@ -93,6 +97,9 @@ class WC_Payway_Errors {
 			'malformed_request_error' => self::GATEWAY_COMM,
 			'not_found_error'         => self::GATEWAY_COMM,
 			'api_error'               => self::GATEWAY_COMM,
+			'invalid_card'            => self::INVALID_CARD,
+			'card_declined'           => self::ISSUER_REJECTED,
+			'rejected'                => self::ISSUER_REJECTED,
 			401                       => self::AUTH_CREDENTIALS,
 			402                       => self::VALIDATION_PAYMENT_METHOD,
 		);
@@ -122,8 +129,16 @@ class WC_Payway_Errors {
 			return self::message( self::PROCESSING );
 		}
 
+		// Shape: status_details.error { type, reason... }
+		if ( ! empty( $raw['type'] ) && is_string( $raw['type'] ) ) {
+			return self::message( self::from_gateway( $raw['type'] ) );
+		}
+
 		// Shape: [ 'Gateway Error', '[{"code":"invalid_param","param":"fraud_detection..."}]' ]
 		foreach ( $raw as $item ) {
+			if ( is_array( $item ) && ! empty( $item['type'] ) && is_string( $item['type'] ) ) {
+				return self::message( self::from_gateway( $item['type'] ) );
+			}
 			if ( ! is_string( $item ) ) {
 				continue;
 			}
@@ -132,6 +147,10 @@ class WC_Payway_Errors {
 				$raw = $maybe;
 				break;
 			}
+		}
+
+		if ( is_array( $raw ) && ! empty( $raw['type'] ) && is_string( $raw['type'] ) ) {
+			return self::message( self::from_gateway( $raw['type'] ) );
 		}
 
 		// Shape: validation_errors list

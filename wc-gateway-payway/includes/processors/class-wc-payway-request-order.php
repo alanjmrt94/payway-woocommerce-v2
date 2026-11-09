@@ -91,12 +91,22 @@ class WC_Payway_Request_Order_Processor implements WC_Payway_Request_Processor_I
 	}
 
 	/**
-	 * Returns the site transaction id for the current Order
+	 * Stable site transaction id for Decidir dedupe across retries of the same order.
+	 * Reuses a previously stored value when present; otherwise persists `payway-{order_id}`.
 	 *
 	 * @param WC_Order $order
 	 * @return string
 	 */
 	private function get_site_transaction_id( $order ) {
-		return (string) $order->get_order_number() . '-' . time();
+		$order_id = (int) $order->get_id();
+		$existing = WC_Payway_Meta::get_order_site_transaction_id( $order_id, true );
+		if ( $existing ) {
+			return (string) $existing;
+		}
+
+		$stid = 'payway-' . $order_id;
+		WC_Payway_Meta::set_order_site_transaction_id( $order_id, $stid );
+
+		return $stid;
 	}
 }

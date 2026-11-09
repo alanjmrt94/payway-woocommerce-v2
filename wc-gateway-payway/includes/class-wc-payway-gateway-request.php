@@ -310,10 +310,20 @@ class WC_Payway_Request {
 		$error_messages = array();
 		$error_codes = array();
 
-		if (isset($data['status_details']['error']['type'])) {
+		if ( isset( $data['status_details']['error']['type'] ) ) {
 			$is_valid = false;
-			$error_messages[] = $data['status_details']['error']['reason']['description'];
-			$error_codes[] = $data['status_details']['error']['reason']['id'];
+			$error_type = (string) $data['status_details']['error']['type'];
+			// Structured payload for WC_Payway_Errors::format_gateway_failure (shopper-safe mapping).
+			$error_messages[] = array(
+				'type'        => $error_type,
+				'description' => isset( $data['status_details']['error']['reason']['description'] )
+					? (string) $data['status_details']['error']['reason']['description']
+					: '',
+			);
+			$error_codes[] = $error_type;
+			if ( isset( $data['status_details']['error']['reason']['id'] ) ) {
+				$error_codes[] = $data['status_details']['error']['reason']['id'];
+			}
 		}
 
 		return $this->validator_create_result(
