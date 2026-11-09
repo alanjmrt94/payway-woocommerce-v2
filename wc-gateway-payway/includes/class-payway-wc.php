@@ -157,6 +157,7 @@ final class PaywayWC {
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-default-catalog.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-setup-status.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-checkout-request.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/blocks/class-payway-blocks-bootstrap.php';
 
 		if ( is_admin() ) {
 			require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-menu.php';
@@ -211,6 +212,8 @@ final class PaywayWC {
 
 		// adds Payway into the Payment Gateways list
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'payway_add_gateway_class'));
+
+		WC_Payway_Blocks_Bootstrap::init();
 
 		// initialize dependencies
 		add_action( 'init', array( $this, 'init' ), 0 );
