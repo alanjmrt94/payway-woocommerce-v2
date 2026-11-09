@@ -36,17 +36,6 @@ interface WC_Payway_Activator_Interface {
 	const WC_PAYWAY_VERSION = 'payway_gateway_version';
 
 	/**
-	 * Plugin version
-	 *
-	 * When updating, this must be also updated in the `index.php` file metadata
-	 * otherwise, WordPress won't detect the version update
-	 *
-	 * @see wc-gateway-payway/index.php
-	 * @var string
-	 */
-	const WC_PAYWAY_VERSION_VALUE = '1.1.0';
-
-	/**
 	 * @var string
 	 */
 	const WC_PAYWAY_SDK_VERSION = 'payway_gateway_sdk_version';

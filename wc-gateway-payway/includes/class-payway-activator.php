@@ -121,9 +121,12 @@ class WC_Payway_Activator implements WC_Payway_Activator_Interface {
 
 		static::ensure_core_schema();
 
-		$current_version = get_option( 'payway_gateway_version', false );
+		$codebase_version = function_exists( 'wc_payway_get_version_in_codebase' )
+			? wc_payway_get_version_in_codebase()
+			: '0.0.0';
+		$current_version  = get_option( 'payway_gateway_version', false );
 		if ( ! $current_version
-			|| version_compare( (string) $current_version, static::WC_PAYWAY_VERSION_VALUE, '<' )
+			|| version_compare( (string) $current_version, $codebase_version, '<' )
 		) {
 			static::update_plugin_db_versions();
 		}
@@ -358,9 +361,13 @@ class WC_Payway_Activator implements WC_Payway_Activator_Interface {
 	 * @return void
 	 */
 	public static function update_plugin_db_versions() {
+		$plugin_version = function_exists( 'wc_payway_get_version_in_codebase' )
+			? wc_payway_get_version_in_codebase()
+			: '0.0.0';
+
 		update_option(
 			static::CONFIG_OPTION_GATEWAY_VERSION_NAME,
-			static::WC_PAYWAY_VERSION_VALUE
+			$plugin_version
 		);
 
 		update_option(

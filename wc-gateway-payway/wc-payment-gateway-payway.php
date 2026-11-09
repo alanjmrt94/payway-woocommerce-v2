@@ -593,7 +593,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	private function enqueueStorefrontScripts() {
-		$version = defined( 'WC_PAYWAY_PLUGIN_VERSION' ) ? WC_PAYWAY_PLUGIN_VERSION : '1.1.0';
+		$version = function_exists( 'wc_payway_asset_version' ) ? wc_payway_asset_version() : '0.0.0';
 
 		wp_register_script(
 			'woocommerce-gateway-payway-sdk',

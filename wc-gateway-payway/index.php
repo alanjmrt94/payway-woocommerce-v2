@@ -3,7 +3,7 @@
  * Plugin Name: Payway Payment Community
  * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
  * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Alan Martinez
  * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
@@ -124,12 +124,35 @@ function wc_payway_get_sdk_version() {
 }
 
 /**
- * Returns the version declared in the codebase
+ * Returns the plugin version from the `Version:` header in this file.
+ * Single source of truth for bumps (WordPress + Activator + asset cache-bust).
  *
  * @return string
  */
 function wc_payway_get_version_in_codebase() {
-	return WC_Payway_Activator_Interface::WC_PAYWAY_VERSION_VALUE;
+	static $version = null;
+	if ( null !== $version ) {
+		return $version;
+	}
+
+	$file = defined( 'WC_PAYWAY_PLUGIN_FILE' ) ? WC_PAYWAY_PLUGIN_FILE : __FILE__;
+	$data = get_file_data( $file, array( 'Version' => 'Version' ), 'plugin' );
+	$version = ! empty( $data['Version'] ) ? (string) $data['Version'] : '0.0.0';
+
+	return $version;
+}
+
+/**
+ * Version string for enqueued CSS/JS (always the codebase header, not the DB option).
+ *
+ * @return string
+ */
+function wc_payway_asset_version() {
+	if ( defined( 'WC_PAYWAY_PLUGIN_VERSION_CODEBASE' ) && WC_PAYWAY_PLUGIN_VERSION_CODEBASE ) {
+		return (string) WC_PAYWAY_PLUGIN_VERSION_CODEBASE;
+	}
+
+	return wc_payway_get_version_in_codebase();
 }
 
 /**

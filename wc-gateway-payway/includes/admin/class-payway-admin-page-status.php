@@ -48,7 +48,7 @@ class WC_Payway_Admin_Navigation_Page_Status {
 			'wc-payway-admin',
 			plugins_url( 'assets/css/style-admin.css', WC_PAYWAY_PLUGIN_FILE ),
 			array( 'woocommerce_admin_styles' ),
-			defined( 'WC_PAYWAY_PLUGIN_VERSION' ) ? WC_PAYWAY_PLUGIN_VERSION : '1.1.0'
+			function_exists( 'wc_payway_asset_version' ) ? wc_payway_asset_version() : '0.0.0'
 		);
 
 		return self::output();

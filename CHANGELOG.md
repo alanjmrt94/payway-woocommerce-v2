@@ -12,6 +12,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](http
 - Checkout clásico: el display de cuotas refresca el `cart_total` en `updated_checkout` (shipping / cupones) vía campo hidden + fragmento WooCommerce + rebind del formulario ([#64](https://github.com/payway-ar/plugin-woocommerce/issues/64) residual display).
 - Blocks: al cambiar el total del carrito se limpian las cuotas seleccionadas para recalcular montos.
 
+### Changed
+
+- Versión del plugin a **1.1.1** (única fuente: header `Version:` en `index.php`; Activator y assets la leen con `get_file_data`).
+- README del plugin: Blocks ya soportado; nota de refresh de cuotas en clásico.
 
 ---
 
