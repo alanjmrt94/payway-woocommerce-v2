@@ -602,3 +602,608 @@ msgstr "Gracias por su pago. Su transaccion ha sido completada."
 
 #~ msgid "Costo de Financiacion"
 #~ msgstr "Costo de Financiacion"
+
+msgid "(required when expiry is enabled)"
+msgstr "(required si hay vencimiento)"
+
+msgid "<strong>To Date</strong> is required when the promotion has an expiry date"
+msgstr "<strong>To Date</strong> es un campo requerido cuando la promoción tiene vencimiento"
+
+msgid "Action"
+msgstr "Acción"
+
+msgid "Add default configuration"
+msgstr "Agregar configuración por defecto"
+
+msgid "Add selected cards"
+msgstr "Agregar tarjetas seleccionadas"
+
+msgid "An error occurred while processing the payment."
+msgstr "Ocurrió un error al procesar el pago."
+
+msgid "Apply recommended settings (WC + gateway)"
+msgstr "Aplicar config. recomendada (WC + gateway)"
+
+msgid "At least one bank is required (e.g. “Todos”)."
+msgstr "Obligatorio al menos un banco (p. ej. «Todos»)."
+
+msgid "At least one card with a valid id_sps is required."
+msgstr "Obligatorio al menos una tarjeta con id_sps válido."
+
+msgid "Authentication error with Payway. Verify the keys for the active environment."
+msgstr "Error de autenticación con Payway. Verificá las claves del ambiente activo."
+
+msgid "Availability diagnosis"
+msgstr "Diagnóstico de disponibilidad"
+
+msgid "Bank “Todos” is available."
+msgstr "Banco «Todos» disponible."
+
+msgid "Banks/cards/promos tables and no_expiry column are OK (self-heal enabled)."
+msgstr "Tablas bancos/tarjetas/promos y columna no_expiry OK (self-heal activo)."
+
+msgid "Blocks checkout was not detected (or could not be determined). Prefer the classic shortcode."
+msgstr "No se detectó checkout Blocks (o no se pudo determinar). Preferí el shortcode clásico."
+
+msgid "Card token was not received. Reload checkout and try again."
+msgstr "No se recibió el token de la tarjeta. Recargá el checkout e intentá de nuevo."
+
+msgid "Card with SPS ID %d is missing. Add it before creating the promotion."
+msgstr "Falta la tarjeta con ID SPS %d. Agregala antes de crear la promoción."
+
+msgid "Cards: %1$d created, %2$d already existed."
+msgstr "Tarjetas: %1$d creadas, %2$d ya existían."
+
+msgid "Change environment"
+msgstr "Cambiar ambiente"
+
+msgid "Checklist aligned with the operations manual: required items for the method to appear, plus recommended settings (Cybersource, title, Sandbox, debug). API keys are set only under WooCommerce → Payments."
+msgstr "Checklist alineado al manual operativo: lo obligatorio para que el medio aparezca, más lo recomendado (Cybersource, título, Sandbox, debug). Las claves de API se cargan solo en WooCommerce → Pagos."
+
+msgid "Checkout description"
+msgstr "Descripción en checkout"
+
+msgid "Checkout title"
+msgstr "Título en checkout"
+
+msgid "Checkout title is missing."
+msgstr "Falta el título visible en el checkout."
+
+msgid "Classic checkout"
+msgstr "Checkout clásico"
+
+msgid "Classic checkout (not Blocks)."
+msgstr "Checkout clásico (no Blocks)."
+
+msgid "Communication error with Payway."
+msgstr "Error de comunicación con Payway."
+
+msgid "Configuration checklist"
+msgstr "Checklist de configuración"
+
+msgid "Configure CS"
+msgstr "Configurar CS"
+
+msgid "Configure debug"
+msgstr "Configurar debug"
+
+msgid "Configure in WooCommerce"
+msgstr "Configurar en WooCommerce"
+
+msgid "Core schema (tables + no_expiry)"
+msgstr "Schema core (tablas + no_expiry)"
+
+msgid "Could not connect to the payment service. Try again later."
+msgstr "No se pudo conectar con el servicio de pagos. Reintentá más tarde."
+
+msgid "Could not create bank Todos."
+msgstr "No se pudo crear el banco Todos."
+
+msgid "Could not create card %s."
+msgstr "No se pudo crear la tarjeta %s."
+
+msgid "Could not create promotion %s."
+msgstr "No se pudo crear la promoción %s."
+
+msgid "Create bank Todos"
+msgstr "Crear banco Todos"
+
+msgid "Create defaults"
+msgstr "Crear defaults"
+
+msgid "Mini-assistant: pick cards and installment periods, then create one default promotion per selected card (active, no expiry, bank “Todos”). Debit/prepaid/Maestro always get 1 installment."
+msgstr "Mini-asistente: elegí tarjetas y cuotas, y creá una promoción default por cada tarjeta seleccionada (activa, sin vencimiento, banco «Todos»). Débito/prepaga/Maestro siempre quedan en 1 cuota."
+
+msgid "1. Cards"
+msgstr "1. Tarjetas"
+
+msgid "2. Installment periods (credit)"
+msgstr "2. Cuotas (crédito)"
+
+msgid "3. MiPyME (optional)"
+msgstr "3. MiPyME (opcional)"
+
+msgid "Select all"
+msgstr "Seleccionar todas"
+
+msgid "Select none"
+msgstr "Seleccionar ninguna"
+
+msgid "Each selected period becomes a fee plan inside the same promotion for that card. Debit/prepaid cards ignore this list and keep a single installment."
+msgstr "Cada cuota marcada se agrega como plan dentro de la misma promoción de esa tarjeta. Débito/prepaga ignoran esta lista y quedan en 1 cuota."
+
+msgid "%d installment(s)"
+msgstr "%d cuota(s)"
+
+msgid "Create promotions for selected cards"
+msgstr "Crear promociones para las tarjetas seleccionadas"
+
+msgid "Cards covered by an applicable promotion"
+msgstr "Tarjetas cubiertas por una promoción aplicable"
+
+msgid "Every configured card has an active promotion with installment plans applicable today."
+msgstr "Todas las tarjetas configuradas tienen una promoción activa con planes de cuotas aplicable hoy."
+
+msgid "No cards configured yet."
+msgstr "Todavía no hay tarjetas configuradas."
+
+msgid "These cards will not appear at checkout because they have no applicable promotion (or no fee plans): %s"
+msgstr "Estas tarjetas no van a aparecer en el checkout porque no tienen una promoción aplicable (o no tienen fee plans): %s"
+
+msgid "Create promotions"
+msgstr "Crear promociones"
+
+msgid "Use Setup → Create promotions for selected cards, or add a promotion under Payway → Promotions."
+msgstr "Usá Setup → Crear promociones para las tarjetas seleccionadas, o agregá una promoción en Payway → Promociones."
+
+msgid "Some cards never show in the bank/card dropdown even though they exist under Payway → Cards."
+msgstr "Algunas tarjetas no aparecen en el desplegable de banco/tarjeta aunque existan en Payway → Tarjetas."
+
+msgid "Add cards + promotions (full default)"
+msgstr "Agregar tarjetas + promociones (default completo)"
+
+msgid "Select at least one installment period."
+msgstr "Seleccioná al menos una cuota."
+
+msgid "Defaults: %1$d new cards, %2$d promotions created, %3$d promotions already existed (periods: %4$s)."
+msgstr "Defaults: %1$d tarjetas nuevas, %2$d promociones creadas, %3$d promociones ya existían (cuotas: %4$s)."
+
+msgid "Creates bank Todos, adds the selected cards, and generates one default promotion per card (credit: installments 1/3/6/9/12/18; debit/prepaid/Maestro: 1 installment), active and with no expiry."
+msgstr "Crea el banco Todos, agrega las tarjetas marcadas y genera una promoción default por tarjeta (crédito: cuotas 1/3/6/9/12/18; débito/prepaga/Maestro: 1 cuota), activas y sin vencimiento."
+
+msgid "MiPyME installments (3 → send 13, 6 → send 16)"
+msgstr "Cuotas MiPyME (3 → envía 13, 6 → envía 16)"
+
+msgid "Requires MiPyME to be enabled in Mi Payway and the merchant category (rubro / MCC) to be eligible. If either is missing, Decidir may reject those installment codes."
+msgstr "Requiere que MiPyME esté habilitado en Mi Payway y que el rubro (MCC) del comercio también esté habilitado. Si falta alguno, Decidir puede rechazar esos códigos de cuota."
+
+msgid "Currency %s is not supported. Use ARS or USD."
+msgstr "Moneda %s no soportada. Usá ARS o USD."
+
+msgid "Currency decimals = 2"
+msgstr "Decimales de moneda = 2"
+
+msgid "Currency options"
+msgstr "Opciones de moneda"
+
+msgid "Current currency: %s."
+msgstr "Moneda actual: %s."
+
+msgid "Current decimals: %d. The manual requires exactly 2."
+msgstr "Decimales actuales: %d. El manual exige exactamente 2."
+
+msgid "Cybersource disabled. The manual enables it by default; turn it off only if the merchant does not use it."
+msgstr "Cybersource deshabilitado. El manual lo trae activo por defecto; desactivalo solo si el comercio no lo usa."
+
+msgid "Cybersource enabled (manual / merchant onboarding default)."
+msgstr "Cybersource habilitado (default del manual / alta de comercio)."
+
+msgid "Cybersource: billing address on checkout"
+msgstr "Cybersource: dirección de facturación en el checkout"
+
+msgid "Cybersource: shipping address on checkout"
+msgstr "Cybersource: dirección de envío en el checkout"
+
+msgid "Cybersource requires a visible billing address step on checkout."
+msgstr "Cybersource requiere un paso visible de dirección de facturación en el checkout."
+
+msgid "Cybersource requires a visible shipping address step on checkout."
+msgstr "Cybersource requiere un paso visible de dirección de envío en el checkout."
+
+msgid "Billing address step/fields are present on checkout."
+msgstr "El paso/campos de dirección de facturación están presentes en el checkout."
+
+msgid "Shipping address step/fields are present on checkout."
+msgstr "El paso/campos de dirección de envío están presentes en el checkout."
+
+msgid "Skipped (Cybersource is off)."
+msgstr "Omitido (Cybersource está desactivado)."
+
+msgid "Blocks: keep the Billing address block. Classic: do not remove billing checkout fields."
+msgstr "Blocks: mantené el bloque de dirección de facturación. Clásico: no quites los campos de facturación del checkout."
+
+msgid "Blocks: keep the Shipping address block. Classic: avoid “Force shipping to customer billing address” / hiding shipping fields when Cybersource is on."
+msgstr "Blocks: mantené el bloque de dirección de envío. Clásico: evitá «Forzar el envío a la dirección de facturación del cliente» / ocultar campos de envío si Cybersource está activo."
+
+msgid "Payment may fail fraud-prevention address validation."
+msgstr "El pago puede fallar la validación de domicilio de prevención de fraude."
+
+msgid "We could not validate your billing or shipping address for fraud prevention. Please complete both addresses (street and number) and try again."
+msgstr "No pudimos validar tu dirección de facturación o de envío para la prevención de fraude. Completá ambas direcciones (calle y número) e intentá de nuevo."
+
+msgid "Some checkout details required for fraud prevention are missing or invalid. Please review your contact and address information and try again."
+msgstr "Faltan o son inválidos algunos datos del checkout requeridos para la prevención de fraude. Revisá tu información de contacto y dirección e intentá de nuevo."
+
+msgid "The payment was declined by the issuer or the processor."
+msgstr "El pago fue rechazado por el emisor o la entidad procesadora."
+
+msgid "Unknown error while processing the payment."
+msgstr "Error desconocido al procesar el pago."
+
+msgid "Debug is off (acceptable in production if there are no incidents)."
+msgstr "Debug apagado (aceptable en producción si no hay incidentes)."
+
+msgid "Debug is off in Sandbox: enable it for troubleshooting."
+msgstr "Debug apagado en Sandbox: conviene activarlo para diagnosticar."
+
+msgid "Debug is on (logs under WooCommerce → Status → Logs)."
+msgstr "Debug activo (logs en WooCommerce → Estado → Registros)."
+
+msgid "Default catalog setup"
+msgstr "Configuración por defecto (catálogo)"
+
+msgid "Defaults: %1$d new cards, %2$d promotions created, %3$d promotions already existed."
+msgstr "Defaults: %1$d tarjetas nuevas, %2$d promociones creadas, %3$d promociones ya existían."
+
+msgid "Description is set."
+msgstr "Descripción configurada."
+
+msgid "Detail"
+msgstr "Detalle"
+
+msgid "Do not validate end date (recommended for installment plans)."
+msgstr "No validar fecha de fin (recomendado para planes de cuotas)."
+
+msgid "Edit description"
+msgstr "Editar descripción"
+
+msgid "Edit title"
+msgstr "Editar título"
+
+msgid "Enter keys"
+msgstr "Cargar claves"
+
+msgid "Environment incompatibility detected. Check the plugin version matrix."
+msgstr "Incompatibilidad de entorno detectada. Revisá la matriz de versiones del plugin."
+
+msgid "Fork author: Alan Martinez (alanjmrt94)."
+msgstr "Autor del fork: Alan Martinez (alanjmrt94)."
+
+msgid "General settings"
+msgstr "Ajustes generales"
+
+msgid "Go to Setup"
+msgstr "Ir a Instalación"
+
+msgid "Go to WooCommerce logs"
+msgstr "Ir a logs de WooCommerce"
+
+msgid "If something fails: Payway → Status."
+msgstr "Si algo falla: Payway → Status."
+
+msgid "Incomplete schema. Auto-heal runs on each request; reload Setup."
+msgstr "Schema incompleto. Se intenta autocorregir en cada request; recargá Instalación."
+
+msgid "Internal plugin error. Contact the site administrator."
+msgstr "Error interno del plugin. Contactá al administrador del sitio."
+
+msgid "Invalid nonce. The bank was not deleted."
+msgstr "Nonce inválido. No se eliminó el banco."
+
+msgid "Invalid nonce. The card was not deleted."
+msgstr "Nonce inválido. No se eliminó la tarjeta."
+
+msgid "Invalid nonce. The promotion was not deleted."
+msgstr "Nonce inválido. No se eliminó la promoción."
+
+msgid "Logs are integrated with WooCommerce. Find them under <strong>WooCommerce / Status / Logs</strong>. Look for `payway-gateway-xxx.log` files."
+msgstr "Los logs quedan integrados con WooCommerce. Vas a encontrarlos en <strong>WooCommerce / Estado / Registros</strong>. Buscá archivos `payway-gateway-xxx.log`."
+
+msgid "Missing"
+msgstr "Falta"
+
+msgid "No configuration blockers detected: the method should be able to appear on classic checkout (if the rest of the site is OK)."
+msgstr "No se detectaron bloqueos de configuración: el medio debería poder mostrarse en checkout clásico (si el resto del sitio está OK)."
+
+msgid "No description (recommended)."
+msgstr "Sin descripción (recomendado completar)."
+
+msgid "No expiry"
+msgstr "Sin vencimiento"
+
+msgid "Note"
+msgstr "Nota"
+
+msgid "Number of decimals = 2 (required by the manual)."
+msgstr "Número de decimales = 2 (requerido por el manual)."
+
+msgid "Payment method configuration is incomplete. Check credentials and promotions."
+msgstr "La configuración del medio de pago está incompleta. Revisá credenciales y promociones."
+
+msgid "Payment method enabled"
+msgstr "Método de pago habilitado"
+
+msgid "Payway is enabled under WooCommerce → Payments."
+msgstr "Payway está habilitado en WooCommerce → Pagos."
+
+msgid "Payway → bank “Todos” (or specific banks) + cards with id_sps + one active promotion per card with installment plans."
+msgstr "Payway → banco «Todos» (o bancos puntuales) + tarjetas con id_sps + una promoción activa por tarjeta con planes de cuotas."
+
+msgid "Plans"
+msgstr "Planes"
+
+msgid "Production credentials"
+msgstr "Credenciales Producción"
+
+msgid "Promotion applicable today"
+msgstr "Promoción aplicable hoy"
+
+msgid "Promotion with installment plans"
+msgstr "Promoción con planes de cuotas"
+
+msgid "Promotions must include plans (period / coefficient / value to send). Debit = 1 installment."
+msgstr "Las promociones deben tener planes (periodo / coeficiente / valor a enviar). Débito = 1 cuota."
+
+msgid "Quick steps"
+msgstr "Mini paso a paso"
+
+msgid "Recommended"
+msgstr "Recomendado"
+
+msgid "Recommended (manual)"
+msgstr "Recomendado (manual)"
+
+msgid "Recommended settings applied (%1$d changes): %2$s. API keys were not modified."
+msgstr "Configuración recomendada aplicada (%1$d cambios): %2$s. Las API keys no se modifican."
+
+msgid "Request them from your account manager / portal. For CI tests you can use ci/.env.apikeys."
+msgstr "Pedilas al agente de cuentas / portal. En CI de prueba podés usar ci/.env.apikeys."
+
+msgid "Required"
+msgstr "Obligatorio"
+
+msgid "Required checklist"
+msgstr "Checklist obligatorio"
+
+msgid "Requirement"
+msgstr "Requisito"
+
+msgid "Retry"
+msgstr "Reintentar"
+
+msgid "SPS ID %d is not in the catalog."
+msgstr "ID SPS %d no está en el catálogo."
+
+msgid "Sandbox credentials"
+msgstr "Credenciales Sandbox"
+
+msgid "Sandbox is off: production keys are used."
+msgstr "Sandbox desactivado: se usan claves de Producción."
+
+msgid "Sandbox is on (test environment)."
+msgstr "Sandbox activo (entorno de pruebas)."
+
+msgid "Sandbox mode"
+msgstr "Modo Sandbox"
+
+msgid "Select a valid bank, card, and installments."
+msgstr "Seleccioná banco, tarjeta y cuotas válidas."
+
+msgid "Select at least one card for promotions."
+msgstr "Seleccioná al menos una tarjeta para las promociones."
+
+msgid "Select at least one card."
+msgstr "Seleccioná al menos una tarjeta."
+
+msgid "Sets Enabled, Sandbox, Cybersource, Debug, default title/description, and decimals=2. Does not change Site Id or keys."
+msgstr "Pone Enabled, Sandbox, Cybersource, Debug, título/descripción por defecto y decimales=2. No toca Site Id ni keys."
+
+msgid "Setup"
+msgstr "Instalación"
+
+msgid "Site Id / Public / Private for the active environment are missing. This plugin does not invent keys."
+msgstr "Faltan Site Id / Public / Private del ambiente activo (Sandbox o Producción). No se inventan desde el plugin."
+
+msgid "Site Id, Public Key and Private Key for the active environment are set."
+msgstr "Site Id, Public Key y Private Key del ambiente activo están cargadas."
+
+msgid "Status → Enabled is missing. The manual requires it for the method to appear."
+msgstr "Falta Status → Enabled. El manual lo marca como obligatorio para ver el medio."
+
+msgid "Store currency"
+msgstr "Moneda de la tienda"
+
+msgid "Suggested for testing: Debug = yes."
+msgstr "Propuesta en pruebas: Debug = sí."
+
+msgid "Suggested for testing: Sandbox = yes. For live production: disable Sandbox and load production keys."
+msgstr "Propuesta para pruebas: Sandbox = sí. En producción real: desactivar Sandbox y cargar keys prod."
+
+msgid "Suggested: ARS (or USD if you sell in dollars)."
+msgstr "Propuesta: ARS (o USD si opera en dólares)."
+
+msgid "Suggested: Cybersource = yes."
+msgstr "Propuesta: Cybersource = sí."
+
+msgid "Suggested: Decidir catalog (Visa 1, etc.) from Setup."
+msgstr "Propuesta: catálogo Decidir (Visa 1, etc.) desde Instalación."
+
+msgid "Suggested: Enabled = yes (use “Apply recommended settings”)."
+msgstr "Propuesta: Enabled = sí (botón «Aplicar config. recomendada»)."
+
+msgid "Suggested: bank “Todos”."
+msgstr "Propuesta: banco «Todos»."
+
+msgid "Suggested: credit 1/3/6/9/12/18; debit/prepaid 1 installment; no expiry. Optional MiPyME: 3→13 / 6→16 when enabled in Mi Payway and eligible MCC."
+msgstr "Propuesta: crédito 1/3/6/9/12/18; débito/prepaga 1 cuota; sin vencimiento. MiPyME opcional: 3→13 / 6→16 si está habilitado en Mi Payway y el MCC es elegible."
+
+msgid "Suggested: page with shortcode [woocommerce_checkout]."
+msgstr "Propuesta: página con shortcode [woocommerce_checkout]."
+
+msgid "Suggested: woocommerce_price_num_decimals = 2."
+msgstr "Propuesta: woocommerce_price_num_decimals = 2."
+
+msgid "Suggested: “%s”."
+msgstr "Propuesta: «%s»."
+
+msgid "Suggested: “No expiry” + every day of the week."
+msgstr "Propuesta: «Sin vencimiento» + todos los días."
+
+msgid "Suggestion"
+msgstr "Propuesta"
+
+msgid "The card identifier (payment_method_id) is not valid for this merchant."
+msgstr "El identificador de tarjeta (payment_method_id) no es válido para este comercio."
+
+msgid "The checkout page appears to use Blocks. This plugin only supports classic checkout."
+msgstr "La página de checkout parece usar Blocks. Este plugin solo soporta checkout clásico."
+
+msgid "The selected installment plan is not valid."
+msgstr "El plan de cuotas seleccionado no es válido."
+
+msgid "The selected promotion is not available. Refresh the page and choose installments again."
+msgstr "La promoción seleccionada no está disponible. Actualizá la página y volvé a elegir las cuotas."
+
+msgid "There are %d configured bank(s)."
+msgstr "Hay %d banco(s) configurado(s)."
+
+msgid "There are %d configured card(s)."
+msgstr "Hay %d tarjeta(s) configurada(s)."
+
+msgid "There are issues that may prevent the plugin from appearing or working correctly:"
+msgstr "Hay problemas que pueden impedir que el plugin se muestre o funcione correctamente:"
+
+msgid "There is at least one active promotion applicable for checkout."
+msgstr "Hay al menos una promoción activa y aplicable para el checkout."
+
+msgid "There is at least one promotion with fee_plans loaded."
+msgstr "Hay al menos una promoción con fee_plans cargados."
+
+msgid "This project is an independent development (Payway Payment Community). It is not an official Payway product and is not developed, maintained, endorsed, or certified by Payway."
+msgstr "Este proyecto es un desarrollo independiente (Payway Payment Community). No es un producto oficial de Payway, no está desarrollado, mantenido, respaldado ni certificado por Payway."
+
+msgid "Title: %s"
+msgstr "Título: %s"
+
+msgid "Use"
+msgstr "Usar"
+
+msgid "Usually applies to Decidir 2.0, not D+."
+msgstr "Suele aplicarse en Decidir 2.0, no en D+."
+
+msgid "View banks"
+msgstr "Ver bancos"
+
+msgid "View cards"
+msgstr "Ver tarjetas"
+
+msgid "View plugins"
+msgstr "Ver plugins"
+
+msgid "View promotions"
+msgstr "Ver promociones"
+
+msgid "Without an applicable promotion (active, days, no expiry or valid dates) the method does not appear."
+msgstr "Sin promo aplicable (activa, días, sin vencimiento o fechas vigentes) el medio no aparece."
+
+msgid "WooCommerce active"
+msgstr "WooCommerce activo"
+
+msgid "WooCommerce active."
+msgstr "WooCommerce activo."
+
+msgid "WooCommerce is installed and active."
+msgstr "WooCommerce está instalado y activo."
+
+msgid "WooCommerce is required. Install and activate it."
+msgstr "WooCommerce es obligatorio. Instalálo y activalo."
+
+msgid "WooCommerce pages"
+msgstr "Páginas de WooCommerce"
+
+msgid "WooCommerce → Payments → Payway: Enabled, Sandbox (testing), Cybersource, Debug, title/description, Site Id + Public + Private."
+msgstr "WooCommerce → Pagos → Payway: Enabled, Sandbox (pruebas), Cybersource, Debug, título/descripción, Site Id + Public + Private."
+
+msgid "WooCommerce → Settings → General: currency ARS/USD and Number of decimals = 2."
+msgstr "WooCommerce → Ajustes → General: moneda ARS/USD y Número de decimales = 2."
+
+msgid "You do not have permission for this action."
+msgstr "No tenés permisos para esta acción."
+
+msgid "You do not have permission to access this page."
+msgstr "No tenés permisos para esta página."
+
+msgid "already added"
+msgstr "ya cargada"
+
+msgid "Please select..."
+msgstr "Por favor seleccione..."
+
+msgid "Billing Address"
+msgstr "Dirección de facturación"
+
+msgid "Street number (door number)"
+msgstr "Altura de calle (Nro de puerta)"
+
+msgid "Checkout Payway"
+msgstr "Checkout Payway"
+
+msgid "Pay with Payway using your card right from the store."
+msgstr "Pagá con Payway usando tu tarjeta desde la tienda."
+
+msgid "Usually applies to Decidir 2.0, not Ventas Online."
+msgstr "Suele aplicarse en Decidir 2.0, no en Ventas Online."
+
+msgid "Checkout uses WooCommerce Blocks. Classic gateways (including Payway) are not shown there, so shoppers see “There are no payment methods available…”."
+msgstr "El checkout usa WooCommerce Blocks. Los gateways clásicos (incluido Payway) no se muestran ahí, por eso el comprador ve “There are no payment methods available…” / no hay métodos de pago disponibles."
+
+msgid "Checkout does not use the Blocks block (classic shortcode or equivalent)."
+msgstr "El checkout no usa el bloque Blocks (shortcode clásico o equivalente)."
+
+msgid "Replace the Checkout page content with the shortcode [woocommerce_checkout] (remove the “Checkout” block)."
+msgstr "Reemplazá el contenido de la página Checkout por el shortcode [woocommerce_checkout] (sacá el bloque “Checkout”)."
+
+msgid "There are no payment methods available. This may be an error on our side…"
+msgstr "No hay métodos de pago disponibles. Puede ser un error de nuestra parte…"
+
+msgid "Shopper symptom: %s"
+msgstr "Síntoma en el checkout: %s"
+
+msgid "Checkout surface (classic or Blocks)"
+msgstr "Superficie de checkout (clásico o Blocks)"
+
+msgid "Checkout uses WooCommerce Blocks and Payway Blocks integration is available."
+msgstr "El checkout usa WooCommerce Blocks y la integración Blocks de Payway está disponible."
+
+msgid "Checkout uses WooCommerce Blocks, but this WooCommerce build has no payment-method Blocks API. Shoppers may see “There are no payment methods available…”."
+msgstr "El checkout usa WooCommerce Blocks, pero esta versión de WooCommerce no tiene la API de payment methods para Blocks. El comprador puede ver “There are no payment methods available…”."
+
+msgid "Classic checkout detected. Blocks integration is also available if you switch the page to the Checkout block."
+msgstr "Checkout clásico detectado. La integración Blocks también está disponible si cambiás la página al bloque Checkout."
+
+msgid "Classic checkout detected (shortcode or equivalent)."
+msgstr "Checkout clásico detectado (shortcode o equivalente)."
+
+msgid "Classic shortcode and Blocks checkout are both supported when the Blocks payment API is present."
+msgstr "El shortcode clásico y el checkout Blocks están soportados cuando existe la API de pagos Blocks."
+
+msgid "This WooCommerce version has no Blocks payment API. Use the shortcode [woocommerce_checkout], or upgrade WooCommerce."
+msgstr "Esta versión de WooCommerce no tiene API de pagos Blocks. Usá el shortcode [woocommerce_checkout] o actualizá WooCommerce."
+
+msgid "Classic checkout or WooCommerce Blocks checkout (both supported)."
+msgstr "Checkout clásico o WooCommerce Blocks (ambos soportados)."
+
+msgid "Payment rejected by Payway (invalid data): %s"
+msgstr "Pago rechazado por Payway (datos inválidos): %s"
+
+# Obsolete for runtime: validation params are no longer shown to shoppers (mapped to CS_* messages).

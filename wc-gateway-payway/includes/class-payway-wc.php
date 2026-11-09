@@ -57,6 +57,8 @@ final class PaywayWC {
 		$this->define_constants();
 		$this->includes();
 		$this->init_hooks();
+		// Instance boots on plugins_loaded:10 — load locale immediately (not only via late hooks).
+		$this->load_localization_files();
 
 		if ( is_admin() ) {
 			add_action('init', array($this, 'init_admin_menu'));
@@ -121,7 +123,7 @@ final class PaywayWC {
 	}
 
 	public function init_admin_menu() {
-		// Admin menu initialization
+		$this->load_localization_files();
 		new WC_Payway_Admin_Menu;
 	}
 
@@ -192,14 +194,61 @@ final class PaywayWC {
 	}
 
 	/**
-	 * Loads languages for this plugin
+	 * Loads languages for this plugin.
+	 *
+	 * Policy: any Spanish locale (es, es_ES, es_MX, es_AR, …) uses es_AR.
+	 * Every other locale keeps English source strings (msgid) — no .mo loaded.
 	 */
 	public function load_localization_files() {
-		load_plugin_textdomain(
-			'wc-gateway-payway',
-			false,
-			dirname( plugin_basename( WC_PAYWAY_PLUGIN_FILE ) ) . '/i18n/languages'
-		);
+		static $locale_filter_added = false;
+		if ( ! $locale_filter_added ) {
+			add_filter( 'plugin_locale', array( $this, 'filter_plugin_locale' ), 10, 2 );
+			$locale_filter_added = true;
+		}
+
+		// Force reload so admin/user language switches apply in the same request.
+		if ( function_exists( 'unload_textdomain' ) ) {
+			unload_textdomain( 'wc-gateway-payway', true );
+		}
+
+		$locale = $this->resolve_plugin_locale();
+		if ( 'es_AR' !== $locale ) {
+			return;
+		}
+
+		$mofile = WC_PAYWAY_ABSPATH . 'i18n/languages/wc-gateway-payway-es_AR.mo';
+		if ( is_readable( $mofile ) ) {
+			load_textdomain( 'wc-gateway-payway', $mofile );
+		}
+	}
+
+	/**
+	 * Maps WP locale to the plugin locale we ship.
+	 *
+	 * @return string es_AR|en_US
+	 */
+	public function resolve_plugin_locale() {
+		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+		$locale = is_string( $locale ) ? $locale : '';
+
+		if ( preg_match( '/^es([_-]|$)/i', $locale ) ) {
+			return 'es_AR';
+		}
+
+		return 'en_US';
+	}
+
+	/**
+	 * @param string $locale
+	 * @param string $domain
+	 * @return string
+	 */
+	public function filter_plugin_locale( $locale, $domain ) {
+		if ( 'wc-gateway-payway' !== $domain ) {
+			return $locale;
+		}
+
+		return $this->resolve_plugin_locale();
 	}
 
 	/**
@@ -207,6 +256,7 @@ final class PaywayWC {
 	 */
 	private function init_hooks() {
 		// Carga temprano para i18n en checkout (#33/#43).
+		add_action( 'plugins_loaded', array( $this, 'load_localization_files' ), 1 );
 		add_action( 'init', array( $this, 'load_localization_files' ), 0 );
 		add_action( 'before_wc_payway_gateway_init', array( $this, 'load_localization_files' ) );
 

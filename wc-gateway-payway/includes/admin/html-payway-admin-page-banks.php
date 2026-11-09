@@ -149,11 +149,11 @@ $title = $is_creation
 		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ): ?>
 			<?php
 			if ( ! current_user_can( 'manage_woocommerce' ) ) {
-				wp_die( esc_html__( 'No tenés permisos para esta acción.', 'wc-gateway-payway' ) );
+				wp_die( esc_html__( 'You do not have permission for this action.', 'wc-gateway-payway' ) );
 			}
 			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
 			if ( ! $nonce || ! wp_verify_nonce( $nonce, '_wpnonce_payway-delete-bank-' . $params['bank_id'] ) ) {
-				wp_die( esc_html__( 'Nonce inválido. No se eliminó el banco.', 'wc-gateway-payway' ) );
+				wp_die( esc_html__( 'Invalid nonce. The bank was not deleted.', 'wc-gateway-payway' ) );
 			}
 			$this->delete_bank( $params['bank_id'] );
 			$redirect = remove_query_arg( array( 'action', 'bank_id', '_wpnonce' ) );

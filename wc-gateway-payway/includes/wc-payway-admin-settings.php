@@ -40,13 +40,13 @@ return array(
 		'type'			=> 'text',
 		'description'	=> __('Payment method title that will be displayed during Checkout.', 'wc-gateway-payway'),
 		'desc_tip'		=> true,
-		'default'		=> __('Credit Card', 'wc-gateway-payway')
+		'default'		=> __('Checkout Payway', 'wc-gateway-payway')
 	),
 	WC_Payway_Config_Interface::FIELD_GATEWAY_DESCRIPTION => array(
 		'title'	   		=> __('Description', 'wc-gateway-payway'),
 		'type'			=> 'textarea',
 		'description' 	=> __('This controls the description which the user sees during checkout.', 'wc-gateway-payway'),
-		'default'	 	=> __('Pay thought Payway with your credit card right from the store.', 'wc-gateway-payway')
+		'default'	 	=> __('Pay with Payway using your card right from the store.', 'wc-gateway-payway')
 	),
 	WC_Payway_Config_Interface::FIELD_SANDBOX_MODE => array(
 		'title'			=> __('Sandbox Mode', 'wc-gateway-payway'),
