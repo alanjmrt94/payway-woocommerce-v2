@@ -3,7 +3,7 @@
  * Plugin Name: Payway Payment Community
  * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
  * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Alan Martinez
  * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
@@ -17,15 +17,15 @@
  * PHP requires at least: 7.4
  * Requires PHP: 7.4
  * WooCommerce requires at least: 6.0
- * WooCommerce tested up to: 9.4
+ * WooCommerce tested up to: 11.0
  * WC requires at least: 6.0
- * WC tested up to: 9.4
+ * WC tested up to: 11.0
  * MySQL requires at least: 5.7
  * MariaDB requires at least: 10.2
  *
- * Compatibilidad declarada (v1):
+ * Compatibilidad declarada:
  * - WordPress:    mínimo 5.8.3 — recomendado última estable
- * - WooCommerce:  mínimo 6.0 — probado hasta 9.4 — recomendado última estable
+ * - WooCommerce:  mínimo 6.0 — probado en upgrade local hasta 11.x
  * - PHP:          mínimo 7.4 — recomendado 8.1 o superior
  * - MySQL:        mínimo 5.7 — recomendado 8.0 o superior
  * - MariaDB:      mínimo 10.2 — recomendado 10.4 o superior
