@@ -106,23 +106,31 @@ class WC_Payway_Admin_Navigation_Page_Promotions extends WP_List_Table {
 	 */
 	public function validate_promotion_data( $post ) {
 		$required_field_names = WC_Payway_Promotion_Factory::get_required_fields();
+		$no_expiry            = ! empty( $post['no_expiry'] );
 
 		$error_messages = array();
-		$errors = null;
+		$errors         = null;
 
-		foreach($required_field_names as $field) {
-			if ( ! isset($post[$field['name']]) || $post[$field['name']] == '' ) {
+		foreach ( $required_field_names as $field ) {
+			if ( ! isset( $post[ $field['name'] ] ) || $post[ $field['name'] ] == '' ) {
 				$error_messages[] = array(
 					'error_key' => $field['name'],
-					'message' => __( '<strong>' . $field['label'] . '</strong>' . ' es un campo requerido', 'wc-gateway-payway' )
+					'message'   => __( '<strong>' . $field['label'] . '</strong>' . ' es un campo requerido', 'wc-gateway-payway' ),
 				);
 			}
 		}
 
-		if ( ! empty($error_messages) ) {
-			$errors = new WP_Error;
+		if ( ! $no_expiry && ( ! isset( $post['to_date'] ) || $post['to_date'] === '' ) ) {
+			$error_messages[] = array(
+				'error_key' => 'to_date',
+				'message'   => __( '<strong>To Date</strong> is required when the promotion has an expiry date', 'wc-gateway-payway' ),
+			);
+		}
 
-			foreach($error_messages as $key => $message) {
+		if ( ! empty( $error_messages ) ) {
+			$errors = new WP_Error();
+
+			foreach ( $error_messages as $key => $message ) {
 				$errors->add( $key, $message );
 			}
 		}
@@ -142,19 +150,23 @@ class WC_Payway_Admin_Navigation_Page_Promotions extends WP_List_Table {
 			|| ! isset( $data['card_id'] )
 			|| ! isset( $data['bank_id'] )
 			|| ! isset( $data['from_date'] )
-			|| ! isset( $data['to_date'] )
-			// || ! isset( $data['priority'] )
 			|| ! isset( $data['is_active'] )
 			|| ! isset( $data['applicable_days'] )
-			// || ! isset( $data['fee_plans'] )
 		) {
+			return false;
+		}
+
+		$data['no_expiry'] = ! empty( $data['no_expiry'] ) ? 1 : 0;
+		if ( $data['no_expiry'] ) {
+			$data['to_date'] = '2099-12-31 23:59:59';
+		} elseif ( empty( $data['to_date'] ) ) {
 			return false;
 		}
 
 		// just so we avoid publishing in the html page the real column name
 		// now replacing so update() receives the right data
 		$data['id'] = $data['promotion_id'];
-		unset($data['promotion_id']);
+		unset( $data['promotion_id'] );
 
 		return WC_Payway_Promotion_Factory::update_promotion( $data );
 	}
@@ -168,12 +180,17 @@ class WC_Payway_Admin_Navigation_Page_Promotions extends WP_List_Table {
 	}
 
 	/**
-	 * @param string $name
-	 * @return
+	 * @param array $data
+	 * @return mixed
 	 */
 	protected function create_promotion( $data ) {
-		/** @see WP_Payway_Promotion_Factory::__construct() */
-		return apply_filters('wc_payway_gateway_admin_promotion_create', $data );
+		$data['no_expiry'] = ! empty( $data['no_expiry'] ) ? 1 : 0;
+		if ( $data['no_expiry'] ) {
+			$data['to_date'] = ! empty( $data['to_date'] ) ? $data['to_date'] : '2099-12-31 23:59:59';
+		}
+
+		/** @see WC_Payway_Promotion_Factory::__construct() */
+		return apply_filters( 'wc_payway_gateway_admin_promotion_create', $data );
 	}
 
 	public function no_items() {

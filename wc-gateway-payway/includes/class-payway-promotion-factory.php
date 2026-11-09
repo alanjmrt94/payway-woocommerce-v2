@@ -72,10 +72,6 @@ class WC_Payway_Promotion_Factory {
 				'label' => __( 'From Date', 'wc-gateway-payway' )
 			),
 			array(
-				'name' => 'to_date',
-				'label' => __( 'To Date', 'wc-gateway-payway' )
-			),
-			array(
 				'name' => 'applicable_days',
 				'label' => __( 'Applicable Days', 'wc-gateway-payway' )
 			),
@@ -141,6 +137,10 @@ class WC_Payway_Promotion_Factory {
 	public static function get_promotions() {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$promotion_table = self::get_promotion_table_name();
 		$bank_table = self::get_banks_table_name();
 		$card_table = self::get_cards_table_name();
@@ -169,6 +169,10 @@ class WC_Payway_Promotion_Factory {
 	public static function get_applicable_promotions() {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$promotion_table = self::get_promotion_table_name();
 		$bank_table = self::get_banks_table_name();
 		$card_table = self::get_cards_table_name();
@@ -188,7 +192,10 @@ class WC_Payway_Promotion_Factory {
 		WHERE
 			promos.is_active = 1
 			AND promos.from_date <= NOW()
-			AND promos.to_date >= NOW()
+			AND (
+				promos.no_expiry = 1
+				OR promos.to_date >= NOW()
+			)
 			AND find_in_set( {$current_day}, promos.applicable_days )
 		ORDER BY promos.priority ASC,
 			promos.bank_id ASC,
@@ -234,6 +241,10 @@ class WC_Payway_Promotion_Factory {
 	public static function get_promotion( $promotion_id ) {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$query = $wpdb->prepare(
 			"SELECT * FROM " . self::get_promotion_table_name() . " WHERE id = %d",
 			$promotion_id
@@ -268,30 +279,35 @@ class WC_Payway_Promotion_Factory {
 	public static function create_promotion( $data ) {
 		global $wpdb;
 
-		//TODO: implement validations
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$applicable_days = self::convert_days_for_save( $data['applicable_days'] );
-		$fee_plans = isset( $data['fee_plans'] )
+		$fee_plans       = isset( $data['fee_plans'] )
 			? self::convert_fee_plans_for_save( $data['fee_plans'] )
 			: '';
-		$from_date = $data['from_date'];
-		$to_date = $data['to_date'];
+		$no_expiry       = isset( $data['no_expiry'] ) ? (int) (bool) $data['no_expiry'] : 1;
+		$from_date       = $data['from_date'];
+		$to_date         = ! empty( $data['to_date'] ) ? $data['to_date'] : '2099-12-31 23:59:59';
 
 		$values = array(
-			'rule_name' => $data['rule_name'],
-			'card_id' => (int) $data['card_id'],
-			'bank_id' => (int) $data['bank_id'],
-			'from_date' => $from_date,
-			'to_date' => $to_date,
-			'priority' => (int) $data['priority'],
-			'is_active' => (int) $data['is_active'],
+			'rule_name'       => $data['rule_name'],
+			'card_id'         => (int) $data['card_id'],
+			'bank_id'         => (int) $data['bank_id'],
+			'from_date'       => $from_date,
+			'to_date'         => $to_date,
+			'priority'        => (int) $data['priority'],
+			'is_active'       => (int) $data['is_active'],
+			'no_expiry'       => $no_expiry,
 			'applicable_days' => $applicable_days,
-			'fee_plans' => $fee_plans,
+			'fee_plans'       => $fee_plans,
 		);
 
 		$wpdb->insert(
 			self::get_promotion_table_name(),
 			$values,
-			array( '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%s', '%s' )
+			array( '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%d', '%s', '%s' )
 		);
 
 		return $wpdb->insert_id;
@@ -305,32 +321,38 @@ class WC_Payway_Promotion_Factory {
 	public static function update_promotion( $data ) {
 		global $wpdb;
 
-		//TODO: implement validations
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$applicable_days = self::convert_days_for_save( $data['applicable_days'] );
-		$fee_plans = isset( $data['fee_plans'] )
+		$fee_plans       = isset( $data['fee_plans'] )
 			? self::convert_fee_plans_for_save( $data['fee_plans'] )
 			: '';
-
-		$from_date = self::get_promotion_datetime( $data['from_date'] );
-		$to_date = self::get_promotion_datetime( $data['to_date'] );
+		$no_expiry       = isset( $data['no_expiry'] ) ? (int) (bool) $data['no_expiry'] : 1;
+		$from_date       = self::get_promotion_datetime( $data['from_date'] );
+		$to_date         = ! empty( $data['to_date'] )
+			? self::get_promotion_datetime( $data['to_date'] )
+			: '2099-12-31 23:59:59';
 
 		$values = array(
-			'rule_name' => $data['rule_name'],
-			'card_id' => (int) $data['card_id'],
-			'bank_id' => (int) $data['bank_id'],
-			'from_date' => $from_date,
-			'to_date' => $to_date,
-			'priority' => (int) $data['priority'],
-			'is_active' => (int) $data['is_active'],
+			'rule_name'       => $data['rule_name'],
+			'card_id'         => (int) $data['card_id'],
+			'bank_id'         => (int) $data['bank_id'],
+			'from_date'       => $from_date,
+			'to_date'         => $to_date,
+			'priority'        => (int) $data['priority'],
+			'is_active'       => (int) $data['is_active'],
+			'no_expiry'       => $no_expiry,
 			'applicable_days' => $applicable_days,
-			'fee_plans' => $fee_plans,
+			'fee_plans'       => $fee_plans,
 		);
 
 		$update = $wpdb->update(
 			self::get_promotion_table_name(),
 			$values,
 			array( 'id' => $data['id'] ),
-			array( '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%s', '%s' ),
+			array( '%s', '%d', '%d', '%s', '%s', '%d', '%d', '%d', '%s', '%s' ),
 			array( '%d' )
 		);
 

@@ -71,6 +71,10 @@ class WC_Payway_Bank_Factory {
 	public static function get_banks() {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$query = "SELECT * FROM " . self::get_table_name();
 
 		return $wpdb->get_results(
@@ -103,10 +107,17 @@ class WC_Payway_Bank_Factory {
 	public static function create_bank( $data ) {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$wpdb->insert(
 			self::get_table_name(),
-			array( 'name' => $data['name'] ),
-			array( '%s' )
+			array(
+				'name'       => $data['name'],
+				'created_at' => current_time( 'mysql' ),
+			),
+			array( '%s', '%s' )
 		);
 
 		return $wpdb->insert_id;
@@ -165,6 +176,10 @@ class WC_Payway_Bank_Factory {
 	 */
 	public static function record_count() {
 		global $wpdb;
+
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
 
 		$query = "SELECT COUNT(*) FROM " . self::get_table_name();
 

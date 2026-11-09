@@ -78,6 +78,10 @@ class WC_Payway_Card_Factory {
 	public static function get_cards() {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$query = "SELECT * FROM " . self::get_table_name();
 
 		return $wpdb->get_results(
@@ -110,14 +114,19 @@ class WC_Payway_Card_Factory {
 	public static function create_card( $data ) {
 		global $wpdb;
 
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
+
 		$wpdb->insert(
 			self::get_table_name(),
 			array(
-				'card_name' => $data['card_name'],
-				'id_sps' => $data['id_sps'],
-				'id_nps' => $data['id_nps']
+				'card_name'  => $data['card_name'],
+				'id_sps'     => $data['id_sps'],
+				'id_nps'     => $data['id_nps'],
+				'created_at' => current_time( 'mysql' ),
 			),
-			array( '%s', '%d', '%d' )
+			array( '%s', '%d', '%d', '%s' )
 		);
 
 		return $wpdb->insert_id;
@@ -181,6 +190,10 @@ class WC_Payway_Card_Factory {
 	 */
 	public static function record_count() {
 		global $wpdb;
+
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::ensure_core_schema();
+		}
 
 		$query = "SELECT COUNT(*) FROM " . self::get_table_name();
 

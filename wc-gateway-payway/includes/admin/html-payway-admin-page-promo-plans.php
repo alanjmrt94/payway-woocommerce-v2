@@ -43,6 +43,15 @@ $params = $_GET;
 
 		<div class="wrap-table-fee-plans" id="wrap-table-fee-plans">
 			<h2><?php echo __( 'Fee Plans configuration', 'wc-gateway-payway' ); ?></h2>
+			<p>
+				<label>
+					<input type="checkbox" id="payway-mipyme-toggle" value="1" />
+					<?php esc_html_e( 'MiPyME installments (3 → send 13, 6 → send 16)', 'wc-gateway-payway' ); ?>
+				</label>
+			</p>
+			<p class="description">
+				<?php esc_html_e( 'Requires MiPyME to be enabled in Mi Payway and the merchant category (rubro / MCC) to be eligible. If either is missing, Decidir may reject those installment codes.', 'wc-gateway-payway' ); ?>
+			</p>
 			<table id="payway-admin-promotions-plans">
 				<thead>
 					<tr>
@@ -74,7 +83,8 @@ $params = $_GET;
 jQuery( function( $ ) {
   	var payway_plan_wrapper_id = '#wrap-table-fee-plans',
 		plan_add_new_row_identifier = '#fee-plans-add-new',
-		plan_delete_row_identifier = '.plans-remove-row';
+		plan_delete_row_identifier = '.plans-remove-row',
+		mipymeMap = <?php echo wp_json_encode( WC_Payway_Default_Catalog::MIPYME_FEE_TO_SEND ); ?>;
 
     // Denotes total number of rows
     var row_id = 0,
@@ -114,12 +124,45 @@ jQuery( function( $ ) {
 		</tr>`;
 	};
 
+	function plansHaveMipyme( list ) {
+		if ( ! list || ! list.length ) {
+			return false;
+		}
+		for ( var i = 0; i < list.length; i++ ) {
+			var period = parseInt( list[i].fee_period, 10 );
+			var send = parseInt( list[i].fee_to_send, 10 );
+			if ( mipymeMap[ period ] && mipymeMap[ period ] === send ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function applyMipymeToRows( enabled ) {
+		$( payway_plan_wrapper_id + ' tbody tr' ).each( function () {
+			var $row = $( this );
+			var period = parseInt( $row.find( '.field-fee-period' ).val(), 10 );
+			var $send = $row.find( '.field-fee-to-send' );
+			if ( ! period || ! $send.length ) {
+				return;
+			}
+			if ( enabled && mipymeMap[ period ] ) {
+				$send.val( String( mipymeMap[ period ] ) );
+			} else if ( ! enabled && mipymeMap[ period ] && parseInt( $send.val(), 10 ) === mipymeMap[ period ] ) {
+				$send.val( String( period ) );
+			}
+		} );
+	}
+
 	// click event - add row
 	$(payway_plan_wrapper_id + ' ' + plan_add_new_row_identifier)
 		.on('click', function (e) {
 			e.preventDefault();
 			++row_id;
 			$(payway_plan_wrapper_id + ' tbody').append(get_row_html());
+			if ( $( '#payway-mipyme-toggle' ).is( ':checked' ) ) {
+				applyMipymeToRows( true );
+			}
 		});
 
 	// click event - remove row
@@ -129,11 +172,18 @@ jQuery( function( $ ) {
 			$(this).closest('tr').remove();
 		});
 
+	$( '#payway-mipyme-toggle' ).on( 'change', function () {
+		applyMipymeToRows( $( this ).is( ':checked' ) );
+	} );
+
 	if (plans) {
 		$.each(plans, function (index, data) {
 			row_id++;
 			add_plan_row(data);
 		});
+		if ( plansHaveMipyme( plans ) ) {
+			$( '#payway-mipyme-toggle' ).prop( 'checked', true );
+		}
 	} else {
 		$('#wrap-table-fee-plans #fee-plans-add-new').trigger('click');
 	}

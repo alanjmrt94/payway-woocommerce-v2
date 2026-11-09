@@ -140,7 +140,10 @@ $title = $is_creation
 						$rule_name = $is_edit ? $promotion->rule_name : '';
 						$bank_id = $is_edit ? $promotion->bank_id : '';
 						$card_id = $is_edit ? $promotion->card_id : '';
-						$is_active = $is_edit ? (int) $promotion->is_active : '';
+						$is_active = $is_edit ? (int) $promotion->is_active : 1;
+						$no_expiry = $is_edit
+							? (int) ( isset( $promotion->no_expiry ) ? $promotion->no_expiry : 1 )
+							: 1;
 						$from_date = $is_edit ? $promotion->from_date : '';
 						$to_date = $is_edit ? $promotion->to_date : '';
 						$priority = $is_edit ? $promotion->priority : '';
@@ -168,6 +171,17 @@ $title = $is_creation
 									<option value="1" <?php echo $is_active === 1 ? 'selected' : '' ?>><?php echo __( 'Enabled', 'wc-gateway-payway' ) ?></option>
 									<option value="0" <?php echo $is_active === 0 ? 'selected' : '' ?>><?php echo __( 'Disabled', 'wc-gateway-payway' ) ?></option>
 								</select>
+							</td>
+						</tr>
+						<tr class="form-field">
+							<th scope="row"><label for="no_expiry">
+								<?php esc_html_e( 'No expiry', 'wc-gateway-payway' ); ?></label>
+							</th>
+							<td>
+								<label>
+									<input type="checkbox" name="no_expiry" id="no_expiry" value="1" <?php checked( $no_expiry, 1 ); ?> />
+									<?php esc_html_e( 'Do not validate end date (recommended for installment plans).', 'wc-gateway-payway' ); ?>
+								</label>
 							</td>
 						</tr>
 						<tr class="form-field form-required">
@@ -199,17 +213,24 @@ $title = $is_creation
 								<?php _e( 'From Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
-								<input type="datetime-local" name="from_date" id="from_date" value="<?php echo $from_date ?>" />
+								<input type="datetime-local" name="from_date" id="from_date" value="<?php echo esc_attr( $from_date ); ?>" />
 							</td>
 						</tr>
-						<tr class="form-field form-required">
+						<tr class="form-field form-required" id="payway-to-date-row" <?php echo $no_expiry ? 'style="display:none"' : ''; ?>>
 							<th scope="row"><label for="to_date">
-								<?php _e( 'To Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php _e( 'To Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required when expiry is enabled)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
-								<input type="datetime-local" name="to_date" id="to_date" value="<?php echo $to_date ?>"/>
+								<input type="datetime-local" name="to_date" id="to_date" value="<?php echo esc_attr( $to_date ); ?>"/>
 							</td>
 						</tr>
+						<script type="text/javascript">
+						jQuery(function ($) {
+							$('#no_expiry').on('change', function () {
+								$('#payway-to-date-row').toggle(!this.checked);
+							});
+						});
+						</script>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="priority">
 								<?php _e( 'Priority', 'wc-gateway-payway' ); ?></label>
@@ -246,11 +267,11 @@ $title = $is_creation
 		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ): ?>
 			<?php
 			if ( ! current_user_can( 'manage_woocommerce' ) ) {
-				wp_die( esc_html__( 'No tenés permisos para esta acción.', 'wc-gateway-payway' ) );
+				wp_die( esc_html__( 'You do not have permission for this action.', 'wc-gateway-payway' ) );
 			}
 			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
 			if ( ! $nonce || ! wp_verify_nonce( $nonce, '_wpnonce_payway-delete-promotion-' . $params['promotion_id'] ) ) {
-				wp_die( esc_html__( 'Nonce inválido. No se eliminó la promoción.', 'wc-gateway-payway' ) );
+				wp_die( esc_html__( 'Invalid nonce. The promotion was not deleted.', 'wc-gateway-payway' ) );
 			}
 			$this->delete_promotion( $params['promotion_id'] );
 			$redirect = remove_query_arg( array( 'action', 'promotion_id', '_wpnonce' ) );
