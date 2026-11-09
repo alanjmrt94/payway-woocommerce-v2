@@ -156,6 +156,7 @@ final class PaywayWC {
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-meta.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-default-catalog.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-setup-status.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-checkout-request.php';
 
 		if ( is_admin() ) {
 			require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-menu.php';

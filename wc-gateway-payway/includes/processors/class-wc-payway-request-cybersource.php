@@ -228,19 +228,30 @@ private function has_decimal_separator($number) {
 	 */
 	private function get_customer_in_site( $order, $cc_door_number ) {
 		$cid = $order->get_customer_id();
+		$customer = null;
 
 		if ( $cid ) {
 			$customer = new WC_Customer( $cid );
 		}
 
+		// Decidir CS MDD39 expects a domicile string (e.g. "Av. Corrientes 1234"),
+		// not the door number alone — that yields invalid_param on customer_in_site.street.
+		$street = trim( (string) $order->get_billing_address_1() );
+		$door   = trim( (string) $cc_door_number );
+		if ( $door && $street && false === strpos( $street, $door ) ) {
+			$street = trim( $street . ' ' . $door );
+		} elseif ( ! $street && $door ) {
+			$street = $door;
+		}
+
 		return array(
 			// 'days_in_site' => (string) $cid ? $this->get_days_in_site( $customer ) : 0,
-			'is_guest' => $cid ? false : true,
-			'password' => '',
-			'num_of_transactions' => (int) $cid ? $customer->get_order_count() : 0,
-			'cellphone_number' => $order->get_billing_phone(),
-			'date_of_birth' => '',
-			'street' => $cc_door_number
+			'is_guest'             => $cid ? false : true,
+			'password'             => '',
+			'num_of_transactions'  => ( $cid && $customer ) ? (int) $customer->get_order_count() : 0,
+			'cellphone_number'     => $order->get_billing_phone(),
+			'date_of_birth'        => '',
+			'street'               => $street,
 		);
 	}
 

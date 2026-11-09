@@ -112,14 +112,20 @@ class WC_Payway_Request_Builder {
 	 * @return $this
 	 */
 	public function set_checkout_form_data( $post_data ) {
+		if ( class_exists( 'WC_Payway_Checkout_Request' ) ) {
+			$this->checkout_posted_data = WC_Payway_Checkout_Request::get_validated_shape(
+				is_array( $post_data ) ? $post_data : null
+			);
+			// Keep bin / last_digits digits-only as before.
+			$this->checkout_posted_data['bin']         = preg_replace( '/\D/', '', (string) $this->checkout_posted_data['bin'] );
+			$this->checkout_posted_data['last_digits'] = preg_replace( '/\D/', '', (string) $this->checkout_posted_data['last_digits'] );
+			return $this;
+		}
+
 		$rule_id      = 0;
 		$card_id      = 0;
 		$installments = 0;
 
-		/**
-		 * Installment dropdown option value
-		 * structure: <rule_id>-<card_id>-<fee_to_send>
-		 */
 		if ( isset( $post_data['payway_gateway_cc_installments'] ) ) {
 			$cc_installments = explode( '-', sanitize_text_field( (string) $post_data['payway_gateway_cc_installments'] ) );
 			$rule_id         = isset( $cc_installments[0] ) ? absint( $cc_installments[0] ) : 0;

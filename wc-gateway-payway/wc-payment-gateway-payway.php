@@ -268,24 +268,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function validate_fields() {
-		$posted = array(
-			'token'        => isset( $_POST['payway_gateway_cc_token'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_token'] ) ) : '',
-			'bin'          => isset( $_POST['payway_gateway_cc_bin'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_bin'] ) ) : '',
-			'last_digits'  => isset( $_POST['payway_gateway_cc_last_digits'] ) ? sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_last_digits'] ) ) : '',
-			'cc_type'      => isset( $_POST['payway_gateway_cc_type'] ) ? absint( wp_unslash( $_POST['payway_gateway_cc_type'] ) ) : 0,
-			'door_number'  => isset( $_POST['payway_gateway_cc_holder_door_number'] ) ? absint( wp_unslash( $_POST['payway_gateway_cc_holder_door_number'] ) ) : 0,
-			'rule_id'      => 0,
-			'card_id'      => 0,
-			'installments' => 0,
-		);
-
-		if ( isset( $_POST['payway_gateway_cc_installments'] ) ) {
-			$parts = explode( '-', sanitize_text_field( wp_unslash( $_POST['payway_gateway_cc_installments'] ) ) );
-			$posted['rule_id']      = isset( $parts[0] ) ? absint( $parts[0] ) : 0;
-			$posted['card_id']      = isset( $parts[1] ) ? absint( $parts[1] ) : 0;
-			$posted['installments'] = isset( $parts[2] ) ? absint( $parts[2] ) : 0;
-		}
-
+		$posted     = WC_Payway_Checkout_Request::get_validated_shape();
 		$validation = WC_Payway_Integrity_Validator::validate_checkout_selection( $posted );
 		if ( is_wp_error( $validation ) ) {
 			wc_add_notice( $validation->get_error_message(), 'error' );
@@ -324,7 +307,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 
 		try {
 			$builder = new WC_Payway_Request_Builder();
-			$builder->set_checkout_form_data( wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$builder->set_checkout_form_data( WC_Payway_Checkout_Request::get_raw_payment_fields() );
 
 			$validated = WC_Payway_Integrity_Validator::validate_checkout_selection(
 				$builder->get_checkout_form_data()
@@ -374,12 +357,13 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 				);
 			}
 
-			$error_text = wp_json_encode( $request->get_error_messages() );
+			$error_raw  = $request->get_error_messages();
+			$error_text = WC_Payway_Errors::format_gateway_failure( $error_raw );
 			wc_add_notice(
 				__( 'Payment error: ', 'wc-gateway-payway' ) . $error_text,
 				'error'
 			);
-			$this->add_failure_note_to_order( $order, $error_text );
+			$this->add_failure_note_to_order( $order, is_string( $error_raw ) ? $error_raw : wp_json_encode( $error_raw ) );
 			$order->update_status(
 				'failed',
 				sprintf(
@@ -389,6 +373,11 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 				)
 			);
 
+			// Blocks Store API clears notices and shows a generic message unless we throw.
+			if ( $this->is_store_api_request() ) {
+				throw new Exception( $error_text );
+			}
+
 			return array(
 				'result'   => 'failure',
 				'refresh'  => true,
@@ -397,8 +386,12 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 
 		} catch ( Exception $e ) {
 			wc_payway_get_logger()->error( $e->getMessage() );
+			$friendly = WC_Payway_Errors::format_gateway_failure( $e->getMessage() );
+			if ( $friendly === WC_Payway_Errors::message( WC_Payway_Errors::PROCESSING ) && $e->getMessage() ) {
+				$friendly = $e->getMessage();
+			}
 			wc_add_notice(
-				__( 'Payment error: ', 'wc-gateway-payway' ) . $e->getMessage(),
+				__( 'Payment error: ', 'wc-gateway-payway' ) . $friendly,
 				'error'
 			);
 			$this->add_failure_note_to_order( $order, $e->getMessage() );
@@ -407,16 +400,35 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 				sprintf(
 					/* translators: %s: exception message */
 					__( 'Pago fallido: %s', 'wc-gateway-payway' ),
-					$e->getMessage()
+					$friendly
 				)
 			);
+
+			if ( $this->is_store_api_request() ) {
+				throw new Exception( $friendly );
+			}
 
 			return array(
 				'result'   => 'failure',
 				'refresh'  => true,
-				'messages' => $e->getMessage(),
+				'messages' => $friendly,
 			);
 		}
+	}
+
+	/**
+	 * Blocks checkout (Store API) clears WC notices; failures must throw to reach the shopper.
+	 *
+	 * @return bool
+	 */
+	private function is_store_api_request() {
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+		if ( function_exists( 'WC' ) && WC()->is_rest_api_request() ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
