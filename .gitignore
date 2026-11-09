@@ -3,23 +3,24 @@
 #
 # Se versiona:
 #   wc-gateway-payway/  LICENSE  README.md  CHANGELOG.md
-#   docs/manual/  docs/license.md  docs/compatibility-matrix.md  docs/README.md
-#   .vscode/settings.json
+#   docs/ (básicos; manual ampliado puede quedar ignorado hasta revisión)
 #   ci/.gitkeep
 #
-# El tooling de desarrollo/CI vive fuera de este árbol público (carpeta ci/).
+# El tooling de desarrollo vive fuera de la superficie pública (carpeta ci/).
+# .vscode vive en ci/.vscode y se enlaza con ci/prepare.sh.
 # =============================================================================
 
-# --- Tooling local (no publicar) --------------------------------------------
-# NO usar "ci/" a secas: impediría re-incluir .gitkeep.
-ci/*
-!ci/.gitkeep
+# --- Tooling anidado (solo placeholder en este repo) ------------------------
+# Ignorar TODO el árbol ci/. ci/.gitkeep ya está en el índice; así no reaparecen
+# archivos nuevos del tooling (ni re-includes de su propio .gitignore).
+ci/
 
 # Symlinks / carpetas locales de desarrollo
 /bin
 /docker
 /tests
 /.cursor
+/.vscode
 
 # --- Dependencias si alguien corre composer en la raíz ----------------------
 /vendor/
@@ -29,7 +30,7 @@ ci/*
 /phpcs.xml.dist
 /phpstan.neon.dist
 
-# --- Secretos ---------------------------------------------------------------
+# --- Secretos (raíz del producto) -------------------------------------------
 .env
 .env.*
 
@@ -46,8 +47,6 @@ clover.xml
 
 # --- IDEs -------------------------------------------------------------------
 .idea/
-.vscode/*
-!.vscode/settings.json
 *.swp
 *.swo
 *~
@@ -59,3 +58,6 @@ Desktop.ini
 
 # --- Logs -------------------------------------------------------------------
 *.log
+
+# Manual ampliado: local hasta revisión (no publicar aún)
+/docs/manual/
