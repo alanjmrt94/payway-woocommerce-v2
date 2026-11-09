@@ -5,6 +5,29 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [1.1.0] — 2026-11-08
+
+### Added
+
+- Compatibilidad **WooCommerce Blocks Checkout** (feature-detect): `AbstractPaymentMethodType` + `registerPaymentMethod`, formulario con banco/tarjeta/cuotas y tokenización Decidir; mismo `process_payment` que el checkout clásico.
+- Menú **Payway → Instalación**: checklist obligatorio + recomendado del manual (decimales=2, Cybersource, título, Sandbox, debug, planes de cuotas), propuestas por ítem, botón «Aplicar config. recomendada» y seed de defaults.
+- Catálogo Decidir seleccionable (Visa/MC/Cabal/Amex/etc.) con botón para agregar tarjetas y promociones por defecto (banco **Todos**, planes 1/3/6/9/12/18 o 1 cuota; opción MiPyME 3→13 / 6→16).
+- Promociones con checkbox **Sin vencimiento** (`no_expiry`, activo por defecto): no se valida `to_date` en checkout.
+- **Payway → Status**: diagnóstico de disponibilidad con los mismos checks y links de acción.
+- Manual actualizado (04/05/06/09) con el flujo WooCommerce → Pagos + catálogo.
+
+### Changed
+
+- Versión del plugin a **1.1.0**.
+- Schema **self-heal** (`ensure_core_schema`): crea tablas faltantes, agrega `no_expiry` y columnas core sin depender del bump de versión; no borra settings en activate; DDL de promos sin FK frágiles.
+- **i18n**: strings del código en inglés; cualquier locale español (`es`, `es_ES`, `es_MX`, `es_AR`, …) carga `es_AR`; el resto queda en inglés. Menú Setup / Instalación según idioma.
+- Título default del medio: **Checkout Payway**; descripción default traducida EN/ES.
+- Nota de catálogo Amex Pura: “Decidir 2.0, not Ventas Online” (EN/ES).
+- Status: check de superficie de checkout (clásico **o** Blocks con API); ya no exige solo shortcode si Blocks está soportado.
+- `WC tested up to` → **11.0** tras upgrade in-place en celda `recommended` (WP **7.1.4**, WC **7 → 9 → 11.2.2**, PHP 8.1, MariaDB 10.11) y pago sandbox OK (pedido #25, Blocks).
+
+---
+
 ## [1.0.0] — 2026-11-08
 
 Primera versión del fork. No es un producto oficial de Payway.
@@ -50,9 +73,8 @@ Mitigaciones respecto de issues abiertos en el repo original (el fork no espera 
 
 ### Known limitations
 
-- Solo checkout **clásico** (WooCommerce Blocks queda para más adelante).
 - Sin refunds / voids nativos desde WooCommerce.
-- Todavía no hay pago sandbox real de punta a punta en este fork.
+- Pago sandbox de punta a punta con evidencia formal: pendiente (el camino WP/WC 7→9→11 fue smoke funcional).
 - Publicación en WooCommerce Marketplace / WordPress.org: pendiente.
 
 ### Upgrade notes
@@ -66,4 +88,5 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[1.1.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.0
 [1.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.0.0

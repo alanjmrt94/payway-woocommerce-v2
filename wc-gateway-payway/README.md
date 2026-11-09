@@ -20,10 +20,11 @@ El ZIP debe traer la carpeta `wc-gateway-payway` en la raíz. Subilo en **Plugin
 
 ## Configuración
 
-1. WooCommerce → Ajustes → Pagos → **Payway Payment Community**
-2. Site Id, Public Key y Private Key (sandbox o producción)
-3. Bancos, tarjetas y promociones en el menú **Payway**
+1. WooCommerce → Ajustes → Pagos → **Payway Payment Community** (Enabled + claves)
+2. **Payway → Instalación**: checklist y defaults (banco Todos, tarjetas, promos)
+3. O bien bancos / tarjetas / promociones a mano en el menú **Payway**
 4. Moneda ARS o USD; decimales de WooCommerce en **2**
+5. Si falla: **Payway → Status**
 
 ### Credenciales
 
@@ -31,9 +32,9 @@ Salen del portal / backoffice Payway del comercio (sandbox y prod son distintas)
 
 ## Cuándo no aparece el formulario
 
-- Gateway deshabilitado  
-- Sin promociones aplicables activas  
-- Checkout Blocks (no soportado aún)
+- Gateway deshabilitado o sin claves  
+- Sin promociones aplicables (activas; con **Sin vencimiento** o fechas vigentes)  
+- Checkout Blocks sin la API de payment methods (en WC recientes con Blocks, el medio sí se registra)
 
 ## Migración desde el plugin original
 

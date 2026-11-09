@@ -9,7 +9,8 @@ Gateway de pago para WooCommerce basado en Payway/Decidir. Es un **fork independ
 1. Descargá el ZIP de Releases (tiene que traer la carpeta `wc-gateway-payway` en la raíz).
 2. **Plugins → Añadir nuevo → Subir plugin**, o copiá la carpeta a `wp-content/plugins/`.
 3. Activá **Payway Payment Community**.
-4. Configurá en **WooCommerce → Ajustes → Pagos**.
+4. **WooCommerce → Ajustes → Pagos → Payway Payment Community**: Enabled + claves.
+5. **Payway → Instalación**: checklist y defaults (banco Todos, tarjetas, promociones).
 
 Más detalle: [`wc-gateway-payway/README.md`](wc-gateway-payway/README.md) · docs: [`docs/README.md`](docs/README.md) · cambios: [`CHANGELOG.md`](CHANGELOG.md)
 
