@@ -32,6 +32,11 @@ if ( class_exists( 'WC_Payway_Admin_Menu' )) {
 class WC_Payway_Admin_Menu {
 
 	/**
+	 * @var WC_Payway_Admin_Navigation_Page_Setup|null
+	 */
+	private $setup = null;
+
+	/**
 	 * Holds an instance of `WC_Payway_Admin_Navigation_Page_Banks`
 	 * @var WC_Payway_Admin_Navigation_Page_Banks|null
 	 */
@@ -68,10 +73,18 @@ class WC_Payway_Admin_Menu {
 	 * Includes admin pages
 	 */
 	public static function process_navigation_includes() {
+		require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-page-setup.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-page-banks.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-page-cards.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-page-promotions.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-page-status.php';
+	}
+
+	/**
+	 * Renders Instalación page
+	 */
+	public function render_setup_page() {
+		return $this->setup->render();
 	}
 
 	/**
@@ -110,6 +123,7 @@ class WC_Payway_Admin_Menu {
 	 * Initializes menu items and page renderers
 	 */
 	public function register_pages() {
+		$this->setup = new WC_Payway_Admin_Navigation_Page_Setup();
 		$this->banks = new WC_Payway_Admin_Navigation_Page_Banks();
 		$this->cards = new WC_Payway_Admin_Navigation_Page_Cards();
 		$this->promotions = new WC_Payway_Admin_Navigation_Page_Promotions();
@@ -122,9 +136,18 @@ class WC_Payway_Admin_Menu {
 			'payway',
 			'manage_options',
 			'payway_admin_dashboard',
-			function () {},
+			array( $this, 'render_setup_page' ),
 			'data:image/svg+xml;base64,' . $main_icon,
 			58
+		);
+
+		add_submenu_page(
+			'payway_admin_dashboard',
+			__( 'Setup', 'wc-gateway-payway' ),
+			__( 'Setup', 'wc-gateway-payway' ),
+			'manage_options',
+			'payway_admin_setup',
+			array( $this, 'render_setup_page' )
 		);
 
 		add_submenu_page(
@@ -163,8 +186,8 @@ class WC_Payway_Admin_Menu {
 			array( $this, 'render_status_page' )
 		);
 
-		// removes the duplicated item that `add_menu_page` generates
-		remove_submenu_page('payway_admin_dashboard', 'payway_admin_dashboard');
+		// Removes the auto submenu that mirrors the top-level slug.
+		remove_submenu_page( 'payway_admin_dashboard', 'payway_admin_dashboard' );
 
 		return apply_filters( 'payway_admin_navigation_sections', array() );
 	}

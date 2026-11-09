@@ -35,15 +35,21 @@ use Automattic\Jetpack\Constants;
 class WC_Payway_Admin_Navigation_Page_Status {
 
 	public function render() {
-		$version   = Constants::get_constant( 'WC_VERSION' );
+		$version = Constants::get_constant( 'WC_VERSION' );
 		wp_register_style(
 			'woocommerce_admin_styles',
 			WC()->plugin_url() . '/assets/css/admin.css',
 			array(),
 			$version
 		);
-
 		wp_enqueue_style( 'woocommerce_admin_styles' );
+
+		wp_enqueue_style(
+			'wc-payway-admin',
+			plugins_url( 'assets/css/style-admin.css', WC_PAYWAY_PLUGIN_FILE ),
+			array( 'woocommerce_admin_styles' ),
+			defined( 'WC_PAYWAY_PLUGIN_VERSION' ) ? WC_PAYWAY_PLUGIN_VERSION : '1.1.0'
+		);
 
 		return self::output();
 	}
@@ -58,6 +64,9 @@ class WC_Payway_Admin_Navigation_Page_Status {
 			'cb_version' => wc_payway_get_version_in_codebase(),
 			'cb_sdk_version' => wc_payway_get_sdk_version_in_codebase()
 		);
+
+		$setup_checks   = WC_Payway_Setup_Status::get_checks();
+		$setup_failures = WC_Payway_Setup_Status::get_blocking_failures();
 
 		include_once WC_PAYWAY_ABSPATH . 'includes/admin/html-payway-admin-page-status.php';
 	}

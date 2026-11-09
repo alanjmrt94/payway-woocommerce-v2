@@ -154,6 +154,8 @@ final class PaywayWC {
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-promotion-factory.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-integrity-validator.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-meta.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-default-catalog.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-setup-status.php';
 
 		if ( is_admin() ) {
 			require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-menu.php';
@@ -211,6 +213,9 @@ final class PaywayWC {
 
 		// initialize dependencies
 		add_action( 'init', array( $this, 'init' ), 0 );
+		// Schema upgrade temprano (admin + storefront): promos query necesita no_expiry.
+		add_action( 'plugins_loaded', array( 'WC_Payway_Activator', 'maybe_upgrade' ), 20 );
+		add_action( 'init', array( 'WC_Payway_Activator', 'maybe_upgrade' ), 1 );
 
 		// expose custom meta box within Order Details
 		add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'render_order_payment_details') );

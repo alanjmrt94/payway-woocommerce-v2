@@ -3,3 +3,33 @@
 .ss-form-width {width:100%}
 .ss-th-width {width:25%}
 .ss-field-width {width:75%}
+
+/* Payway Instalación / Status — semántica de colores (override WC mark.yes amarillo) */
+.payway-admin-status mark.yes,
+.payway-admin-status mark.payway-ok {
+	background: #46b450;
+	color: #fff;
+	padding: 0.15em 0.45em;
+	border-radius: 3px;
+}
+
+.payway-admin-status mark.warning,
+.payway-admin-status mark.payway-warning {
+	background: #ffff00;
+	color: #1d2327;
+	padding: 0.15em 0.45em;
+	border-radius: 3px;
+}
+
+.payway-admin-status mark.error,
+.payway-admin-status mark.payway-error {
+	background: #dc3232;
+	color: #fff;
+	padding: 0.15em 0.45em;
+	border-radius: 3px;
+}
+
+.payway-admin-status mark .dashicons {
+	vertical-align: middle;
+	margin-top: -2px;
+}
