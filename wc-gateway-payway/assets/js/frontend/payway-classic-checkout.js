@@ -21,22 +21,24 @@ jQuery(function ($) {
   var form = {
     id: 'payway_gateway',
     cart_total: baseConfig.cart_total,
-    $form: $('#payway_gateway-cc-form'),
-    $wrapper: $('.fields-wrapper', '#payway_gateway-cc-form'),
-    $error_container: $('#error_container', '#payway_gateway-cc-form'),
-    $banksDropdown: $('#payway_gateway_cc_bank'),
-    $cardsDropdown: $('#payway_gateway_cc_type'),
-    $installmentsDropdown: $('#payway_gateway_cc_installments'),
-    $cardExpirationMonth: $('#payway_gateway_cc_exp_month'),
-    $cardNumber: $('#payway_gateway_cc_number'),
-    $cardCVV: $('#payway_gateway_cc_cid'),
-    $cardHolderName: $('#payway_gateway_cc_holder_name'),
-    $cardHolderDocumentType: $('#payway_gateway_cc_doc_type'),
-    $cardHolderDocumentNumber: $('#payway_gateway_cc_doc_number'),
-    $cardExpirationYear: $('#payway_gateway_cc_exp_year'),
-    $cardHolderDoorNumber: $('#payway_gateway_cc_holder_door_number'),
+    $form: $(),
+    $wrapper: $(),
+    $error_container: $(),
+    $banksDropdown: $(),
+    $cardsDropdown: $(),
+    $installmentsDropdown: $(),
+    $cardExpirationMonth: $(),
+    $cardNumber: $(),
+    $cardCVV: $(),
+    $cardHolderName: $(),
+    $cardHolderDocumentType: $(),
+    $cardHolderDocumentNumber: $(),
+    $cardExpirationYear: $(),
+    $cardHolderDoorNumber: $(),
+    $cartTotalField: $(),
     config: baseConfig,
     isTokenReady: false,
+    listenersAttached: false,
 
     log: function () {
       this.refreshCartTotalFromServer();
@@ -45,34 +47,115 @@ jQuery(function ($) {
       }
     },
 
+    bindDom: function () {
+      this.$form = $('#payway_gateway-cc-form');
+      this.$wrapper = $('.fields-wrapper', this.$form);
+      this.$error_container = $('#error_container', this.$form);
+      this.$banksDropdown = $('#payway_gateway_cc_bank');
+      this.$cardsDropdown = $('#payway_gateway_cc_type');
+      this.$installmentsDropdown = $('#payway_gateway_cc_installments');
+      this.$cardExpirationMonth = $('#payway_gateway_cc_exp_month');
+      this.$cardNumber = $('#payway_gateway_cc_number');
+      this.$cardCVV = $('#payway_gateway_cc_cid');
+      this.$cardHolderName = $('#payway_gateway_cc_holder_name');
+      this.$cardHolderDocumentType = $('#payway_gateway_cc_doc_type');
+      this.$cardHolderDocumentNumber = $('#payway_gateway_cc_doc_number');
+      this.$cardExpirationYear = $('#payway_gateway_cc_exp_year');
+      this.$cardHolderDoorNumber = $('#payway_gateway_cc_holder_door_number');
+      this.$cartTotalField = $('#payway_gateway_cart_total');
+    },
+
     refreshCartTotalFromServer: function () {
-      var serverTotal = parseFloat(wc_gateway_payway_params.cart_total, 10);
+      var fromField = NaN;
+      if (this.$cartTotalField && this.$cartTotalField.length) {
+        fromField = parseFloat(this.$cartTotalField.attr('data-payway-cart-total') || this.$cartTotalField.val(), 10);
+      }
+      var fromParams = parseFloat(wc_gateway_payway_params.cart_total, 10);
+      var serverTotal = !isNaN(fromField) && fromField > 0 ? fromField : fromParams;
       if (!isNaN(serverTotal) && serverTotal > 0) {
         this.cart_total = serverTotal;
         this.config.cart_total = serverTotal;
+        wc_gateway_payway_params.cart_total = serverTotal;
       }
     },
 
     init: function () {
-      this.$error_container.empty().hide();
+      this.bindDom();
+      this.refreshCartTotalFromServer();
+      if (this.$error_container.length) {
+        this.$error_container.empty().hide();
+      }
       this._attachListeners();
       this._loadPromotions();
       this._initRadioListeners();
+      this._initCheckoutUpdateListener();
+    },
+
+    onUpdatedCheckout: function () {
+      var previousBank = this.$banksDropdown.length ? this.$banksDropdown.val() : '';
+      var previousCard = this.$cardsDropdown.length ? this.$cardsDropdown.val() : '';
+
+      this.bindDom();
+      this.refreshCartTotalFromServer();
+      this._attachListeners();
+
+      if (!this.$banksDropdown.length) {
+        return;
+      }
+
+      this._loadPromotions();
+
+      if (previousBank) {
+        this.$banksDropdown.val(previousBank);
+        this.onBanksChange();
+        if (previousCard) {
+          this.$cardsDropdown.val(previousCard);
+          this.onCardsChange();
+        }
+      }
+    },
+
+    _initCheckoutUpdateListener: function () {
+      var self = this;
+      $(document.body)
+        .off('updated_checkout.paywayCartTotal')
+        .on('updated_checkout.paywayCartTotal', function () {
+          self.onUpdatedCheckout();
+        });
     },
 
     _attachListeners: function () {
-      this.$banksDropdown.on('change', this.onBanksChange.bind(this));
-      this.$cardsDropdown.on('change', this.onCardsChange.bind(this));
-      this.$cardExpirationMonth.on('blur change', this.validateCardExpirationMonth.bind(this));
-      this.$cardExpirationYear.on('blur change', this.validateCardExpirationYear.bind(this));
-      this.$cardHolderDocumentNumber.on('blur change', this.validateCardDocumentNumber.bind(this));
-      this.$cardHolderDoorNumber.on('blur change', this.validateDoorNumber.bind(this));
-      $('#place_order').on('click', this.capturePlaceOrder.bind(this));
+      if (!this.$banksDropdown.length) {
+        return;
+      }
+
+      this.$banksDropdown.off('.paywayCheckout').on('change.paywayCheckout', this.onBanksChange.bind(this));
+      this.$cardsDropdown.off('.paywayCheckout').on('change.paywayCheckout', this.onCardsChange.bind(this));
+      this.$cardExpirationMonth
+        .off('.paywayCheckout')
+        .on('blur.paywayCheckout change.paywayCheckout', this.validateCardExpirationMonth.bind(this));
+      this.$cardExpirationYear
+        .off('.paywayCheckout')
+        .on('blur.paywayCheckout change.paywayCheckout', this.validateCardExpirationYear.bind(this));
+      this.$cardHolderDocumentNumber
+        .off('.paywayCheckout')
+        .on('blur.paywayCheckout change.paywayCheckout', this.validateCardDocumentNumber.bind(this));
+      this.$cardHolderDoorNumber
+        .off('.paywayCheckout')
+        .on('blur.paywayCheckout change.paywayCheckout', this.validateDoorNumber.bind(this));
+
+      if (!this.listenersAttached) {
+        $(document.body).on('click.paywayCheckout', '#place_order', this.capturePlaceOrder.bind(this));
+        this.listenersAttached = true;
+      }
     },
 
     _initRadioListeners: function () {
       var self = this;
       $('body').on('click', 'input.shipping_method', function () {
+        if (!self.$banksDropdown.length) {
+          return;
+        }
         self.$banksDropdown.val(self.$banksDropdown.find('option:first').val());
         self.$cardsDropdown.val(self.$cardsDropdown.find('option:first').val());
         self.$installmentsDropdown.val(self.$installmentsDropdown.find('option:first').val());
@@ -94,6 +177,8 @@ jQuery(function ($) {
       if (!this._validateGatewayForm()) {
         return false;
       }
+
+      this.refreshCartTotalFromServer();
 
       var formElement = PaywayCheckoutCore.buildDecidirFormElement({
         card_number: this._getFormValue('#payway_gateway_cc_number'),

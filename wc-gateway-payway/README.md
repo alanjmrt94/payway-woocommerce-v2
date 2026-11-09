@@ -8,10 +8,10 @@ Disclaimer y licencia: ver el [README del repositorio](../README.md).
 ## Requisitos
 
 - WordPress >= 5.8.3  
-- WooCommerce >= 6.0 (probado hasta lo declarado en el header del plugin)  
+- WooCommerce >= 6.0 (probado hasta lo declarado en el header del plugin; lab hasta 11.x)  
 - PHP >= 7.4  
 - MySQL >= 5.7 o MariaDB >= 10.2  
-- Checkout **clásico** (shortcode). Blocks: todavía no.  
+- Checkout **clásico** (`[woocommerce_checkout]`) y **WooCommerce Blocks** (si existe la API de payment methods)  
 - Compatible con HPOS
 
 ## Instalación
@@ -29,6 +29,12 @@ El ZIP debe traer la carpeta `wc-gateway-payway` en la raíz. Subilo en **Plugin
 ### Credenciales
 
 Salen del portal / backoffice Payway del comercio (sandbox y prod son distintas). Este fork no emite claves; si el portal no está claro, consultá a tu contacto comercial o a la mesa de Payway.
+
+## Checkout y cuotas
+
+- El monto enviado a Decidir sale del **pedido en servidor** (no del DOM).
+- En checkout clásico, al cambiar envío o cupones (`updated_checkout`) se refresca el total usado para armar las cuotas.
+- En Blocks, el total viene del carrito de la Store API; si cambia, se recalculan / limpian las cuotas.
 
 ## Cuándo no aparece el formulario
 

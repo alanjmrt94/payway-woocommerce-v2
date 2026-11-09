@@ -23,6 +23,11 @@ $description        = $this->get_option( 'description' );
 		<hr style="border: 1px solid #ddd; margin: 20px 0;">
 	<?php endif; ?>
 	<div id="error_container"></div>
+	<input type="hidden"
+		id="<?php echo esc_attr( $gateway_field_id ); ?>cart_total"
+		name="<?php echo esc_attr( $gateway_field_id ); ?>cart_total"
+		value="<?php echo esc_attr( $this->get_order_total() ); ?>"
+		data-payway-cart-total="<?php echo esc_attr( $this->get_order_total() ); ?>" />
 	<div class="fields-wrapper">
 		<div class="form-row validate-required">
 			<label for="<?php echo esc_attr( $gateway_field_id ); ?>cc_bank"><?php echo esc_html__( 'Bank', 'wc-gateway-payway' ); ?> <span class="required">*</span></label>

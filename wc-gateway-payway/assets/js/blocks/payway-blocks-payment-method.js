@@ -80,7 +80,8 @@
 
     var promotions = config.promotions || { banks: [], cards: {}, plans: {} };
     var banks = asList(promotions.banks);
-    config.cart_total = cartTotalFromProps(props, config.cart_total);
+    var liveCartTotal = cartTotalFromProps(props, config.cart_total);
+    config.cart_total = liveCartTotal;
 
     var bank = useState('');
     var setBank = bank[1];
@@ -93,6 +94,18 @@
     var installments = useState('');
     var setInstallments = installments[1];
     var installmentsVal = installments[0];
+
+    var previousCartTotalRef = useRef(liveCartTotal);
+    useEffect(
+      function () {
+        if (previousCartTotalRef.current === liveCartTotal) {
+          return;
+        }
+        previousCartTotalRef.current = liveCartTotal;
+        setInstallments('');
+      },
+      [liveCartTotal]
+    );
 
     var cardNumber = useState('');
     var setCardNumber = cardNumber[1];

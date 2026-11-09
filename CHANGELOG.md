@@ -5,6 +5,16 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [1.1.1] — 2026-11-09
+
+### Fixed
+
+- Checkout clásico: el display de cuotas refresca el `cart_total` en `updated_checkout` (shipping / cupones) vía campo hidden + fragmento WooCommerce + rebind del formulario ([#64](https://github.com/payway-ar/plugin-woocommerce/issues/64) residual display).
+- Blocks: al cambiar el total del carrito se limpian las cuotas seleccionadas para recalcular montos.
+
+
+---
+
 ## [1.1.0] — 2026-11-08
 
 ### Added
@@ -58,7 +68,7 @@ Se mantienen a propósito la carpeta `wc-gateway-payway`, el gateway id `payway_
 Mitigaciones respecto de issues abiertos en el repo original (el fork no espera a que upstream los cierre):
 
 - [#71](https://github.com/payway-ar/plugin-woocommerce/issues/71) — `payment_method_id` / errores de request más claros (falta UAT sandbox).
-- [#64](https://github.com/payway-ar/plugin-woocommerce/issues/64) — total y fees desde el pedido en servidor, no desde el DOM (falta UAT con FX).
+- [#64](https://github.com/payway-ar/plugin-woocommerce/issues/64) — total y fees desde el pedido en servidor, no desde el DOM (UAT OK; display de cuotas cerrado en 1.1.1).
 - [#59](https://github.com/payway-ar/plugin-woocommerce/issues/59) — dónde obtener Site Id / keys.
 - [#35](https://github.com/payway-ar/plugin-woocommerce/issues/35) / [#47](https://github.com/payway-ar/plugin-woocommerce/issues/47) — packaging con carpeta raíz correcta.
 - [#33](https://github.com/payway-ar/plugin-woocommerce/issues/33) / [#43](https://github.com/payway-ar/plugin-woocommerce/issues/43) — carga temprana del text domain (faltan cadenas del form).
@@ -88,5 +98,6 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[1.1.1]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.1
 [1.1.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.0
 [1.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.0.0

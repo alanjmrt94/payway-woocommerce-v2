@@ -98,6 +98,14 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			'wc_payway_request_builder_process_before',
 			array( $this, 'order_process_before_gateway' )
 		);
+
+		// Keep classic checkout installment display in sync when shipping/coupons change.
+		if ( 'yes' === $this->enabled ) {
+			add_filter(
+				'woocommerce_update_order_review_fragments',
+				array( $this, 'update_checkout_cart_total_fragment' )
+			);
+		}
 	}
 
 	/**
@@ -235,6 +243,28 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			</div>
 			<?php
 		}
+	}
+
+	/**
+	 * Injects a live cart total fragment so classic JS can refresh installment amounts.
+	 *
+	 * @param array $fragments Checkout review fragments.
+	 * @return array
+	 */
+	public function update_checkout_cart_total_fragment( $fragments ) {
+		if ( ! is_array( $fragments ) ) {
+			$fragments = array();
+		}
+
+		$total = (float) $this->get_order_total();
+		$attr  = esc_attr( $total );
+
+		$fragments['#payway_gateway_cart_total'] = sprintf(
+			'<input type="hidden" id="payway_gateway_cart_total" name="payway_gateway_cart_total" value="%1$s" data-payway-cart-total="%1$s" />',
+			$attr
+		);
+
+		return $fragments;
 	}
 
 	/**
