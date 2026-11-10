@@ -5,6 +5,41 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [1.1.5] — 2026-11-09
+
+### Changed
+
+- Cache de settings del gateway: request-level + `wp_cache` en `wc_payway_get_config_options`; invalidación al add/update/delete de `woocommerce_payway_gateway_settings`; filtro `payway_skip_settings_cache`.
+- Blocks payment method lee settings vía el getter cacheado.
+- Versión del plugin a **1.1.5**.
+
+---
+
+## [1.1.4] — 2026-11-09
+
+### Security
+
+- Sanitize sistemático de `$_POST` en create/update de banks/cards/promotions (`WC_Payway_Admin_Sanitize`).
+- Capabilities alineadas: menú Payway y mutaciones usan `manage_woocommerce` (antes menú en `manage_options`).
+- Redirects admin con `wp_safe_redirect`; mensajes de validación de promociones escapados.
+
+### Changed
+
+- Versión del plugin a **1.1.4**.
+
+---
+
+## [1.1.3] — 2026-11-09
+
+### Changed
+
+- Checkout clásico: tokenización vía `checkout_place_order_payway_gateway` (ya no click en `#place_order`).
+- Validación explícita del SDK Decidir antes de crear token.
+- Eliminados assets JS muertos (`payment.js`, `form.js`, `card.js`, `jquery.card.js`, `decidir.js` local).
+- Versión del plugin a **1.1.3**.
+
+---
+
 ## [1.1.2] — 2026-11-09
 
 ### Fixed
@@ -121,6 +156,9 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[1.1.5]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.5
+[1.1.4]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.4
+[1.1.3]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.3
 [1.1.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.2
 [1.1.1]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.1
 [1.1.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.0

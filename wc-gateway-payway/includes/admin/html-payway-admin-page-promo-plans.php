@@ -27,18 +27,21 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$PAGE_KEY_NAME = 'payway_admin_promotions';
-$ACTION_NAME_NEW = 'newpromotion';
-$ACTION_NAME_EDIT = 'editpromotion';
-$ACTION_NAME_DELETE = 'deletepromotion';
+$PAGE_KEY_NAME      = isset( $PAGE_KEY_NAME ) ? $PAGE_KEY_NAME : 'payway_admin_promotions';
+$ACTION_NAME_NEW    = isset( $ACTION_NAME_NEW ) ? $ACTION_NAME_NEW : 'newpromotion';
+$ACTION_NAME_EDIT   = isset( $ACTION_NAME_EDIT ) ? $ACTION_NAME_EDIT : 'editpromotion';
+$ACTION_NAME_DELETE = isset( $ACTION_NAME_DELETE ) ? $ACTION_NAME_DELETE : 'deletepromotion';
 
-// Alias in case in future we update the way we pass data
-$params = $_GET;
+if ( ! isset( $params ) || ! is_array( $params ) ) {
+	$params = array(
+		'action' => isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '',
+	);
+}
 ?>
-<?php if ( ! isset($params['action']) ): ?>
-<?php else: ?>
+<?php if ( empty( $params['action'] ) ) : ?>
+<?php else : ?>
 	<?php if ( $ACTION_NAME_NEW === $params['action']
-		|| $ACTION_NAME_EDIT === $params['action'] ): ?>
+		|| $ACTION_NAME_EDIT === $params['action'] ) : ?>
 		<?php $is_edit = $ACTION_NAME_EDIT === $params['action']; ?>
 
 		<div class="wrap-table-fee-plans" id="wrap-table-fee-plans">

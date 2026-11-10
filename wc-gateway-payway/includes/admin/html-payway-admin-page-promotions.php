@@ -27,15 +27,19 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$PAGE_KEY_NAME = 'payway_admin_promotions';
-$ACTION_NAME_NEW = 'newpromotion';
-$ACTION_NAME_EDIT = 'editpromotion';
+WC_Payway_Admin_Sanitize::require_manage_cap();
+
+$PAGE_KEY_NAME      = 'payway_admin_promotions';
+$ACTION_NAME_NEW    = 'newpromotion';
+$ACTION_NAME_EDIT   = 'editpromotion';
 $ACTION_NAME_DELETE = 'deletepromotion';
 
-// Alias in case in future we update the way we pass data
-$params = $_GET;
+$params = array(
+	'action'        => isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '',
+	'promotion_id'  => isset( $_GET['promotion_id'] ) ? absint( $_GET['promotion_id'] ) : 0,
+);
 
-$is_creation = isset( $params['action'] ) && $params['action'] === $ACTION_NAME_NEW;
+$is_creation = $params['action'] === $ACTION_NAME_NEW;
 
 // Page Title
 $title = $is_creation
@@ -46,93 +50,97 @@ $title = $is_creation
 	<h1 class="wp-heading-inline">
 		<?php echo $title; ?>
 	</h1>
-	<?php if ( ! isset($params['action']) ): ?>
-		<?php //wp_nonce_field( 'payway-table-cards-massaction', '_wpnonce_payway-delete-cards-massaction' ); ?>
+	<?php if ( '' === $params['action'] ) : ?>
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
 		<?php echo $this->get_table(); ?>
-	<?php else: ?>
-		<?php if (isset( $_POST['action'] )): ?>
-			<?php if ( $_POST['action'] === $ACTION_NAME_NEW ): ?>
+	<?php else : ?>
+		<?php if ( isset( $_POST['action'] ) ) : ?>
+			<?php
+			WC_Payway_Admin_Sanitize::require_manage_cap();
+			$post_action = sanitize_key( wp_unslash( $_POST['action'] ) );
+			$sanitized   = WC_Payway_Admin_Sanitize::promotion_from_post( wp_unslash( $_POST ) );
+			?>
+			<?php if ( $post_action === $ACTION_NAME_NEW ) : ?>
 				<?php check_admin_referer( 'payway-create-edit-promotion', '_wpnonce_payway-create-edit-promotion' ); ?>
 				<?php
 					/** @var WP_Error|null */
-					$validation_result = $this->validate_promotion_data( $_POST );
+					$validation_result = $this->validate_promotion_data( $sanitized );
 				?>
-				<?php if ( ! $validation_result || ( ! is_wp_error( $validation_result ) &&  ! $validation_result->has_errors() ) ): ?>
-					<?php $result = $this->create_promotion( $_POST ); ?>
-					<?php if ( $result ): ?>
+				<?php if ( ! $validation_result || ( ! is_wp_error( $validation_result ) && ! $validation_result->has_errors() ) ) : ?>
+					<?php $result = $this->create_promotion( $sanitized ); ?>
+					<?php if ( $result ) : ?>
 						<?php $redirect = remove_query_arg( array( 'wp_http_referer', 'updated', 'action' ) ); ?>
-						<?php wp_redirect( $redirect ); ?>
-						<?php die(); ?>
-					<?php else: ?>
-						<p><?php echo __('Some things happened during Promotion creation', 'wc-gateway-payway'); ?></p>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
-						<?php die(); ?>
+						<?php wp_safe_redirect( $redirect ); ?>
+						<?php exit; ?>
+					<?php else : ?>
+						<p><?php echo esc_html__( 'Some things happened during Promotion creation', 'wc-gateway-payway' ); ?></p>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo esc_html__( 'Go back', 'wc-gateway-payway' ); ?></a>
+						<?php return; ?>
 					<?php endif; ?>
-				<?php else: ?>
+				<?php else : ?>
 					<div class="error">
 						<ul>
-						<?php foreach ( $validation_result->get_error_messages() as $error ): ?>
-							<li><?php echo $error['message']; ?></li>
+						<?php foreach ( $validation_result->get_error_messages() as $error_message ) : ?>
+							<li><?php echo esc_html( $error_message ); ?></li>
 						<?php endforeach; ?>
 						</ul>
 					</div>
-					<?php die(); ?>
+					<?php return; ?>
 				<?php endif; ?>
-			<?php elseif ( $_POST['action'] === $ACTION_NAME_EDIT ): ?>
+			<?php elseif ( $post_action === $ACTION_NAME_EDIT ) : ?>
 				<?php check_admin_referer( 'payway-create-edit-promotion', '_wpnonce_payway-create-edit-promotion' ); ?>
 				<?php
 					/** @var WP_Error|null */
-					$validation_result = $this->validate_promotion_data( $_POST );
+					$validation_result = $this->validate_promotion_data( $sanitized );
 				?>
-				<?php if ( ! $validation_result || ( ! is_wp_error( $validation_result ) &&  ! $validation_result->has_errors() ) ): ?>
-					<?php $result = $this->update_promotion( $_POST ); ?>
-					<?php if ( $result ): ?>
+				<?php if ( ! $validation_result || ( ! is_wp_error( $validation_result ) && ! $validation_result->has_errors() ) ) : ?>
+					<?php $result = $this->update_promotion( $sanitized ); ?>
+					<?php if ( $result ) : ?>
 						<?php $redirect = remove_query_arg( array( 'wp_http_referer', 'updated', 'action' ) ); ?>
-						<?php wp_redirect( $redirect ); ?>
-						<?php die(); ?>
-					<?php else: ?>
-						<p><?php echo __('Ensure all required fields are being filled with valid information', 'wc-gateway-payway'); ?></p>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
+						<?php wp_safe_redirect( $redirect ); ?>
+						<?php exit; ?>
+					<?php else : ?>
+						<p><?php echo esc_html__( 'Ensure all required fields are being filled with valid information', 'wc-gateway-payway' ); ?></p>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo esc_html__( 'Go back', 'wc-gateway-payway' ); ?></a>
 					<?php endif; ?>
-					<?php die(); ?>
-				<?php else: ?>
+					<?php return; ?>
+				<?php else : ?>
 					<div class="error">
 						<ul>
-						<?php foreach ( $validation_result->get_error_messages() as $error ): ?>
-							<li><?php echo $error['message']; ?></li>
+						<?php foreach ( $validation_result->get_error_messages() as $error_message ) : ?>
+							<li><?php echo esc_html( $error_message ); ?></li>
 						<?php endforeach; ?>
 						</ul>
 					</div>
-					<?php die(); ?>
+					<?php return; ?>
 				<?php endif; ?>
-			<?php else: ?>
+			<?php else : ?>
 			<!-- If you ended up here, means someone is playing around with params... -->
 			<?php endif; ?>
 		<?php elseif ( $ACTION_NAME_NEW === $params['action']
-			|| $ACTION_NAME_EDIT === $params['action'] ): ?>
+			|| $ACTION_NAME_EDIT === $params['action'] ) : ?>
 				<?php $is_edit = $ACTION_NAME_EDIT === $params['action']; ?>
-				<?php $promotion_id = isset( $params['promotion_id'] ) ? $params['promotion_id'] : false; ?>
+				<?php $promotion_id = $params['promotion_id']; ?>
 				<?php $promotion = $promotion_id ? $this->get_promotion( $promotion_id ) : false; ?>
-				<?php if ( $is_edit && ! $promotion ): ?>
+				<?php if ( $is_edit && ! $promotion ) : ?>
 					<?php $errors = new WP_Error(); ?>
-					<?php $errors->add( 'promotion_id', __('Promotion does not exist', 'wc-gateway-payway') ); ?>
+					<?php $errors->add( 'promotion_id', __( 'Promotion does not exist', 'wc-gateway-payway' ) ); ?>
 					<div class="error">
 						<ul>
-						<?php foreach ( $errors->get_error_messages() as $err ): ?>
-							<?php echo "<li>$err</li>\n"; ?>
+						<?php foreach ( $errors->get_error_messages() as $err ) : ?>
+							<li><?php echo esc_html( $err ); ?></li>
 						<?php endforeach; ?>
 						</ul>
 					</div>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
-					<?php die(); ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo esc_html__( 'Go back', 'wc-gateway-payway' ); ?></a>
+					<?php return; ?>
 				<?php endif; ?>
-				<form method="post" name="<?php echo $params['action']; ?>" id="<?php echo $params['action']; ?>" class="validate" novalidate="novalidate">
-					<input name="action" type="hidden" value="<?php echo $params['action'] ?>" />
-					<?php if ( $is_edit ): ?>
-						<input name="promotion_id" type="hidden" value="<?php echo $promotion_id ?>" />
+				<form method="post" name="<?php echo esc_attr( $params['action'] ); ?>" id="<?php echo esc_attr( $params['action'] ); ?>" class="validate" novalidate="novalidate">
+					<input name="action" type="hidden" value="<?php echo esc_attr( $params['action'] ); ?>" />
+					<?php if ( $is_edit ) : ?>
+						<input name="promotion_id" type="hidden" value="<?php echo esc_attr( (string) $promotion_id ); ?>" />
 					<?php endif; ?>
 					<?php wp_nonce_field( 'payway-create-edit-promotion', '_wpnonce_payway-create-edit-promotion' ); ?>
 					<?php
@@ -264,11 +272,9 @@ $title = $is_creation
 					</div>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
 				</form>
-		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ): ?>
+		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ) : ?>
 			<?php
-			if ( ! current_user_can( 'manage_woocommerce' ) ) {
-				wp_die( esc_html__( 'You do not have permission for this action.', 'wc-gateway-payway' ) );
-			}
+			WC_Payway_Admin_Sanitize::require_manage_cap();
 			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
 			if ( ! $nonce || ! wp_verify_nonce( $nonce, '_wpnonce_payway-delete-promotion-' . $params['promotion_id'] ) ) {
 				wp_die( esc_html__( 'Invalid nonce. The promotion was not deleted.', 'wc-gateway-payway' ) );
@@ -278,7 +284,7 @@ $title = $is_creation
 			wp_safe_redirect( $redirect );
 			exit;
 			?>
-		<?php else: ?>
+		<?php else : ?>
 			<!-- If you ended up here, means someone is playing around with params... -->
 		<?php endif; ?>
 	<?php endif; ?>

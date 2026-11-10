@@ -34,7 +34,10 @@ final class WC_Payway_Blocks_Payment_Method extends AbstractPaymentMethodType {
 	 * {@inheritdoc}
 	 */
 	public function initialize() {
-		$this->settings = get_option( 'woocommerce_payway_gateway_settings', array() );
+		$options        = function_exists( 'wc_payway_get_config_options' )
+			? wc_payway_get_config_options()
+			: get_option( 'woocommerce_payway_gateway_settings', array() );
+		$this->settings = is_array( $options ) ? $options : array();
 		$gateways       = WC()->payment_gateways()->payment_gateways();
 		if ( isset( $gateways[ $this->name ] ) && $gateways[ $this->name ] instanceof WC_Payment_Gateway_Payway ) {
 			$this->gateway = $gateways[ $this->name ];

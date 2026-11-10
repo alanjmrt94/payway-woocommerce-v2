@@ -107,32 +107,35 @@ class WC_Payway_Admin_Navigation_Page_Promotions extends WP_List_Table {
 	public function validate_promotion_data( $post ) {
 		$required_field_names = WC_Payway_Promotion_Factory::get_required_fields();
 		$no_expiry            = ! empty( $post['no_expiry'] );
-
-		$error_messages = array();
-		$errors         = null;
+		$errors               = null;
 
 		foreach ( $required_field_names as $field ) {
-			if ( ! isset( $post[ $field['name'] ] ) || $post[ $field['name'] ] == '' ) {
-				$error_messages[] = array(
-					'error_key' => $field['name'],
-					'message'   => __( '<strong>' . $field['label'] . '</strong>' . ' es un campo requerido', 'wc-gateway-payway' ),
+			$value = isset( $post[ $field['name'] ] ) ? $post[ $field['name'] ] : '';
+			if ( is_array( $value ) ) {
+				$empty = empty( $value );
+			} else {
+				$empty = ( '' === $value || null === $value );
+			}
+			if ( $empty ) {
+				if ( ! $errors instanceof WP_Error ) {
+					$errors = new WP_Error();
+				}
+				$errors->add(
+					$field['name'],
+					/* translators: %s: field label */
+					sprintf( __( '%s is a required field', 'wc-gateway-payway' ), $field['label'] )
 				);
 			}
 		}
 
 		if ( ! $no_expiry && ( ! isset( $post['to_date'] ) || $post['to_date'] === '' ) ) {
-			$error_messages[] = array(
-				'error_key' => 'to_date',
-				'message'   => __( '<strong>To Date</strong> is required when the promotion has an expiry date', 'wc-gateway-payway' ),
-			);
-		}
-
-		if ( ! empty( $error_messages ) ) {
-			$errors = new WP_Error();
-
-			foreach ( $error_messages as $key => $message ) {
-				$errors->add( $key, $message );
+			if ( ! $errors instanceof WP_Error ) {
+				$errors = new WP_Error();
 			}
+			$errors->add(
+				'to_date',
+				__( 'To Date is required when the promotion has an expiry date', 'wc-gateway-payway' )
+			);
 		}
 
 		return $errors;

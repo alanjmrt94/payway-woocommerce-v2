@@ -33,7 +33,7 @@ class WC_Payway_Admin_Navigation_Page_Setup {
 	 * @return void
 	 */
 	public function render() {
-		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( WC_Payway_Admin_Sanitize::required_capability() ) ) {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'wc-gateway-payway' ) );
 		}
 

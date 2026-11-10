@@ -3,7 +3,7 @@
  * Plugin Name: Payway Payment Community
  * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
  * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
- * Version: 1.1.2
+ * Version: 1.1.5
  * Author: Alan Martinez
  * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
@@ -79,12 +79,71 @@ require_once 'includes/interfaces/class-wc-payway-activator-interface.php';
 require_once 'includes/class-payway-activator.php';
 
 /**
- * Returns Payway Gateway configuration options
- *
- * @return array|bool
+ * Object-cache group for gateway settings.
  */
-function wc_payway_get_config_options() {
-	return get_option( 'woocommerce_payway_gateway_settings' );
+if ( ! defined( 'WC_PAYWAY_SETTINGS_CACHE_GROUP' ) ) {
+	define( 'WC_PAYWAY_SETTINGS_CACHE_GROUP', 'payway' );
+}
+
+/**
+ * Object-cache key for gateway settings.
+ */
+if ( ! defined( 'WC_PAYWAY_SETTINGS_CACHE_KEY' ) ) {
+	define( 'WC_PAYWAY_SETTINGS_CACHE_KEY', 'woocommerce_payway_gateway_settings' );
+}
+
+/**
+ * Returns Payway Gateway configuration options (request + object cache).
+ *
+ * @param bool $force_refresh Bypass caches and re-read from the database.
+ * @return array|false
+ */
+function wc_payway_get_config_options( $force_refresh = false ) {
+	static $cached  = null;
+	static $hydrated = false;
+
+	$skip_cache = (bool) apply_filters( 'payway_skip_settings_cache', false );
+
+	if ( $force_refresh || $skip_cache ) {
+		$hydrated = false;
+		$cached   = null;
+		wp_cache_delete( WC_PAYWAY_SETTINGS_CACHE_KEY, WC_PAYWAY_SETTINGS_CACHE_GROUP );
+	}
+
+	if ( $hydrated && ! $skip_cache ) {
+		return $cached;
+	}
+
+	if ( ! $force_refresh && ! $skip_cache ) {
+		$from_cache = wp_cache_get( WC_PAYWAY_SETTINGS_CACHE_KEY, WC_PAYWAY_SETTINGS_CACHE_GROUP );
+		if ( false !== $from_cache ) {
+			$cached   = $from_cache;
+			$hydrated = true;
+			return $cached;
+		}
+	}
+
+	$cached = get_option( 'woocommerce_payway_gateway_settings' );
+	if ( false === $cached ) {
+		$cached = false;
+	}
+
+	if ( ! $skip_cache ) {
+		wp_cache_set( WC_PAYWAY_SETTINGS_CACHE_KEY, $cached, WC_PAYWAY_SETTINGS_CACHE_GROUP );
+	}
+
+	$hydrated = true;
+
+	return $cached;
+}
+
+/**
+ * Drops request + object caches for gateway settings.
+ *
+ * @return void
+ */
+function wc_payway_invalidate_config_options_cache() {
+	wc_payway_get_config_options( true );
 }
 
 /**
@@ -96,7 +155,7 @@ function wc_payway_get_config_options() {
 function wc_payway_get_config_option( $name ) {
 	$options = wc_payway_get_config_options();
 
-	return ( $options && isset( $options[ $name ] ) )
+	return ( is_array( $options ) && isset( $options[ $name ] ) )
 		? $options[ $name ]
 		: false;
 }
@@ -177,6 +236,25 @@ function wc_payway_is_debug_enabled() {
 
 register_activation_hook( __FILE__, array( 'WC_Payway_Activator', 'activate' ) );
 register_uninstall_hook( __FILE__, array( 'WC_Payway_Activator', 'uninstall' ) );
+
+add_action(
+	'update_option_woocommerce_payway_gateway_settings',
+	'wc_payway_invalidate_config_options_cache',
+	10,
+	0
+);
+add_action(
+	'add_option_woocommerce_payway_gateway_settings',
+	'wc_payway_invalidate_config_options_cache',
+	10,
+	0
+);
+add_action(
+	'delete_option_woocommerce_payway_gateway_settings',
+	'wc_payway_invalidate_config_options_cache',
+	10,
+	0
+);
 
 add_action( 'plugins_loaded', array( 'PaywayWC', 'instance' ) );
 

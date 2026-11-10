@@ -60,11 +60,19 @@
    * @param {object} config
    * @returns {Promise<{id:string,bin:string,last_four_digits:string}>}
    */
+  function isDecidirReady() {
+    return typeof Decidir === 'function' || (typeof Decidir === 'object' && Decidir !== null);
+  }
+
   function createToken(formElement, config) {
     config = normalizeConfig(config);
     return new Promise(function (resolve, reject) {
-      if (typeof Decidir === 'undefined') {
+      if (!isDecidirReady()) {
         reject(new Error('Decidir SDK is not loaded'));
+        return;
+      }
+      if (!formElement) {
+        reject(new Error('Payment form is incomplete'));
         return;
       }
       if (!config.endpoint_url || !config.credentials || !config.credentials.public_key) {
@@ -73,6 +81,10 @@
       }
 
       var api = new Decidir(config.endpoint_url, !!config.disableCybersource);
+      if (!api || typeof api.createToken !== 'function') {
+        reject(new Error('Decidir SDK is not available'));
+        return;
+      }
       api.setPublishableKey(config.credentials.public_key);
       api.setTimeout(0);
       api.createToken(formElement, function (status, data) {
@@ -157,6 +169,7 @@
     normalizeConfig: normalizeConfig,
     getPleaseSelect: getPleaseSelect,
     buildDecidirFormElement: buildDecidirFormElement,
+    isDecidirReady: isDecidirReady,
     createToken: createToken,
     formatMoney: formatMoney,
     buildInstallmentOptions: buildInstallmentOptions,

@@ -86,6 +86,7 @@ jQuery(function ($) {
         this.$error_container.empty().hide();
       }
       this._attachListeners();
+      this._attachPlaceOrderHandler();
       this._loadPromotions();
       this._initRadioListeners();
       this._initCheckoutUpdateListener();
@@ -98,6 +99,7 @@ jQuery(function ($) {
       this.bindDom();
       this.refreshCartTotalFromServer();
       this._attachListeners();
+      this._attachPlaceOrderHandler();
 
       if (!this.$banksDropdown.length) {
         return;
@@ -143,11 +145,20 @@ jQuery(function ($) {
       this.$cardHolderDoorNumber
         .off('.paywayCheckout')
         .on('blur.paywayCheckout change.paywayCheckout', this.validateDoorNumber.bind(this));
+    },
 
-      if (!this.listenersAttached) {
-        $(document.body).on('click.paywayCheckout', '#place_order', this.capturePlaceOrder.bind(this));
-        this.listenersAttached = true;
-      }
+    /**
+     * WooCommerce fires checkout_place_order_{gateway} via triggerHandler on the form.
+     * Must bind on form.checkout / #order_review (not document / #place_order click).
+     */
+    _attachPlaceOrderHandler: function () {
+      var self = this;
+      $('form.checkout, form#order_review')
+        .off('checkout_place_order_payway_gateway.paywayCheckout')
+        .on('checkout_place_order_payway_gateway.paywayCheckout', function () {
+          return self.onCheckoutPlaceOrder();
+        });
+      this.listenersAttached = true;
     },
 
     _initRadioListeners: function () {
@@ -167,14 +178,43 @@ jQuery(function ($) {
     },
 
     _validateGatewayForm: function () {
+      this.validateCardExpirationMonth();
+      this.validateCardExpirationYear();
+      this.validateCardDocumentNumber();
+      this.validateDoorNumber();
       return $('.form-row.woocommerce-invalid', this.$form).length < 1;
     },
 
-    capturePlaceOrder: function () {
+    _tokenErrorMessage: function (err) {
+      if (err && err.message) {
+        return err.message;
+      }
+      return 'Payment Token could not be generated at this time.';
+    },
+
+    /**
+     * @returns {boolean} true continues Woo checkout submit; false aborts until token is ready
+     */
+    onCheckoutPlaceOrder: function () {
       if (!$('#payment_method_payway_gateway').is(':checked')) {
         return true;
       }
+
+      if (this.isTokenReady) {
+        this.isTokenReady = false;
+        return true;
+      }
+
+      if (!this.$form.length) {
+        this.bindDom();
+      }
+
       if (!this._validateGatewayForm()) {
+        return false;
+      }
+
+      if (typeof PaywayCheckoutCore.isDecidirReady === 'function' && !PaywayCheckoutCore.isDecidirReady()) {
+        window.alert('Payment SDK is not available. Please reload the page and try again.');
         return false;
       }
 
@@ -191,7 +231,8 @@ jQuery(function ($) {
         card_holder_door_number: this._getFormValue('#payway_gateway_cc_holder_door_number')
       });
 
-      this.isTokenReady = false;
+      var $checkoutForm = $('form.checkout').length ? $('form.checkout') : $('form#order_review');
+
       PaywayCheckoutCore.createToken(formElement, this.config)
         .then(
           function (result) {
@@ -199,15 +240,12 @@ jQuery(function ($) {
             $('#payway_gateway_cc_token', this.$form).val(result.id);
             $('#payway_gateway_cc_last_digits', this.$form).val(result.last_four_digits);
             this.isTokenReady = true;
-            if (typeof wc_checkout_form !== 'undefined') {
-              wc_checkout_form.$order_review.trigger('submit');
-            } else {
-              $('#payment_method_payway_gateway').closest('form').submit();
-            }
+            $checkoutForm.trigger('submit');
           }.bind(this),
-          function () {
-            window.alert('Payment Token could not be generated at this time.');
-          }
+          function (err) {
+            this.isTokenReady = false;
+            window.alert(this._tokenErrorMessage(err));
+          }.bind(this)
         );
 
       return false;
