@@ -3,7 +3,8 @@
 Plugin WooCommerce para Payway/Decidir — **fork independiente** (no oficial de Payway).  
 Disclaimer y licencia: ver el [README del repositorio](../README.md).
 
-**Versión:** header `Version:` de `index.php` (única fuente de verdad).  
+**Versión:** **2.0.0** — header `Version:` de `index.php` (única fuente de verdad).  
+**SDK PHP:** 2.0.10 (montos en **centavos**).
 
 **No lo uses en producción** sin probar antes en un clon del sitio.
 
@@ -24,7 +25,7 @@ El ZIP debe traer la carpeta `wc-gateway-payway` en la raíz. Subilo en **Plugin
 
 1. WooCommerce → Ajustes → Pagos → **Payway Payment Community** (Enabled + claves)
 2. **Payway → Instalación**: checklist y defaults (banco Todos, tarjetas, promos)
-3. O bien bancos / tarjetas / promociones a mano en el menú **Payway**
+3. Menú Payway: Banks / Cards / Promotions / **Recent Payments** / Status
 4. Moneda ARS o USD; decimales de WooCommerce en **2**
 5. Si falla: **Payway → Status**
 

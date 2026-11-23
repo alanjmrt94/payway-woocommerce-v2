@@ -5,6 +5,33 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [2.0.0] — 2026-11-23
+
+### Changed
+
+- **Breaking:** SDK PHP Decidir/Payway **V1.4.0 → V2.0.10** (`decidir2/php-sdk`). El SDK V2 **ya no multiplica ×100** los montos: el plugin envía `amount` y `purchase_totals.amount` en **centavos**.
+- Vendor unificado: `wc-gateway-payway/decidir/` es un puente Composer; se eliminó el árbol duplicado `decidir/Decidir/` y el vendor anidado basura.
+- Endpoint prod del SDK PHP: `https://ventasonline.payway.com.ar` (lo define el SDK; el `decidir.js` de checkout sigue en hosts frontend).
+- Connector `developer` / `service` atribuidos a Payway Payment Community.
+- Admin: menú **Setup → Banks → Cards → Promotions → Recent Payments → Status**; settings WC agrupados (General / Sandbox / Production); tips en keys; notices si faltan keys o promos; CRUD con ayuda/i18n/`Edit` domain.
+- Panel **Recent Payments** (`PaymentList`) con link a pedido WC por meta `_payway_*`.
+- Versión del plugin a **2.0.0**; constante SDK codebase `2.0.10`.
+
+### Verified (UAT sandbox 2026-11-23)
+
+- Wipe `recommended` + install de cero → Apply recommended → keys → seed catálogo → checkout clásico (#14 approved, CS green, amount centavos) y Blocks (#16 approved).
+- Rechazo tipado PAN `…4999` (mensaje invalid_card).
+- CS OFF en sitio sandbox que exige Fraud Detection → `cybersource_error` / 10734 (limitación del comercio sandbox, no bug de monto).
+- Refund automático WC: gateway aún sin `refunds` en `supports` (documentado).
+- Integration smoke: `min`, `recommended`, `latest-hpos-on`, `latest-hpos-off` OK.
+
+### Migration
+
+- Actualizar el plugin a 2.0.0 (reemplazar carpeta / ZIP). No hace falta migrar settings ni tablas.
+- Re-probar un pago sandbox (idealmente con Cybersource ON) tras el upgrade.
+
+---
+
 ## [1.1.5] — 2026-11-09
 
 ### Changed
@@ -156,6 +183,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[2.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.0
 [1.1.5]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.5
 [1.1.4]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.4
 [1.1.3]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.3

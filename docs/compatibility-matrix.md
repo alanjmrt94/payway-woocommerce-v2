@@ -15,32 +15,34 @@ La versión del plugin se declara **solo** en el header `Version:` de `wc-gatewa
 
 ## Versiones testeadas (lab)
 
-### Celda Docker `recommended` — estado final (2026-11-09)
+### Celda Docker `recommended` — UAT 2.0.0 (2026-11-23)
 
-Partió del perfil default y se actualizó in-place (mismos volúmenes):
+Wipe completo + install de cero (`wp-env-down --volumes` → `wp-env-up`):
 
-| Componente | Perfil inicial | Tras upgrades / UAT |
-|---|---|---|
-| Imagen Docker | `wordpress:6.7.2-php8.1-apache` | misma (WP/WC viven en volumen) |
-| WordPress | 6.7.2 | **7.1.4** |
-| WooCommerce | 9.4.0 | **11.2.2** (pasó por 7 → 9 → 11) |
-| PHP | 8.1 | **8.1.34** |
-| MariaDB | 10.11 | **10.11.19** |
-| Plugin | — | **1.1.5** |
-| HPOS | on | on |
-| Pago sandbox | — | OK pedido **#25** (Blocks / Store API, `approved`) |
+| Componente | Valor |
+|---|---|
+| Imagen Docker | `wordpress:6.7.2-php8.1-apache` |
+| WordPress | **6.7.2** |
+| WooCommerce | **9.4.0** |
+| PHP | **8.1.34** |
+| MariaDB | 10.11 |
+| Plugin | **2.0.0** (SDK PHP **2.0.10**) |
+| HPOS | on |
+| Classic sandbox | OK pedido **#14** (`approved`, CS green, amount `300000` centavos, STID `payway-14`) |
+| Blocks sandbox | OK pedido **#16** (`approved`, CS green, STID `payway-16`) |
+| Rechazo tipado | PAN `…4999` → UI invalid_card |
+| Recent Payments | `PaymentList` lista #14/#15/#16 con link a pedido |
 
-### Camino de actualización (misma tienda)
+### Smoke integration (misma fecha)
 
-| Paso | Qué | Resultado |
-|---|---|---|
-| 1 | Stack inicial recommended | OK |
-| 2 | Update WordPress | OK → 7.1.4 |
-| 3 | WooCommerce **7** | OK |
-| 4 | WooCommerce **9** | OK |
-| 5 | WooCommerce **11** | OK → 11.2.2 + pago sandbox |
+| Perfil | Resultado |
+|---|---|
+| `min` (WP 5.8.3 / WC 6.0 / PHP 7.4) | failed=0 |
+| `recommended` | failed=0 |
+| `latest-hpos-on` (WP 7.1.5 / WC 11.3.1 / PHP 8.3) | failed=0 |
+| `latest-hpos-off` (WP 6.7.2 / WC 9.4 / HPOS off) | failed=0 |
 
 Notas:
 
-- Humo funcional + **una** compra sandbox aprobada en el stack final; no cubre todas las celdas WP×WC×PHP.
-- Pendiente: smoke HPOS off dedicado; i18n storefront/`es_AR` (ver backlog interno).
+- CS OFF contra este site_id sandbox falla con 10734 (Fraud Detection requerido por el comercio); montos V2 OK con CS ON.
+- Refund nativo WC aún no está en `supports` del gateway.
