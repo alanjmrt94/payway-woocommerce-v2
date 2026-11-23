@@ -16,6 +16,7 @@
 ci/
 
 # Symlinks / carpetas locales de desarrollo
+# .cursor → ci/.cursor (memoria agente vive en el repo ci, no acá)
 /bin
 /docker
 /tests
@@ -33,17 +34,22 @@ ci/
 # --- Secretos (raíz del producto) -------------------------------------------
 .env
 .env.*
+!.env.example
+.env-backup
+*.pem
+*.key
 
-# --- Artefactos / caches ----------------------------------------------------
+# --- Artefactos / caches / scratch ------------------------------------------
+/dist/
 *.zip
+check.txt
+.tmp/
 .phpunit.result.cache
 .phpunit.cache/
 .phpstan/
 .phpcs-cache
 coverage/
 clover.xml
-/tmp/
-/temp/
 
 # --- IDEs -------------------------------------------------------------------
 .idea/
