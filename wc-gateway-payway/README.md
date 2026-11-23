@@ -15,7 +15,7 @@ Disclaimer y licencia: ver el [README del repositorio](../README.md).
 - PHP >= 7.4  
 - MySQL >= 5.7 o MariaDB >= 10.2  
 - Checkout **clásico** (`[woocommerce_checkout]`) y **WooCommerce Blocks** (si existe la API de payment methods)  
-- Compatible con HPOS
+- Compatible con **HPOS** (meta vía CRUD; ver manual §8 del repo)
 
 ## Instalación
 

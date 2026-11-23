@@ -38,11 +38,22 @@ Wipe completo + install de cero (`wp-env-down --volumes` → `wp-env-up`):
 | Perfil | Resultado |
 |---|---|
 | `min` (WP 5.8.3 / WC 6.0 / PHP 7.4) | failed=0 |
+| `wp60-wc60-php74` (WP 6.0.3 / WC 6.0 / PHP 7.4) | failed=0 (2026-11-23) |
 | `recommended` | failed=0 |
 | `latest-hpos-on` (WP 7.1.5 / WC 11.3.1 / PHP 8.3) | failed=0 |
 | `latest-hpos-off` (WP 6.7.2 / WC 9.4 / HPOS off) | failed=0 |
 
 Notas:
 
-- CS OFF contra este site_id sandbox falla con 10734 (Fraud Detection requerido por el comercio); montos V2 OK con CS ON.
+- CS OFF contra este site_id sandbox falla con **10734** (Fraud Detection requerido por el comercio). No es bug de montos: con CS ON los amounts V2 (centavos) OK. Detalle interno: `ci/.cursor/docs/cybersource-site-fd.md`.
 - Refund nativo WC aún no está en `supports` del gateway.
+
+### Pairwise (cobertura lab, no factorial completa)
+
+| Celda | WP / WC / PHP | Qué cubre | Gap |
+|---|---|---|---|
+| `min` | 5.8.3 / 6.0 / 7.4 | Piso declarado + integration | Smoke pago sandbox opcional |
+| `wp60-wc60-php74` | 6.0 / 6.0 / 7.4 | Woo 6 era intermedia | Smoke pago si keys |
+| `recommended` | 6.7 / 9.4 / 8.1 | Diario + UAT sandbox | — |
+| `latest-hpos-on` | latest / latest / 8.3 | Frontera + HPOS on | — |
+| `latest-hpos-off` | 6.7 / 9.4 / 8.x | HPOS off | — |

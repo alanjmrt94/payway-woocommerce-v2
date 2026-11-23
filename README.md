@@ -32,7 +32,7 @@ Partió del plugin original [payway-ar/plugin-woocommerce](https://github.com/pa
 - Panel **Recent Payments** (`PaymentList`) con link al pedido WooCommerce.
 - Settings WC agrupados (General / Sandbox / Production) + notices si faltan keys/promos.
 - Promociones con **Sin vencimiento** (`no_expiry`).
-- Compatible con **HPOS**; lab smoke WP/WC hasta **11.x** / PHP 8.3.
+- Compatible con **HPOS** (ver [`docs/manual/08-hpos.md`](docs/manual/08-hpos.md)); lab smoke WP/WC hasta **11.x** / PHP 8.3.
 
 ### i18n y packaging
 

@@ -65,5 +65,5 @@ Desktop.ini
 # --- Logs -------------------------------------------------------------------
 *.log
 
-# Manual ampliado: local hasta revisión (no publicar aún)
-/docs/manual/
+# Manual ampliado versionado desde lote noviembre 2.0.x
+# (antes ignorado; ahora en docs/manual/)
