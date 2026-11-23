@@ -234,9 +234,6 @@ function wc_payway_is_debug_enabled() {
 	);
 }
 
-register_activation_hook( __FILE__, array( 'WC_Payway_Activator', 'activate' ) );
-register_uninstall_hook( __FILE__, array( 'WC_Payway_Activator', 'uninstall' ) );
-
 add_action(
 	'update_option_woocommerce_payway_gateway_settings',
 	'wc_payway_invalidate_config_options_cache',
@@ -256,17 +253,4 @@ add_action(
 	0
 );
 
-add_action( 'plugins_loaded', array( 'PaywayWC', 'instance' ) );
-
-add_action(
-	'before_woocommerce_init',
-	static function () {
-		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
-				'custom_order_tables',
-				WC_PAYWAY_PLUGIN_FILE,
-				true
-			);
-		}
-	}
-);
+PaywayWC::register_lifecycle_hooks();

@@ -90,13 +90,51 @@ class WC_Payway_Meta implements WC_Payway_Meta_Interface {
 	 * @param mixed        $value
 	 * @return void
 	 */
-	private static function set_meta( $order_or_id, $key, $value ) {
+	/** @var array<int,WC_Order> */
+	private static $pending_saves = array();
+
+	/**
+	 * @param int|WC_Order $order_or_id
+	 * @param string       $key
+	 * @param mixed        $value
+	 * @param bool         $defer_save When true, queues a single save via flush_pending_saves().
+	 * @return void
+	 */
+	private static function set_meta( $order_or_id, $key, $value, $defer_save = false ) {
 		$order = self::resolve_order( $order_or_id );
 		if ( ! $order ) {
 			return;
 		}
 		$order->update_meta_data( self::get_full_meta_name( $key ), $value );
+		if ( $defer_save ) {
+			self::$pending_saves[ (int) $order->get_id() ] = $order;
+			return;
+		}
 		$order->save();
+	}
+
+	/**
+	 * Persists any orders queued with deferred meta writes.
+	 *
+	 * @return void
+	 */
+	public static function flush_pending_saves() {
+		foreach ( self::$pending_saves as $order ) {
+			$order->save();
+		}
+		self::$pending_saves = array();
+	}
+
+	/**
+	 * Queue meta write without immediate save (call flush_pending_saves after a batch).
+	 *
+	 * @param int|WC_Order $order_or_id
+	 * @param string       $key
+	 * @param mixed        $value
+	 * @return void
+	 */
+	public static function queue_meta( $order_or_id, $key, $value ) {
+		self::set_meta( $order_or_id, $key, $value, true );
 	}
 
 	/**
@@ -110,11 +148,15 @@ class WC_Payway_Meta implements WC_Payway_Meta_Interface {
 
 	/**
 	 * Stores a redacted subset of the gateway response.
+	 * Only when Debug Mode is on (avoid wide `_payway_full_response` in production).
 	 *
 	 * @param int   $order_id
 	 * @param array $response
 	 */
 	public static function set_order_transaction_response( $order_id, $response ) {
+		if ( function_exists( 'wc_payway_is_debug_enabled' ) && ! wc_payway_is_debug_enabled() ) {
+			return;
+		}
 		self::set_meta( $order_id, self::FULL_RESPONSE, self::sanitize_response_for_storage( $response ) );
 	}
 

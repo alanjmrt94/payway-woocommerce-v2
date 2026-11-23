@@ -61,8 +61,8 @@ class WC_Payway_Api_Handler {
 		$config = wc_payway_get_config_options();
 
 		if ( ! $config ) {
-			// no configuration saved yet
-			wc_add_notice('no configuration saved yet');
+			// Caller surfaces a typed WP_Error / notice; avoid wc_add_notice in API path.
+			$this->credentials = array();
 			return;
 		}
 

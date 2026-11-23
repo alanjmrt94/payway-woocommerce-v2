@@ -97,25 +97,27 @@ class WC_Payway_Request_Builder {
 	}
 
 	/**
-	 *
-	 * TODO: WC_Checkout::get_checkout_fields
-	 * to add custom form fields into the list through:
-	 * filter `woocommerce_checkout_fields`
-	 *
-	 * TODO: WC_Checkout::get_posted_data filter `woocommerce_checkout_posted_data` to capture posted data
-	 * TODO: WC_Checkout::get_posted_data filter `woocommerce_process_checkout_field_{$key}` to capture one field at a time
-	 * for manging custom fields
-	 *
-	 * TODO: WC_Checkout::process_checkout filter `woocommerce_checkout_order_processed`
+	 * Captures Payway checkout fields from classic/Blocks posted data.
+	 * Door number and billing fields come from WC checkout fields / posted_data;
+	 * gateway-specific keys are normalized via WC_Payway_Checkout_Request.
 	 *
 	 * @param array $post_data
 	 * @return $this
 	 */
 	public function set_checkout_form_data( $post_data ) {
+		if ( ! is_array( $post_data ) ) {
+			$post_data = array();
+		}
+
+		/**
+		 * Allows enriching Payway checkout payload from WC posted data / custom fields.
+		 *
+		 * @param array $post_data
+		 */
+		$post_data = apply_filters( 'woocommerce_payway_checkout_posted_data', $post_data );
+
 		if ( class_exists( 'WC_Payway_Checkout_Request' ) ) {
-			$this->checkout_posted_data = WC_Payway_Checkout_Request::get_validated_shape(
-				is_array( $post_data ) ? $post_data : null
-			);
+			$this->checkout_posted_data = WC_Payway_Checkout_Request::get_validated_shape( $post_data );
 			// Keep bin / last_digits digits-only as before.
 			$this->checkout_posted_data['bin']         = preg_replace( '/\D/', '', (string) $this->checkout_posted_data['bin'] );
 			$this->checkout_posted_data['last_digits'] = preg_replace( '/\D/', '', (string) $this->checkout_posted_data['last_digits'] );

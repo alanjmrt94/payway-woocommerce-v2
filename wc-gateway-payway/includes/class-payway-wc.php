@@ -93,6 +93,51 @@ final class PaywayWC {
 	}
 
 	/**
+	 * Registers activation / deactivation / uninstall and early boot hooks.
+	 * Called once from the plugin bootstrap file.
+	 *
+	 * @return void
+	 */
+	public static function register_lifecycle_hooks() {
+		register_activation_hook( WC_PAYWAY_PLUGIN_FILE, array( 'WC_Payway_Activator', 'activate' ) );
+		register_deactivation_hook( WC_PAYWAY_PLUGIN_FILE, array( __CLASS__, 'deactivate' ) );
+		register_uninstall_hook( WC_PAYWAY_PLUGIN_FILE, array( 'WC_Payway_Activator', 'uninstall' ) );
+
+		add_action( 'plugins_loaded', array( __CLASS__, 'instance' ) );
+
+		add_action(
+			'before_woocommerce_init',
+			static function () {
+				if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+					\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+						'custom_order_tables',
+						WC_PAYWAY_PLUGIN_FILE,
+						true
+					);
+				}
+			}
+		);
+	}
+
+	/**
+	 * Soft deactivation: drop caches/transients, keep tables and settings.
+	 *
+	 * @return void
+	 */
+	public static function deactivate() {
+		if ( function_exists( 'wc_payway_invalidate_config_options_cache' ) ) {
+			wc_payway_invalidate_config_options_cache();
+		}
+		if ( class_exists( 'WC_Payway_Promotion_Factory' ) ) {
+			WC_Payway_Promotion_Factory::invalidate_applicable_promotions_cache();
+		}
+		delete_transient( 'payway_activation_redirect' );
+		if ( class_exists( 'WC_Payway_Activator' ) ) {
+			WC_Payway_Activator::deactivate();
+		}
+	}
+
+	/**
 	* Adds the Payment Gateway into WooCommerce gateways' pool
 	* @see WC filter `woocommerce_payment_gateways`
 	*/
@@ -159,6 +204,8 @@ final class PaywayWC {
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-default-catalog.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-setup-status.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-checkout-request.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-decidir-adapter.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/Payway/Support/Status.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/blocks/class-payway-blocks-bootstrap.php';
 
 		if ( is_admin() ) {
@@ -271,24 +318,56 @@ final class PaywayWC {
 		add_action( 'plugins_loaded', array( 'WC_Payway_Activator', 'maybe_upgrade' ), 20 );
 		add_action( 'init', array( 'WC_Payway_Activator', 'maybe_upgrade' ), 1 );
 
-		// expose custom meta box within Order Details
-		add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'render_order_payment_details') );
+		// Order payment details (admin)
+		add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'render_order_payment_details' ) );
+		add_action( 'add_meta_boxes', array( $this, 'register_order_payment_metabox' ) );
+		add_action( 'admin_init', array( 'WC_Payway_Activator', 'maybe_redirect_to_setup' ) );
 	}
 
 	/**
-	 * TODO: this is currently required, cause they register the custom filters.
-	 * refactor to a better architecture.
+	 * Registers a dedicated meta box for Payway payment details on orders.
+	 *
+	 * @return void
+	 */
+	public function register_order_payment_metabox() {
+		$screens = array( 'shop_order', 'woocommerce_page_wc-orders' );
+		foreach ( $screens as $screen ) {
+			add_meta_box(
+				'payway_payment_details',
+				__( 'Payway Payment Information', 'wc-gateway-payway' ),
+				array( $this, 'render_order_payment_metabox' ),
+				$screen,
+				'side',
+				'default'
+			);
+		}
+	}
+
+	/**
+	 * @param WP_Post|WC_Order $post_or_order
+	 * @return void
+	 */
+	public function render_order_payment_metabox( $post_or_order ) {
+		$order = ( $post_or_order instanceof WC_Order )
+			? $post_or_order
+			: wc_get_order( $post_or_order->ID ?? 0 );
+		if ( ! $order ) {
+			return;
+		}
+		$this->render_order_payment_details( $order );
+	}
+
+	/**
+	 * Boots factories (they register admin create/update filters).
 	 *
 	 * @see self::init_hooks()
-	 * @see wc_payway_gateway_admin_xxx_create
-	 * @see wc_payway_gateway_admin_xxx_update
 	 */
 	public function init() {
 		do_action( 'before_wc_payway_gateway_init' );
 
-		$this->bank = new WC_Payway_Bank_Factory();
-		$this->card = new WC_Payway_Card_Factory();
-		$this->promotion = new WC_Payway_Promotion_Factory();
+		$this->bank      = WC_Payway_Bank_Factory::instance();
+		$this->card      = WC_Payway_Card_Factory::instance();
+		$this->promotion = WC_Payway_Promotion_Factory::instance();
 	}
 
 	/**

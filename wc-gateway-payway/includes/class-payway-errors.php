@@ -100,8 +100,11 @@ class WC_Payway_Errors {
 			'invalid_card'            => self::INVALID_CARD,
 			'card_declined'           => self::ISSUER_REJECTED,
 			'rejected'                => self::ISSUER_REJECTED,
+			'cybersource_error'       => self::CS_CUSTOMER_DATA,
+			'fraud_detection'         => self::CS_CUSTOMER_DATA,
 			401                       => self::AUTH_CREDENTIALS,
 			402                       => self::VALIDATION_PAYMENT_METHOD,
+			403                       => self::AUTH_CREDENTIALS,
 		);
 
 		return isset( $map[ $gateway_code ] )

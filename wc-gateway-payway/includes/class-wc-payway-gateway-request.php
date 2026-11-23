@@ -275,20 +275,16 @@ class WC_Payway_Request {
 		$error_messages = array();
 		$error_codes = array();
 
-		// @TODO add validation when response does not contain anything else than a message
-
-		// append the rest of the incoming error data
-		if (isset($data['validation_errors'])) {
-			// SDK does not returns an object when request fails
-			// if `error_type` is present request has failed
-			$is_valid = false;
-			$error_messages[] = 'Gateway Error';
-			$error_messages[] .= ' ' . json_encode($data['validation_errors']);
-
-			// validate first position due SDK response format
-			$error_codes[] = isset($data['validation_errors'][0]['code'])
+		if ( isset( $data['validation_errors'] ) ) {
+			$is_valid         = false;
+			$error_messages[] = $data['validation_errors'];
+			$error_codes[]    = isset( $data['validation_errors'][0]['code'] )
 				? $data['validation_errors'][0]['code']
 				: self::ERROR_CODES['unknown_error'];
+		} elseif ( ! empty( $data['message'] ) && empty( $data['id'] ) && empty( $data['status'] ) ) {
+			$is_valid         = false;
+			$error_messages[] = array( 'type' => 'api_error', 'reason' => (string) $data['message'] );
+			$error_codes[]    = self::ERROR_CODES['unknown_error'];
 		}
 
 		return $this->validator_create_result(

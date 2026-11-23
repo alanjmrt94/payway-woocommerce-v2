@@ -173,6 +173,13 @@ function wc_payway_checkout_promotions() {
 		}
 	}
 
+	uasort(
+		$banks,
+		static function ( $a, $b ) {
+			return strcasecmp( (string) $a['name'], (string) $b['name'] );
+		}
+	);
+
 	return array(
 		'banks' => $banks,
 		'cards' => $cards,
@@ -211,7 +218,20 @@ function wc_payway_storefront_options( $encode_as_json = false ) {
 	$options['sandbox_enabled']  = $sandbox;
 	$options['promotions']       = wc_payway_checkout_promotions();
 	$options['i18n']             = array(
-		'please_select' => __( 'Please select...', 'wc-gateway-payway' ),
+		'please_select'       => __( 'Please select...', 'wc-gateway-payway' ),
+		'bank'                => __( 'Bank', 'wc-gateway-payway' ),
+		'card'                => __( 'Card', 'wc-gateway-payway' ),
+		'installments'        => __( 'Installments', 'wc-gateway-payway' ),
+		'credit_card_number'  => __( 'Credit Card Number', 'wc-gateway-payway' ),
+		'exp_month'           => __( 'Card Expiration Month', 'wc-gateway-payway' ),
+		'exp_year'            => __( 'Card Expiration Year', 'wc-gateway-payway' ),
+		'cvv'                 => __( 'CVV', 'wc-gateway-payway' ),
+		'holder_name'         => __( 'Holder Name', 'wc-gateway-payway' ),
+		'doc_number'          => __( 'Document Number', 'wc-gateway-payway' ),
+		'door_number'         => __( 'Street number (door number)', 'wc-gateway-payway' ),
+		'complete_fields'     => __( 'Please complete all Payway payment fields.', 'wc-gateway-payway' ),
+		'token_failed'        => __( 'Payment Token could not be generated at this time.', 'wc-gateway-payway' ),
+		'core_unavailable'    => __( 'Payway checkout core is not available.', 'wc-gateway-payway' ),
 	);
 
 	// Defensa en profundidad: nunca filtrar private_key al frontend.
@@ -231,4 +251,26 @@ function wc_payway_storefront_options( $encode_as_json = false ) {
  */
 function wc_payway_get_current_day_number() {
 	return date( 'w' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+}
+
+/**
+ * Frontend Decidir.js URL (filterable; default CDN v2.5).
+ *
+ * @return string
+ */
+function wc_payway_decidir_js_url() {
+	$url = 'https://live.decidir.com/static/v2.5/decidir.js';
+	/**
+	 * Filters the Decidir.js script URL used on classic and Blocks checkout.
+	 *
+	 * @param string $url
+	 */
+	return (string) apply_filters( 'wc_payway_decidir_js_url', $url );
+}
+
+/**
+ * @return string Version string for the Decidir.js handle.
+ */
+function wc_payway_decidir_js_version() {
+	return (string) apply_filters( 'wc_payway_decidir_js_version', '2.5' );
 }
