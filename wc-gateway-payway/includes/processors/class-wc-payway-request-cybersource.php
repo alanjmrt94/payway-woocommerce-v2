@@ -103,17 +103,18 @@ class WC_Payway_Request_CyberSource_Processor implements WC_Payway_Request_Proce
 		$items = array();
 
 		foreach ( $order->get_items() as $item ) {
-			$product      = $item->get_product();
-			$product_sku  = $product ? $product->get_sku() : '';
-			$product_price = $product ? $product->get_price() : 0;
-			$total_price_item = $item->get_total();
-			$item_id      = $item->get_id();
-			$item_name    = $item->get_name();
-			$description  = '';
+			$product          = $item->get_product();
+			$product_sku      = $product ? $product->get_sku() : '';
+			$total_price_item = (float) $item->get_total();
+			$item_id          = $item->get_id();
+			$item_name        = $item->get_name();
+			$description      = '';
 			if ( $product ) {
 				$description = $product->get_short_description() ? $product->get_short_description() : $product->get_description();
 			}
-			$quantity = $item->get_quantity();
+			$quantity = max( 1, (int) $item->get_quantity() );
+			// Prefer line total / qty so $0 catalog prices do not zero unit_price for CS.
+			$unit_price = $total_price_item / $quantity;
 
 			if ( '' === $product_sku ) {
 				$product_sku = $item_id . '-' . strtolower( str_replace( ' ', '-', $item_name ) );
@@ -126,7 +127,7 @@ class WC_Payway_Request_CyberSource_Processor implements WC_Payway_Request_Proce
 				'sku'          => $product_sku,
 				'total_amount' => $this->amount_to_minor_units( $total_price_item ),
 				'quantity'     => $quantity,
-				'unit_price'   => $this->amount_to_minor_units( $product_price ),
+				'unit_price'   => $this->amount_to_minor_units( $unit_price ),
 			);
 		}
 

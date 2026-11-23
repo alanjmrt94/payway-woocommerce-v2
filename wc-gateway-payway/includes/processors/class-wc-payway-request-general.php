@@ -48,8 +48,14 @@ class WC_Payway_Request_General_Processor implements WC_Payway_Request_Processor
 	 * @param WC_Order $order
 	 * @return array
 	 */
-	private function get_data( $order )
-	{
-		return '';
+	private function get_data( $order ) {
+		$order_id = $order instanceof WC_Order ? $order->get_id() : 0;
+		$blog     = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		return sprintf(
+			/* translators: 1: site name 2: order id */
+			__( '%1$s order #%2$d', 'wc-gateway-payway' ),
+			$blog ? $blog : 'Payway',
+			(int) $order_id
+		);
 	}
 }
