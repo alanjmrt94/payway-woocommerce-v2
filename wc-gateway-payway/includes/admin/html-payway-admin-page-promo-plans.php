@@ -45,7 +45,8 @@ if ( ! isset( $params ) || ! is_array( $params ) ) {
 		<?php $is_edit = $ACTION_NAME_EDIT === $params['action']; ?>
 
 		<div class="wrap-table-fee-plans" id="wrap-table-fee-plans">
-			<h2><?php echo __( 'Fee Plans configuration', 'wc-gateway-payway' ); ?></h2>
+			<h2><?php echo esc_html__( 'Fee Plans configuration', 'wc-gateway-payway' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Define one row per installment option (period, coefficient, TEA/CFT, and fee_to_send sent to Decidir).', 'wc-gateway-payway' ); ?></p>
 			<p>
 				<label>
 					<input type="checkbox" id="payway-mipyme-toggle" value="1" />
@@ -79,7 +80,7 @@ if ( ! isset( $params ) || ! is_array( $params ) ) {
 			</table>
 		</div>
 	<?php else: ?>
-		<p>You shouldn't be here...</p>
+		<p><?php esc_html_e( 'Invalid view.', 'wc-gateway-payway' ); ?></p>
 	<?php endif; ?>
 <?php endif; ?>
 <script type="text/javascript">

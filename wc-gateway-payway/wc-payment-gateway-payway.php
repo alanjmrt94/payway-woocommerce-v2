@@ -233,6 +233,10 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	 */
 	public function admin_options() {
 		if ( $this->is_valid_for_use() ) {
+			if ( ! class_exists( 'WC_Payway_Admin_Notices', false ) ) {
+				require_once WC_PAYWAY_ABSPATH . 'includes/admin/class-payway-admin-notices.php';
+			}
+			WC_Payway_Admin_Notices::render_inline_for_gateway();
 			parent::admin_options();
 		} else {
 			?>

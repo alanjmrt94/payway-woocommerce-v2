@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
 /** @var array $notices */
 /** @var WC_Payway_Admin_Navigation_Page_Setup $page */
 
+$payments_url = admin_url( 'admin.php?page=wc-settings&tab=checkout&section=' . WC_Payway_Config_Interface::PAYMENT_CODE );
+
 $blocking_checks    = array_filter(
 	$checks,
 	static function ( $c ) {
@@ -41,6 +43,23 @@ $recommended_checks = array_filter(
 	<div class="notice notice-info">
 		<p><?php esc_html_e( 'Checklist aligned with the operations manual: required items for the method to appear, plus recommended settings (Cybersource, title, Sandbox, debug). API keys are set only under WooCommerce → Payments.', 'wc-gateway-payway' ); ?></p>
 	</div>
+
+	<h2><?php esc_html_e( 'Getting started', 'wc-gateway-payway' ); ?></h2>
+	<ol style="max-width:1100px;line-height:1.6">
+		<li>
+			<strong><?php esc_html_e( 'Apply recommended settings', 'wc-gateway-payway' ); ?></strong>
+			<?php esc_html_e( '— enables the gateway, Sandbox, Cybersource, debug, default title/description, and WC decimals=2 (does not change Site Id or keys).', 'wc-gateway-payway' ); ?>
+		</li>
+		<li>
+			<strong><?php esc_html_e( 'Configure API keys', 'wc-gateway-payway' ); ?></strong>
+			—
+			<a class="button button-secondary" href="<?php echo esc_url( $payments_url ); ?>"><?php esc_html_e( 'Open WooCommerce → Payments → Payway', 'wc-gateway-payway' ); ?></a>
+		</li>
+		<li>
+			<strong><?php esc_html_e( 'Seed catalog', 'wc-gateway-payway' ); ?></strong>
+			<?php esc_html_e( '— bank “Todos”, cards (id_sps) and promotions with installment plans using the assistant below.', 'wc-gateway-payway' ); ?>
+		</li>
+	</ol>
 
 	<form method="post" action="" style="margin-bottom:1.5em">
 		<?php wp_nonce_field( 'payway_admin_setup', '_wpnonce_payway_admin_setup' ); ?>

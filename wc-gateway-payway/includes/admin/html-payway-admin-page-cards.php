@@ -47,6 +47,10 @@ $title = $is_creation
 		<?php echo $title; ?>
 	</h1>
 	<?php if ( '' === $params['action'] ) : ?>
+		<?php if ( isset( $_GET['payway_deleted'] ) && '1' === $_GET['payway_deleted'] ) : ?>
+			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Card deleted.', 'wc-gateway-payway' ); ?></p></div>
+		<?php endif; ?>
+		<p class="description" style="max-width:900px"><?php esc_html_e( 'Each card must match the Decidir id_sps (payment method) used when building checkout options.', 'wc-gateway-payway' ); ?></p>
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
@@ -153,6 +157,7 @@ $title = $is_creation
 							</th>
 							<td>
 								<input name="id_sps" type="text" id="id_sps" value="<?php echo esc_attr( $id_sps ); ?>" aria-required="true" autocapitalize="none" autocorrect="off" maxlength="100" />
+								<p class="description"><?php esc_html_e( 'Numeric payment method id from Decidir / Mi Payway (must match the card brand at checkout).', 'wc-gateway-payway' ); ?></p>
 							</td>
 						</tr>
 						<tr class="form-field form-required">
@@ -166,9 +171,9 @@ $title = $is_creation
 					</table>
 					<div>
 						<?php if ( $is_edit ) : ?>
-							<?php submit_button( __( 'Save', 'wc-gateway-payway' ), 'primary', 'editbank', true, array( 'id' => 'editcardsub' ) ); ?>
+							<?php submit_button( __( 'Save', 'wc-gateway-payway' ), 'primary', 'editcard', true, array( 'id' => 'editcardsub' ) ); ?>
 						<?php else : ?>
-							<?php submit_button( __( 'Add', 'wc-gateway-payway' ), 'primary', 'createbank', true, array( 'id' => 'newcardsub' ) ); ?>
+							<?php submit_button( __( 'Add', 'wc-gateway-payway' ), 'primary', 'createcard', true, array( 'id' => 'newcardsub' ) ); ?>
 						<?php endif; ?>
 					</div>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo esc_html__( 'Go back', 'wc-gateway-payway' ); ?></a>
@@ -181,7 +186,7 @@ $title = $is_creation
 				wp_die( esc_html__( 'Invalid nonce. The card was not deleted.', 'wc-gateway-payway' ) );
 			}
 			$this->delete_card( $params['card_id'] );
-			$redirect = remove_query_arg( array( 'action', 'card_id', '_wpnonce' ) );
+			$redirect = add_query_arg( 'payway_deleted', '1', remove_query_arg( array( 'action', 'card_id', '_wpnonce', 'payway_deleted' ) ) );
 			wp_safe_redirect( $redirect );
 			exit;
 			?>

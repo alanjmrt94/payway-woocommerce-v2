@@ -361,7 +361,7 @@ class WC_Payway_Admin_Navigation_Page_Promotions extends WP_List_Table {
 
 		$actions = [
 			'edit' => sprintf(
-				'<a href="?page=%s&action=%s&promotion_id=%s">' . __('Edit') . '</a>',
+				'<a href="?page=%s&action=%s&promotion_id=%s">' . __( 'Edit', 'wc-gateway-payway' ) . '</a>',
 				esc_attr( $_REQUEST['page'] ),
 				'editpromotion',
 				absint( $item->id )

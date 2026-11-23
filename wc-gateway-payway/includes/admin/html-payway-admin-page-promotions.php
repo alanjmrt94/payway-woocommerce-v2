@@ -41,6 +41,9 @@ $params = array(
 
 $is_creation = $params['action'] === $ACTION_NAME_NEW;
 
+$validation_errors     = null;
+$promotion_form_values = null;
+
 // Page Title
 $title = $is_creation
 	? esc_html__('Add New', 'wc-gateway-payway')
@@ -51,6 +54,12 @@ $title = $is_creation
 		<?php echo $title; ?>
 	</h1>
 	<?php if ( '' === $params['action'] ) : ?>
+		<?php if ( isset( $_GET['payway_deleted'] ) && '1' === $_GET['payway_deleted'] ) : ?>
+			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Promotion deleted.', 'wc-gateway-payway' ); ?></p></div>
+		<?php endif; ?>
+		<p class="description" style="max-width:960px">
+			<?php esc_html_e( 'Each promotion ties a card and bank to installment fee plans. Use “No expiry” for standing installment rules; otherwise set From/To dates.', 'wc-gateway-payway' ); ?>
+		</p>
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
@@ -80,14 +89,11 @@ $title = $is_creation
 						<?php return; ?>
 					<?php endif; ?>
 				<?php else : ?>
-					<div class="error">
-						<ul>
-						<?php foreach ( $validation_result->get_error_messages() as $error_message ) : ?>
-							<li><?php echo esc_html( $error_message ); ?></li>
-						<?php endforeach; ?>
-						</ul>
-					</div>
-					<?php return; ?>
+					<?php
+					$validation_errors     = $validation_result;
+					$promotion_form_values = $sanitized;
+					$params['action']      = $ACTION_NAME_NEW;
+					?>
 				<?php endif; ?>
 			<?php elseif ( $post_action === $ACTION_NAME_EDIT ) : ?>
 				<?php check_admin_referer( 'payway-create-edit-promotion', '_wpnonce_payway-create-edit-promotion' ); ?>
@@ -107,24 +113,33 @@ $title = $is_creation
 					<?php endif; ?>
 					<?php return; ?>
 				<?php else : ?>
-					<div class="error">
-						<ul>
-						<?php foreach ( $validation_result->get_error_messages() as $error_message ) : ?>
-							<li><?php echo esc_html( $error_message ); ?></li>
-						<?php endforeach; ?>
-						</ul>
-					</div>
-					<?php return; ?>
+					<?php
+					$validation_errors     = $validation_result;
+					$promotion_form_values = $sanitized;
+					$params['action']      = $ACTION_NAME_EDIT;
+					$params['promotion_id']  = isset( $sanitized['promotion_id'] ) ? absint( $sanitized['promotion_id'] ) : 0;
+					?>
 				<?php endif; ?>
 			<?php else : ?>
 			<!-- If you ended up here, means someone is playing around with params... -->
 			<?php endif; ?>
-		<?php elseif ( $ACTION_NAME_NEW === $params['action']
-			|| $ACTION_NAME_EDIT === $params['action'] ) : ?>
-				<?php $is_edit = $ACTION_NAME_EDIT === $params['action']; ?>
+		<?php endif; ?>
+		<?php if ( $ACTION_NAME_NEW === $params['action']
+			|| $ACTION_NAME_EDIT === $params['action']
+			|| $promotion_form_values ) : ?>
+				<?php $is_edit = $ACTION_NAME_EDIT === $params['action'] || ( $promotion_form_values && ! empty( $promotion_form_values['promotion_id'] ) ); ?>
 				<?php $promotion_id = $params['promotion_id']; ?>
 				<?php $promotion = $promotion_id ? $this->get_promotion( $promotion_id ) : false; ?>
-				<?php if ( $is_edit && ! $promotion ) : ?>
+				<?php if ( $validation_errors && is_wp_error( $validation_errors ) && $validation_errors->has_errors() ) : ?>
+					<div class="notice notice-error">
+						<ul>
+						<?php foreach ( $validation_errors->get_error_messages() as $error_message ) : ?>
+							<li><?php echo esc_html( $error_message ); ?></li>
+						<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
+				<?php if ( $is_edit && ! $promotion && ! $promotion_form_values ) : ?>
 					<?php $errors = new WP_Error(); ?>
 					<?php $errors->add( 'promotion_id', __( 'Promotion does not exist', 'wc-gateway-payway' ) ); ?>
 					<div class="error">
@@ -144,7 +159,23 @@ $title = $is_creation
 					<?php endif; ?>
 					<?php wp_nonce_field( 'payway-create-edit-promotion', '_wpnonce_payway-create-edit-promotion' ); ?>
 					<?php
-						// Load up the passed data, else set to a default.
+					if ( $promotion_form_values ) {
+						$rule_name       = isset( $promotion_form_values['rule_name'] ) ? $promotion_form_values['rule_name'] : '';
+						$bank_id         = isset( $promotion_form_values['bank_id'] ) ? $promotion_form_values['bank_id'] : '';
+						$card_id         = isset( $promotion_form_values['card_id'] ) ? $promotion_form_values['card_id'] : '';
+						$is_active       = isset( $promotion_form_values['is_active'] ) ? (int) $promotion_form_values['is_active'] : 1;
+						$no_expiry       = ! empty( $promotion_form_values['no_expiry'] ) ? 1 : 0;
+						$from_date       = isset( $promotion_form_values['from_date'] ) ? $promotion_form_values['from_date'] : '';
+						$to_date         = isset( $promotion_form_values['to_date'] ) ? $promotion_form_values['to_date'] : '';
+						$priority        = isset( $promotion_form_values['priority'] ) ? $promotion_form_values['priority'] : '';
+						$applicable_days = isset( $promotion_form_values['applicable_days'] ) ? $promotion_form_values['applicable_days'] : '';
+						if ( ! $promotion ) {
+							$promotion = new stdClass();
+						}
+						if ( ! empty( $promotion_form_values['fee_plans'] ) && is_array( $promotion_form_values['fee_plans'] ) ) {
+							$promotion->fee_plans = wp_json_encode( array_values( $promotion_form_values['fee_plans'] ) );
+						}
+					} else {
 						$rule_name = $is_edit ? $promotion->rule_name : '';
 						$bank_id = $is_edit ? $promotion->bank_id : '';
 						$card_id = $is_edit ? $promotion->card_id : '';
@@ -160,6 +191,7 @@ $title = $is_creation
 								? explode( ',', $promotion->applicable_days )
 								: $promotion->applicable_days
 							: '';
+					}
 					?>
 					<table class="form-table" role="presentation">
 						<tr class="form-field form-required">
@@ -252,9 +284,16 @@ $title = $is_creation
 								<?php _e( 'Applicable days', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
+								<?php
+								$promotion_for_days = $promotion ? $promotion : new stdClass();
+								if ( $promotion_form_values && isset( $promotion_form_values['applicable_days'] ) ) {
+									$days_val = $promotion_form_values['applicable_days'];
+									$promotion_for_days->applicable_days = is_array( $days_val ) ? implode( ',', $days_val ) : (string) $days_val;
+								}
+								?>
 								<select multiple="true" name="applicable_days[]" id="applicable_days" aria-required="true">
 									<?php foreach ($this->get_weekdays_for_element() as $day): ?>
-										<option value="<?php echo $day['value']; ?>" <?php echo $this->is_day_in_promotion( $day['value'], $promotion ) ? 'selected' : '' ?>><?php echo $day['label']; ?></option>
+										<option value="<?php echo $day['value']; ?>" <?php echo $this->is_day_in_promotion( $day['value'], $promotion_for_days ) ? 'selected' : '' ?>><?php echo $day['label']; ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
@@ -265,9 +304,9 @@ $title = $is_creation
 
 					<div>
 						<?php if ( $is_edit ): ?>
-							<?php submit_button( __( 'Save', 'wc-gateway-payway' ), 'primary', 'editbank', true, array( 'id' => 'editcardsub' ) ); ?>
+							<?php submit_button( __( 'Save', 'wc-gateway-payway' ), 'primary', 'editpromotion', true, array( 'id' => 'editpromotionsub' ) ); ?>
 						<?php else: ?>
-							<?php submit_button( __( 'Add', 'wc-gateway-payway' ), 'primary', 'createbank', true, array( 'id' => 'newcardsub' ) ); ?>
+							<?php submit_button( __( 'Add', 'wc-gateway-payway' ), 'primary', 'createpromotion', true, array( 'id' => 'newpromotionsub' ) ); ?>
 						<?php endif; ?>
 					</div>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
@@ -280,7 +319,7 @@ $title = $is_creation
 				wp_die( esc_html__( 'Invalid nonce. The promotion was not deleted.', 'wc-gateway-payway' ) );
 			}
 			$this->delete_promotion( $params['promotion_id'] );
-			$redirect = remove_query_arg( array( 'action', 'promotion_id', '_wpnonce' ) );
+			$redirect = add_query_arg( 'payway_deleted', '1', remove_query_arg( array( 'action', 'promotion_id', '_wpnonce', 'payway_deleted' ) ) );
 			wp_safe_redirect( $redirect );
 			exit;
 			?>

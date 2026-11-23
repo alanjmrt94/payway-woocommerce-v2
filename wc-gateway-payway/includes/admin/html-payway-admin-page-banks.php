@@ -47,6 +47,10 @@ $title = $is_creation
 		<?php echo $title; ?>
 	</h1>
 	<?php if ( '' === $params['action'] ) : ?>
+		<?php if ( isset( $_GET['payway_deleted'] ) && '1' === $_GET['payway_deleted'] ) : ?>
+			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Bank deleted.', 'wc-gateway-payway' ); ?></p></div>
+		<?php endif; ?>
+		<p class="description" style="max-width:900px"><?php esc_html_e( 'Use bank “Todos” (all banks) unless you need issuer-specific promotions.', 'wc-gateway-payway' ); ?></p>
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
@@ -153,7 +157,7 @@ $title = $is_creation
 				wp_die( esc_html__( 'Invalid nonce. The bank was not deleted.', 'wc-gateway-payway' ) );
 			}
 			$this->delete_bank( $params['bank_id'] );
-			$redirect = remove_query_arg( array( 'action', 'bank_id', '_wpnonce' ) );
+			$redirect = add_query_arg( 'payway_deleted', '1', remove_query_arg( array( 'action', 'bank_id', '_wpnonce', 'payway_deleted' ) ) );
 			wp_safe_redirect( $redirect );
 			exit;
 			?>

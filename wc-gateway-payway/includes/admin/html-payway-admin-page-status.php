@@ -52,7 +52,7 @@ $title = __('Status Page', 'wc-gateway-payway');
 	<h2><?php esc_html_e( 'Availability diagnosis', 'wc-gateway-payway' ); ?></h2>
 	<?php if ( empty( $setup_failures ) ) : ?>
 		<div class="notice notice-success inline">
-			<p><?php esc_html_e( 'No configuration blockers detected: the method should be able to appear on classic checkout (if the rest of the site is OK).', 'wc-gateway-payway' ); ?></p>
+			<p><?php esc_html_e( 'No configuration blockers detected: the method should be able to appear on classic checkout or WooCommerce Blocks checkout (if the rest of the site is OK).', 'wc-gateway-payway' ); ?></p>
 		</div>
 	<?php else : ?>
 		<div class="notice notice-error inline">
@@ -151,7 +151,7 @@ $title = __('Status Page', 'wc-gateway-payway');
 					: '<mark class="error"><span class="dashicons dashicons-warning"></span> ' . esc_html__('No version found', 'wc-gateway-payway') . '</mark>'; ?></td>
 			</tr>
 			<tr>
-				<td><?php esc_html_e( 'Payway SDK Version', 'wc-gateway-payway' ); ?>:</td>
+				<td><?php esc_html_e( 'Bundled Decidir SDK version', 'wc-gateway-payway' ); ?>:</td>
 				<td><?php echo $plugin['sdk_version']
 					? esc_html( (string) $plugin['sdk_version'] )
 					: '<mark class="error"><span class="dashicons dashicons-warning"></span> ' . esc_html__('No version found', 'wc-gateway-payway') . '</mark>'; ?></td>

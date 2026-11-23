@@ -35,6 +35,10 @@ use Automattic\Jetpack\Constants;
 class WC_Payway_Admin_Navigation_Page_Status {
 
 	public function render() {
+		if ( ! current_user_can( WC_Payway_Admin_Sanitize::required_capability() ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wc-gateway-payway' ) );
+		}
+
 		$version = Constants::get_constant( 'WC_VERSION' );
 		wp_register_style(
 			'woocommerce_admin_styles',
