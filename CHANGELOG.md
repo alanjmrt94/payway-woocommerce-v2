@@ -5,6 +5,35 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [2.0.2] — 2026-11-23
+
+### Added
+
+- Blocks storefront `config.i18n` + strings `es_AR`.
+- Notices de error (dashboard / Pagos / Payway) si Enabled sin keys o sin promos aplicables; blockers de Setup Status.
+- Paginación real (LIMIT/OFFSET) en bancos/tarjetas/promos; bancos ordenados por nombre (#58).
+- Meta box de pago en el pedido; redirect a Instalación al activar; detección débito sin plan de 1 cuota.
+- Adaptador Decidir + helper `Payway\Support\Status`; filtro `woocommerce_payway_checkout_posted_data`.
+- Manual ES versionado en `docs/manual/` (HPOS, FAQ 10734/centavos/notices).
+
+### Fixed
+
+- Cybersource `unit_price` desde total de línea / cantidad.
+- Errores tipados en path de pago (sin `wc_add_notice` / JSON crudo al comprador).
+- `_payway_full_response` solo con Debug ON; uninstall por whitelist de options.
+
+### Changed
+
+- Bootstrap lifecycle en `PaywayWC` (activate/deactivate suave); `decidir.js` filtrable y en footer cuando aplica.
+- Validaciones create/update de bancos, tarjetas y promociones en factories.
+- Versión del plugin a **2.0.2**.
+
+### Conteo SemVer
+
+`feat=1` + `fix=1` → **N=2** desde `2.0.0` → **2.0.2**.
+
+---
+
 ## [2.0.0] — 2026-11-23
 
 ### Changed
@@ -183,6 +212,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[2.0.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.2
 [2.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.0
 [1.1.5]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.5
 [1.1.4]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.4

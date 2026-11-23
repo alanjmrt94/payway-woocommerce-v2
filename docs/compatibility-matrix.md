@@ -26,7 +26,7 @@ Wipe completo + install de cero (`wp-env-down --volumes` → `wp-env-up`):
 | WooCommerce | **9.4.0** |
 | PHP | **8.1.34** |
 | MariaDB | 10.11 |
-| Plugin | **2.0.0** (SDK PHP **2.0.10**) |
+| Plugin | **2.0.0** UAT base (actual **2.0.2**; SDK PHP **2.0.10**) |
 | HPOS | on |
 | Classic sandbox | OK pedido **#14** (`approved`, CS green, amount `300000` centavos, STID `payway-14`) |
 | Blocks sandbox | OK pedido **#16** (`approved`, CS green, STID `payway-16`) |

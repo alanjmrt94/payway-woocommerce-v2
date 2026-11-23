@@ -4,6 +4,14 @@ Resumen orientado al comercio. Detalle completo: [`CHANGELOG.md`](../../CHANGELO
 
 Cambios notables respecto del plugin original [payway-ar/plugin-woocommerce](https://github.com/payway-ar/plugin-woocommerce) **0.3.3**.
 
+## [2.0.2] — 2026-11-23
+
+### Added / Fixed (lote noviembre)
+
+- Notices keys/promos, paginación admin, orden de bancos, i18n Blocks, Setup blockers / débito 1 cuota.
+- CS `unit_price` por línea; errores tipados; Debug OFF sin meta `full_response` amplio.
+- Manual ES en `docs/manual/`; versión **2.0.2**.
+
 ## [2.0.0] — 2026-11-23
 
 ### Changed
