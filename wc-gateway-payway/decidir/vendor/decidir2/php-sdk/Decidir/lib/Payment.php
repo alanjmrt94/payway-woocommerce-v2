@@ -6,16 +6,23 @@ class Payment{
 	public $serviceREST;
 	public $keys_data = array();
 	public $cybersource;
+	public $developer=NULL;
+    public $grouper=NULL;
+    public $service = NULL;
 
-	public function __construct($keys_data, $mode){
+	public function __construct($keys_data, $mode, $developer, $grouper, $service){
 		$this->keys_data = $keys_data;
 		$this->mode = $mode;
-
-		$this->serviceREST = new \Decidir\RESTClient($this->keys_data, $this->mode);
+		$this->developer = $developer;
+		$this->grouper = $grouper;
+		$this->service = $service;
+		$this->serviceREST = new \Decidir\RESTClient($this->keys_data, $this->mode, $developer, $grouper, $service);
 	}
 
 	public function ExecutePayment($data){
-		$data['amount'] = $this->rmDecAmount($data['amount']);
+		// $data['amount'] = $data['amount'];
+		$data3ds = array();
+		$tokenCardData = array();
 
 		if(!empty($this->cybersource) && $this->cybersource['send_to_cs'] == true){
 			$data['fraud_detection'] = json_decode(json_encode($this->cybersource),TRUE);
@@ -23,22 +30,48 @@ class Payment{
 
 		if(!empty($data["sub_payments"])) {
 			foreach($data["sub_payments"] as $k => $d) {
-				$damount = $this->rmDecAmount($d["amount"]);
+				$damount = $d["amount"];
 				$data["sub_payments"][$k]["amount"] = $damount;
-                        }
-                }
+            }
+        }
 
-		$jsonData = new \Decidir\Payment\Data($data);
+		if (!empty($data["is_tokenized_payment"]) && $data["is_tokenized_payment"] == true){
+			$tokenCardData["token"] = $data["token_card_data"]["token"];
+			$tokenCardData["eci"] = $data["token_card_data"]["eci"];
+			$tokenCardData["cryptogram"] = $data["token_card_data"]["cryptogram"];
+			$data["token_card_data"] = $tokenCardData;
+		}
+		
+		if (array_key_exists("cardholder_auth_required", $data) && !empty($data["cardholder_auth_required"]) && $data["cardholder_auth_required"] == true){
+			$data3ds["device_type"] = $data["auth_3ds_data"]["device_type"];
+			$data3ds["accept_header"] = $data["auth_3ds_data"]["accept_header"];
+			$data3ds["user_agent"] = $data["auth_3ds_data"]["user_agent"];
+			$data3ds["ip"] = $data["auth_3ds_data"]["ip"];
+			$data3ds["java_enabled"] = $data["auth_3ds_data"]["java_enabled"];
+			$data3ds["language"] = $data["auth_3ds_data"]["language"];
+			$data3ds["color_depth"] = $data["auth_3ds_data"]["color_depth"];
+			$data3ds["screen_height"] = $data["auth_3ds_data"]["screen_height"];
+			$data3ds["screen_width"] = $data["auth_3ds_data"]["screen_width"];
+			$data3ds["time_zone_offset"] = $data["auth_3ds_data"]["time_zone_offset"];
+			$data["auth_3ds_data"] = $data3ds;
+		}
+
+		// if (array_key_exists("card_data", $data)){
+		$jsonData = new \Decidir\Payment\DataPCI($data);
+		// } else {
+		// 	$jsonData = new \Decidir\Payment\Data($data);
+		// }
 		$RESTResponse = $this->serviceREST->post("payments", $jsonData->getData());
+		// $RESTResponse = $this->serviceREST->post("payments", json_encode($data));
 		$ArrayResponse = $this->toArray($RESTResponse);
 		return new \Decidir\Payment\PaymentResponse($ArrayResponse);
 	}
 
 	public function ExecutePaymentOffline($data){
-		$data['amount'] = $this->rmDecAmount($data['amount']);
+		$data['amount'] = $data['amount'];
 
 		if(!empty($data['surcharge'])){
-			$data['surcharge'] = $this->rmDecAmount($data['surcharge']);
+			$data['surcharge'] = $data['surcharge'];
 		}
 		
 		if($data['payment_method_id'] == 25){
@@ -63,7 +96,7 @@ class Payment{
 	}
 
 	public function CapturePayment($operationId, $data){
-		$data['amount'] = $this->rmDecAmount($data['amount']);
+		$data['amount'] = $data['amount'];
 
 		$RESTResponse = $this->serviceREST->put("payments/".$operationId, json_encode($data));
         $ArrayResponse = $this->toArray($RESTResponse);
@@ -89,7 +122,7 @@ class Payment{
 	}
 
 	public function Validate($data){
-		$data['payment']['amount'] = $this->rmDecAmount($data['payment']['amount']);
+		$data['payment']['amount'] = $data['payment']['amount'];
 
 		if(!empty($this->cybersource) && $this->cybersource['send_to_cs'] == true){
 			$data['fraud_detection'] = json_decode(json_encode($this->cybersource),TRUE);
@@ -99,6 +132,40 @@ class Payment{
 		$RESTResponse = $this->serviceREST->post("validate", $jsonData->getData());
 		$ArrayResponse = $this->toArray($RESTResponse);
 		return new \Decidir\Validate\ValidateResponse($ArrayResponse);
+	}
+
+	public function Forms($data){
+
+		if(!empty($this->cybersource) && $this->cybersource['send_to_cs'] == true){
+			$data['fraud_detection'] = json_decode(json_encode($this->cybersource),TRUE);
+		}
+
+		$jsonData = new \Decidir\Forms\Data($data);	
+
+		$RESTResponse = $this->serviceREST->post("forms", $jsonData->getData());
+		$ArrayResponse = $this->toArray($RESTResponse);
+		return new \Decidir\Forms\FormsResponse($ArrayResponse);
+	}
+
+	public function GenerateLink($data){
+		$data['origin_platform'] = "SDK-PHP";
+		$jsonData = new \Decidir\Checkout\Hash\Data($data);
+		$RESTResponse = $this->serviceREST->post("checkout-payment-button/link", $jsonData->getData());
+		$ArrayResponse = $this->toArray($RESTResponse);
+		return new \Decidir\Checkout\Hash\HashResponse($ArrayResponse);
+	}
+
+	public function GetCheckoutTransactionHistory($chargeId){
+		$jsonData = new \Decidir\TransactionHistory\Data(array("chargeId" => $chargeId));
+		$RESTResponse = $this->serviceREST->get("checkout-payment-button/transaction/history", array(), $jsonData->getData());
+		return $this->toArray($RESTResponse);
+	}
+
+	public function GetCheckoutHistory($data){
+		$jsonData = new \Decidir\CheckoutHistory\Data($data);
+		$RESTResponse = $this->serviceREST->get("checkout-payment-button/get-history", array(), $jsonData->getData());
+		$ArrayResponse = $this->toArray($RESTResponse);
+		return new \Decidir\CheckoutHistory\CheckoutHistoryResponse($ArrayResponse);
 	}
 
 	public function Refund($data, $operationId){
@@ -132,7 +199,17 @@ class Payment{
 			throw new \Exception("Empty Operation id");
 		}
 
-		$data['amount'] = $this->rmDecAmount($data['amount']);
+		if(!empty($data["sub_payments"])) {
+			foreach($data["sub_payments"] as $k => $d) {
+				$damount = $d["amount"];
+				$data["sub_payments"][$k]["amount"] = $damount;
+			}
+		}
+		if(!empty ($data['amount'])){
+			if($data['amount'] > 0){
+				$data['amount'] = $data['amount'];
+			}
+		}
 		$jsonData = new \Decidir\PartialRefund\Data($data);
 
 		$RESTResponse = $this->serviceREST->post("payments/".$operationId."/refunds", $jsonData->getData());
@@ -158,12 +235,12 @@ class Payment{
 	}
 
 	public function setCybersource($data){
-		$data['purchase_totals']['amount']= $this->rmDecAmount($data['purchase_totals']['amount']);
+		$data['purchase_totals']['amount']=$data['purchase_totals']['amount'];
 		$this->cybersource = $data;
 	}
 
 	public function rmDecAmount($amount){
-		$formatedAmount = intval($amount*100);	
+		$formatedAmount = $amount;	
 
 		return $formatedAmount;
 	}

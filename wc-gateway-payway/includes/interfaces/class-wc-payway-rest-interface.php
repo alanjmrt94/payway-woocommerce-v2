@@ -83,24 +83,24 @@ interface WC_Payway_Rest_Interface {
 	const SUCCESS_STATUS_CODES = [200, 201, 204];
 
 
-    /**
-     * Value to set transaction platform origin service
-     *
-     * @var string
-     */
-    const CONNECTOR_SERVICE = 'SDK-PHP-IURCO-WOOCOMMERCE';
+	/**
+	 * Value to set transaction platform origin service
+	 *
+	 * @var string
+	 */
+	const CONNECTOR_SERVICE = 'SDK-PHP-PAYWAY-PAYMENT-COMMUNITY';
 
-    /**
-     * Value to set transaction platform origin developer
-     *
-     * @var string
-     */
-    const CONNECTOR_DEVELOPER = 'IURCO - Prisma SA';
+	/**
+	 * Value to set transaction platform origin developer
+	 *
+	 * @var string
+	 */
+	const CONNECTOR_DEVELOPER = 'Payway Payment Community';
 
-    /**
-     * Value to set transaction platform origin grouper
-     *
-     * @var string
-     */
-    const CONNECTOR_GROUPER = 'wc-gateway-payway';
+	/**
+	 * Value to set transaction platform origin grouper
+	 *
+	 * @var string
+	 */
+	const CONNECTOR_GROUPER = 'wc-gateway-payway';
 }

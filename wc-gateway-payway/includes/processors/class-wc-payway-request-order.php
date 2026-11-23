@@ -64,20 +64,21 @@ class WC_Payway_Request_Order_Processor implements WC_Payway_Request_Processor_I
 	 */
 	private function get_data( $order ) {
 		return array(
-			self::AMOUNT => $order->get_total(),
-			self::CURRENCY => $order->get_currency(),
-			self::ESTABLISHMENT_NAME => $this->get_establishment_name(),
-			self::SITE_TRANSACTION_ID => $this->get_site_transaction_id( $order )
+			self::AMOUNT               => $this->get_amount( $order ),
+			self::CURRENCY             => $order->get_currency(),
+			self::ESTABLISHMENT_NAME   => $this->get_establishment_name(),
+			self::SITE_TRANSACTION_ID  => $this->get_site_transaction_id( $order ),
 		);
 	}
 
 	/**
+	 * Amount in minor units (cents). Decidir PHP SDK V2 no longer multiplies ×100.
 	 *
 	 * @param WC_Order $order
 	 * @return int
 	 */
 	private function get_amount( $order ) {
-		return $order->get_total();
+		return (int) round( (float) $order->get_total() * 100 );
 	}
 
 	/**

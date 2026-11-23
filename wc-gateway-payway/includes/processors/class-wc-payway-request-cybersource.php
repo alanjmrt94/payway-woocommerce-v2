@@ -81,7 +81,7 @@ class WC_Payway_Request_CyberSource_Processor implements WC_Payway_Request_Proce
 	}
 
 	/**
-	 * Major currency units (e.g. 30000.00). SDK setCybersource() applies the only ×100.
+	 * Purchase total in minor units (cents). SDK V2 does not multiply ×100 in setCybersource().
 	 *
 	 * @param WC_Order $order
 	 * @return array
@@ -89,12 +89,12 @@ class WC_Payway_Request_CyberSource_Processor implements WC_Payway_Request_Proce
 	private function get_purchase_total( $order ) {
 		return array(
 			'currency' => $order->get_currency(),
-			'amount'   => (float) $order->get_total(),
+			'amount'   => $this->amount_to_minor_units( $order->get_total() ),
 		);
 	}
 
 	/**
-	 * Line items use minor units (cents). SDK Retail only auto-scales csit* keys, not total_amount/unit_price.
+	 * Line items in minor units (cents). Retail only auto-scales csit* keys, not total_amount/unit_price.
 	 *
 	 * @param WC_Order $order
 	 * @return array

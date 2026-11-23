@@ -1,21 +1,15 @@
 {
-    "name": "decidir2/php-sdk",
-    "description": "SDK para Decidir",
+    "name": "payway-payment-community/decidir-sdk",
+    "description": "Composer bridge that vendors decidir2/php-sdk for Payway Payment Community",
+    "type": "library",
+    "license": "GPL-2.0-or-later",
     "require": {
-        "php": ">=5.3"
+        "php": ">=7.4",
+        "decidir2/php-sdk": "V2.0.10"
     },
-    "autoload": {
-        "psr-4": {
-            "Decidir\\": "Decidir/lib"
-        }
-    },
-    "repositories": [
-        {
-             "type": "composer",
-             "url": "https://packagist.org"
-        },
-        { 
-            "packagist": false 
-        }
-    ]
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    }
 }

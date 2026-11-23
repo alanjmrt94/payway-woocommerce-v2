@@ -45,7 +45,7 @@ interface WC_Payway_Activator_Interface {
 	 *
 	 * @var string
 	 */
-	const WC_PAYWAY_SDK_VERSION_VALUE = '1.4.0';
+	const WC_PAYWAY_SDK_VERSION_VALUE = '2.0.10';
 
 	/**
 	 * @var string
