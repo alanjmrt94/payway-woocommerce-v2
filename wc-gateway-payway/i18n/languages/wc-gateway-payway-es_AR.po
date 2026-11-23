@@ -1207,3 +1207,105 @@ msgid "Payment rejected by Payway (invalid data): %s"
 msgstr "Pago rechazado por Payway (datos inválidos): %s"
 
 # Obsolete for runtime: validation params are no longer shown to shoppers (mapped to CS_* messages).
+
+msgid "Payway"
+msgstr "Payway"
+
+msgid "Recent Payments"
+msgstr "Últimos pagos"
+
+msgid "General"
+msgstr "General"
+
+msgid "Used when Sandbox Mode is enabled. Public key is exposed to the browser; keep the private key server-side only."
+msgstr "Se usan con el modo Sandbox activo. La clave pública se expone en el navegador; la privada solo en el servidor."
+
+msgid "Used when Sandbox Mode is disabled. Public key is exposed to the browser; keep the private key server-side only."
+msgstr "Se usan con el modo Sandbox desactivado. La clave pública se expone en el navegador; la privada solo en el servidor."
+
+msgid "Public API key from Mi Payway / Decidir (sandbox). Used in the checkout form and tokenization."
+msgstr "Clave pública de Mi Payway / Decidir (sandbox). Se usa en el formulario de checkout y la tokenización."
+
+msgid "Private API key (sandbox). Required for server-side payment execution and admin payment list."
+msgstr "Clave privada (sandbox). Necesaria para pagos en servidor y el listado de pagos en el admin."
+
+msgid "Public API key from Mi Payway / Decidir (production). Used in the checkout form and tokenization."
+msgstr "Clave pública de Mi Payway / Decidir (producción). Se usa en el formulario de checkout y la tokenización."
+
+msgid "Private API key (production). Required for server-side payment execution and admin payment list."
+msgstr "Clave privada (producción). Necesaria para pagos en servidor y el listado de pagos en el admin."
+
+msgid "Getting started"
+msgstr "Primeros pasos"
+
+msgid "Apply recommended settings"
+msgstr "Aplicar configuración recomendada"
+
+msgid "Configure API keys"
+msgstr "Configurar claves API"
+
+msgid "Open WooCommerce → Payments → Payway"
+msgstr "Abrir WooCommerce → Pagos → Payway"
+
+msgid "Seed catalog"
+msgstr "Sembrar catálogo"
+
+msgid "No configuration blockers detected: the method should be able to appear on classic checkout or WooCommerce Blocks checkout (if the rest of the site is OK)."
+msgstr "No hay bloqueos de configuración: el medio debería poder mostrarse en checkout clásico o WooCommerce Blocks (si el resto del sitio está bien)."
+
+msgid "Bundled Decidir SDK version"
+msgstr "Versión del SDK Decidir incluido"
+
+msgid "Use bank “Todos” (all banks) unless you need issuer-specific promotions."
+msgstr "Usá el banco «Todos» salvo que necesites promociones por emisor."
+
+msgid "Each card must match the Decidir id_sps (payment method) used when building checkout options."
+msgstr "Cada tarjeta debe coincidir con el id_sps de Decidir usado al armar las opciones de checkout."
+
+msgid "Numeric payment method id from Decidir / Mi Payway (must match the card brand at checkout)."
+msgstr "Id numérico del medio de pago en Decidir / Mi Payway (debe coincidir con la marca en el checkout)."
+
+msgid "Each promotion ties a card and bank to installment fee plans. Use “No expiry” for standing installment rules; otherwise set From/To dates."
+msgstr "Cada promoción une tarjeta y banco con planes de cuotas. Usá «Sin vencimiento» para reglas permanentes; si no, definí fechas Desde/Hasta."
+
+msgid "Define one row per installment option (period, coefficient, TEA/CFT, and fee_to_send sent to Decidir)."
+msgstr "Una fila por opción de cuotas (período, coeficiente, TEA/CFT y fee_to_send enviado a Decidir)."
+
+msgid "Invalid view."
+msgstr "Vista no válida."
+
+msgid "Bank deleted."
+msgstr "Banco eliminado."
+
+msgid "Card deleted."
+msgstr "Tarjeta eliminada."
+
+msgid "Promotion deleted."
+msgstr "Promoción eliminada."
+
+msgid "Environment"
+msgstr "Ambiente"
+
+msgid "Page size"
+msgstr "Tamaño de página"
+
+msgid "Decidir returned 401 Unauthorized: check that the private key matches the selected environment and is active."
+msgstr "Decidir respondió 401 No autorizado: verificá que la clave privada corresponda al ambiente seleccionado y esté activa."
+
+msgid "Decidir returned 403 Forbidden: this private key is not allowed to list payments for the merchant."
+msgstr "Decidir respondió 403 Prohibido: esta clave privada no puede listar pagos del comercio."
+
+msgid "Site transaction ID"
+msgstr "Site transaction ID"
+
+msgid "WooCommerce order"
+msgstr "Pedido WooCommerce"
+
+msgid "Order #%d"
+msgstr "Pedido #%d"
+
+msgid "← Previous page"
+msgstr "← Página anterior"
+
+msgid "Next page →"
+msgstr "Página siguiente →"
