@@ -62,9 +62,9 @@ final class WC_Payway_Blocks_Payment_Method extends AbstractPaymentMethodType {
 
 		wp_register_script(
 			'woocommerce-gateway-payway-sdk',
-			'https://live.decidir.com/static/v2.5/decidir.js',
+			function_exists( 'wc_payway_decidir_js_url' ) ? wc_payway_decidir_js_url() : 'https://live.decidir.com/static/v2.5/decidir.js',
 			array(),
-			'2.5',
+			function_exists( 'wc_payway_decidir_js_version' ) ? wc_payway_decidir_js_version() : '2.5',
 			true
 		);
 
@@ -124,9 +124,24 @@ final class WC_Payway_Blocks_Payment_Method extends AbstractPaymentMethodType {
 		$options['title']      = $this->gateway ? $this->gateway->get_title() : ( $this->get_setting( 'title' ) );
 		$options['description'] = $this->gateway ? $this->gateway->get_description() : ( $this->get_setting( 'description' ) );
 		$options['supports']    = $this->get_supported_features();
-		$options['i18n']        = isset( $options['i18n'] ) && is_array( $options['i18n'] )
-			? $options['i18n']
-			: array( 'please_select' => __( 'Please select...', 'wc-gateway-payway' ) );
+		if ( empty( $options['i18n'] ) || ! is_array( $options['i18n'] ) ) {
+			$options['i18n'] = array(
+				'please_select'      => __( 'Please select...', 'wc-gateway-payway' ),
+				'bank'               => __( 'Bank', 'wc-gateway-payway' ),
+				'card'               => __( 'Card', 'wc-gateway-payway' ),
+				'installments'       => __( 'Installments', 'wc-gateway-payway' ),
+				'credit_card_number' => __( 'Credit Card Number', 'wc-gateway-payway' ),
+				'exp_month'          => __( 'Card Expiration Month', 'wc-gateway-payway' ),
+				'exp_year'           => __( 'Card Expiration Year', 'wc-gateway-payway' ),
+				'cvv'                => __( 'CVV', 'wc-gateway-payway' ),
+				'holder_name'        => __( 'Holder Name', 'wc-gateway-payway' ),
+				'doc_number'         => __( 'Document Number', 'wc-gateway-payway' ),
+				'door_number'        => __( 'Street number (door number)', 'wc-gateway-payway' ),
+				'complete_fields'    => __( 'Please complete all Payway payment fields.', 'wc-gateway-payway' ),
+				'token_failed'       => __( 'Payment Token could not be generated at this time.', 'wc-gateway-payway' ),
+				'core_unavailable'   => __( 'Payway checkout core is not available.', 'wc-gateway-payway' ),
+			);
+		}
 
 		$options['accounting'] = array(
 			'precision' => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,

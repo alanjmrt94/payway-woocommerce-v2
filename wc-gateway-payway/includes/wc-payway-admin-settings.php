@@ -64,7 +64,7 @@ return array(
 		'title'       => __( 'Use Cybersource', 'wc-gateway-payway' ),
 		'label'       => __( 'Enable Cybersource', 'wc-gateway-payway' ),
 		'type'        => 'checkbox',
-		'description' => __( 'Use Cybersource for all transactions', 'wc-gateway-payway' ),
+		'description' => __( 'Use Cybersource for all transactions. If the Payway site requires Fraud Detection, leaving this off can fail with code 10734.', 'wc-gateway-payway' ),
 		'desc_tip'    => true,
 		'default'     => 'yes',
 	),
@@ -87,7 +87,7 @@ return array(
 	WC_Payway_Config_Interface::FIELD_SANDBOX_SITE_ID => array(
 		'title'       => __( 'Sandbox Site Id', 'wc-gateway-payway' ),
 		'type'        => 'text',
-		'description' => __( 'Enter your Sandbox site id', 'wc-gateway-payway' ),
+		'description' => __( 'One Site Id per environment. Parent/child merchant trees are not supported in this plugin — use the Site Id issued for this store.', 'wc-gateway-payway' ),
 		'desc_tip'    => true,
 		'default'     => '',
 	),
@@ -113,7 +113,7 @@ return array(
 	WC_Payway_Config_Interface::FIELD_PRODUCTION_SITE_ID => array(
 		'title'       => __( 'Production Site Id', 'wc-gateway-payway' ),
 		'type'        => 'text',
-		'description' => __( 'Enter your Production Site Id', 'wc-gateway-payway' ),
+		'description' => __( 'One Site Id per environment. Parent/child merchant trees are not supported in this plugin — use the Site Id issued for this store.', 'wc-gateway-payway' ),
 		'desc_tip'    => true,
 		'default'     => '',
 	),

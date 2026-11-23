@@ -37,6 +37,10 @@ class WC_Payway_Admin_Notices {
 			return true;
 		}
 
+		if ( 'dashboard' === $screen->id ) {
+			return true;
+		}
+
 		if ( 'woocommerce_page_wc-settings' === $screen->id ) {
 			$tab     = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 			$section = isset( $_GET['section'] ) ? sanitize_key( wp_unslash( $_GET['section'] ) ) : '';
@@ -76,7 +80,21 @@ class WC_Payway_Admin_Notices {
 			$creds_label = __( 'production', 'wc-gateway-payway' );
 		}
 
-		if ( ! $has_keys ) {
+		if ( $enabled && ! $has_keys ) {
+			$notices[] = array(
+				'type'    => 'error',
+				/* translators: 1: environment name 2: payments settings URL 3: setup URL */
+				'message' => sprintf(
+					wp_kses(
+						__( 'Payway is enabled but %1$s API keys are missing. The payment method will not work until you configure them under <a href="%2$s">WooCommerce → Payments → Payway</a> or follow <a href="%3$s">Setup</a>.', 'wc-gateway-payway' ),
+						array( 'a' => array( 'href' => array() ) )
+					),
+					esc_html( $creds_label ),
+					esc_url( $payments_url ),
+					esc_url( $setup_url )
+				),
+			);
+		} elseif ( ! $has_keys ) {
 			$notices[] = array(
 				'type'    => 'warning',
 				/* translators: 1: environment name 2: payments settings URL 3: setup URL */
@@ -97,14 +115,32 @@ class WC_Payway_Admin_Notices {
 			$promotions = ! empty( $storefront['promotions'] );
 			if ( ! $promotions ) {
 				$notices[] = array(
-					'type'    => 'warning',
+					'type'    => 'error',
 					/* translators: %s: Setup admin URL */
 					'message' => sprintf(
 						wp_kses(
-							__( 'Payway is enabled and credentials are set, but no applicable promotions were found. The payment method will stay hidden at checkout until you seed the catalog under <a href="%s">Setup</a>.', 'wc-gateway-payway' ),
+							__( 'Payway is enabled and credentials are set, but no applicable promotions were found. The payment method stays hidden at checkout until you seed the catalog under <a href="%s">Setup</a>.', 'wc-gateway-payway' ),
 							array( 'a' => array( 'href' => array() ) )
 						),
 						esc_url( $setup_url )
+					),
+				);
+			}
+		}
+
+		if ( $enabled && class_exists( 'WC_Payway_Setup_Status' ) ) {
+			foreach ( WC_Payway_Setup_Status::get_checks() as $check ) {
+				if ( empty( $check['blocking'] ) || ! empty( $check['ok'] ) ) {
+					continue;
+				}
+				$action = ! empty( $check['action_url'] )
+					? ' <a href="' . esc_url( $check['action_url'] ) . '">' . esc_html( $check['action_label'] ?? __( 'Fix', 'wc-gateway-payway' ) ) . '</a>'
+					: '';
+				$notices[] = array(
+					'type'    => 'error',
+					'message' => wp_kses(
+						esc_html( $check['label'] . ': ' . $check['message'] ) . $action,
+						array( 'a' => array( 'href' => array() ) )
 					),
 				);
 			}

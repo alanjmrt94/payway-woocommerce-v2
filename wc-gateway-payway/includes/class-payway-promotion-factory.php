@@ -130,11 +130,13 @@ class WC_Payway_Promotion_Factory {
 	}
 
 	/**
-	 * Retrieves all Promotions records
+	 * Retrieves promotions ordered by rule name (optional pagination).
 	 *
-	 * @return (array[stdClass]|object|null) database query results
+	 * @param int|null $per_page    Page size; null = all.
+	 * @param int      $page_number 1-based page.
+	 * @return array<int,stdClass>|null
 	 */
-	public static function get_promotions() {
+	public static function get_promotions( $per_page = null, $page_number = 1 ) {
 		global $wpdb;
 
 		if ( class_exists( 'WC_Payway_Activator' ) ) {
@@ -142,10 +144,10 @@ class WC_Payway_Promotion_Factory {
 		}
 
 		$promotion_table = self::get_promotion_table_name();
-		$bank_table = self::get_banks_table_name();
-		$card_table = self::get_cards_table_name();
+		$bank_table      = self::get_banks_table_name();
+		$card_table      = self::get_cards_table_name();
 
-		$query = "SELECT promos.*,
+		$base = "SELECT promos.*,
 			bank.name as 'bank_name',
 			card.card_name,
 			card.id_sps as 'card_code'
@@ -156,9 +158,16 @@ class WC_Payway_Promotion_Factory {
 				ON promos.card_id = card.id
 		ORDER BY promos.rule_name ASC";
 
-		return $wpdb->get_results(
-			$query
-		);
+		if ( null !== $per_page && (int) $per_page > 0 ) {
+			$offset = max( 0, ( (int) $page_number - 1 ) * (int) $per_page );
+			$base   = $wpdb->prepare(
+				$base . ' LIMIT %d OFFSET %d',
+				(int) $per_page,
+				$offset
+			);
+		}
+
+		return $wpdb->get_results( $base );
 	}
 
 	/**
@@ -314,12 +323,44 @@ class WC_Payway_Promotion_Factory {
 	}
 
 	/**
+	 * Validates promotion payload before insert/update.
 	 *
 	 * @param array $data
-	 * @return int|false id of the inserted record or false if fails
+	 * @return true|WP_Error
+	 */
+	public static function validate_promotion_data( $data ) {
+		$required = array( 'rule_name', 'card_id', 'bank_id', 'from_date', 'is_active', 'applicable_days' );
+		$errors   = new WP_Error();
+
+		foreach ( $required as $key ) {
+			if ( ! isset( $data[ $key ] ) || ( is_string( $data[ $key ] ) && '' === trim( (string) $data[ $key ] ) ) ) {
+				$errors->add( $key, sprintf( /* translators: %s: field key */ __( 'Missing required promotion field: %s', 'wc-gateway-payway' ), $key ) );
+			}
+		}
+
+		if ( empty( $data['no_expiry'] ) && ( ! isset( $data['to_date'] ) || '' === (string) $data['to_date'] ) ) {
+			$errors->add( 'to_date', __( 'To Date is required when the promotion has an expiry date', 'wc-gateway-payway' ) );
+		}
+
+		if ( ! empty( $errors->get_error_codes() ) ) {
+			return $errors;
+		}
+
+		return true;
+	}
+
+	/**
+	 *
+	 * @param array $data
+	 * @return int|false|WP_Error id of the inserted record or false if fails
 	 */
 	public static function create_promotion( $data ) {
 		global $wpdb;
+
+		$validation = self::validate_promotion_data( $data );
+		if ( is_wp_error( $validation ) ) {
+			return $validation;
+		}
 
 		if ( class_exists( 'WC_Payway_Activator' ) ) {
 			WC_Payway_Activator::ensure_core_schema();
@@ -360,10 +401,15 @@ class WC_Payway_Promotion_Factory {
 	/**
 	 *
 	 * @param array $data
-	 * @return bool if successful, false otherwise
+	 * @return bool|WP_Error if successful, false otherwise
 	 */
 	public static function update_promotion( $data ) {
 		global $wpdb;
+
+		$validation = self::validate_promotion_data( $data );
+		if ( is_wp_error( $validation ) ) {
+			return $validation;
+		}
 
 		if ( class_exists( 'WC_Payway_Activator' ) ) {
 			WC_Payway_Activator::ensure_core_schema();

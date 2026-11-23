@@ -223,11 +223,10 @@ class WC_Payway_Admin_Navigation_Page_Banks extends WP_List_Table {
 		$total_items = WC_Payway_Bank_Factory::record_count();
 
 		$this->set_pagination_args( [
-			'total_items' => $total_items, //WE have to calculate the total number of items
-			'per_page' => $per_page //WE have to determine how many items to show on a page
+			'total_items' => $total_items,
+			'per_page'    => $per_page,
 		] );
 
-		// TODO: implement pagination
 		$this->items = self::get_banks( $per_page, $current_page );
 		return $this;
 	}

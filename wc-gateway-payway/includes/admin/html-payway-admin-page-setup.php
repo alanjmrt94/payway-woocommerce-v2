@@ -89,6 +89,34 @@ $recommended_checks = array_filter(
 		<li><?php esc_html_e( 'If something fails: Payway → Status.', 'wc-gateway-payway' ); ?></li>
 	</ol>
 
+	<?php if ( function_exists( 'wc_payway_is_sandbox_enabled' ) && wc_payway_is_sandbox_enabled() ) : ?>
+		<p class="description">
+			<?php
+			echo wp_kses(
+				sprintf(
+					/* translators: %s: Payway developers URL */
+					__( 'Sandbox tip: use official test cards from the <a href="%s" target="_blank" rel="noopener noreferrer">Payway / Decidir developers portal</a>. Wrong BINs often return “invalid merchant”.', 'wc-gateway-payway' ),
+					esc_url( 'https://developers.decidir.com/' )
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+				)
+			);
+			?>
+		</p>
+	<?php endif; ?>
+
+	<h2><?php esc_html_e( 'Common issues', 'wc-gateway-payway' ); ?></h2>
+	<ul style="max-width:1100px;list-style:disc;margin-left:1.5em">
+		<li><?php esc_html_e( 'Payment method missing at checkout: enable the gateway, load keys for the active environment, and seed at least one applicable promotion (Setup catalog).', 'wc-gateway-payway' ); ?></li>
+		<li><?php esc_html_e( 'Debit without 1 installment: each debit/prepaid card needs a promotion with a 1-installment plan.', 'wc-gateway-payway' ); ?></li>
+		<li><?php esc_html_e( 'Cybersource code 10734: the Payway site requires Fraud Detection — keep Cybersource enabled.', 'wc-gateway-payway' ); ?></li>
+	</ul>
+
 	<h2><?php esc_html_e( 'Default catalog setup', 'wc-gateway-payway' ); ?></h2>
 	<p><?php esc_html_e( 'Mini-assistant: pick cards and installment periods, then create one default promotion per selected card (active, no expiry, bank “Todos”). Debit/prepaid/Maestro always get 1 installment.', 'wc-gateway-payway' ); ?></p>
 

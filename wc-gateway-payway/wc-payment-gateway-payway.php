@@ -239,6 +239,9 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			WC_Payway_Admin_Notices::render_inline_for_gateway();
 			parent::admin_options();
 		} else {
+			echo '<div class="notice notice-error inline"><p>';
+			esc_html_e( 'Payway does not support the store currency. Switch WooCommerce currency to ARS or USD, or filter woocommerce_payway_supported_currencies.', 'wc-gateway-payway' );
+			echo '</p></div>';
 			?>
 			<div class="inline error">
 				<p>
@@ -389,7 +392,10 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 				$result_payload = $request->get_result();
 				$status         = is_array( $result_payload ) ? ( $result_payload['status'] ?? '' ) : '';
 
-				if ( $status && ! in_array( $status, array( 'approved', 'accredited' ), true ) ) {
+				$is_success = class_exists( 'WC_Payway_Decidir_Adapter' )
+					? WC_Payway_Decidir_Adapter::is_success_status( $status )
+					: in_array( $status, array( 'approved', 'accredited' ), true );
+				if ( $status && ! $is_success ) {
 					throw new Exception( WC_Payway_Errors::message( WC_Payway_Errors::ISSUER_REJECTED ) );
 				}
 
@@ -615,10 +621,10 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 
 		wp_register_script(
 			'woocommerce-gateway-payway-sdk',
-			'https://live.decidir.com/static/v2.5/decidir.js',
+			function_exists( 'wc_payway_decidir_js_url' ) ? wc_payway_decidir_js_url() : 'https://live.decidir.com/static/v2.5/decidir.js',
 			array(),
-			'2.5',
-			false
+			function_exists( 'wc_payway_decidir_js_version' ) ? wc_payway_decidir_js_version() : '2.5',
+			true
 		);
 		wp_enqueue_script( 'woocommerce-gateway-payway-sdk' );
 

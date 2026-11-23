@@ -103,8 +103,29 @@ class WC_Payway_Activator implements WC_Payway_Activator_Interface {
 
 		static::ensure_core_schema();
 		static::update_plugin_db_versions();
+		set_transient( 'payway_activation_redirect', 1, 120 );
 
 		return true;
+	}
+
+	/**
+	 * One-shot redirect to Setup after activation.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_to_setup() {
+		if ( ! get_transient( 'payway_activation_redirect' ) ) {
+			return;
+		}
+		delete_transient( 'payway_activation_redirect' );
+		if ( wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+		wp_safe_redirect( admin_url( 'admin.php?page=payway_admin_setup' ) );
+		exit;
 	}
 
 	/**
@@ -382,14 +403,25 @@ class WC_Payway_Activator implements WC_Payway_Activator_Interface {
 	 * @return void
 	 */
 	public static function payway_clean_config_options() {
-		global $wpdb;
-
-		$plugin_options = $wpdb->get_results(
-			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE '%payway%gateway%'"
+		$whitelist = array(
+			'woocommerce_payway_gateway_settings',
+			static::CONFIG_OPTION_GATEWAY_VERSION_NAME,
+			static::CONFIG_OPTION_SDK_VERSION_NAME,
+			static::WC_PAYWAY_VERSION,
+			static::WC_PAYWAY_SDK_VERSION,
 		);
 
-		foreach ( $plugin_options as $option ) {
-			delete_option( $option->option_name );
+		/**
+		 * Filters option names removed on uninstall (whitelist only).
+		 *
+		 * @param string[] $whitelist
+		 */
+		$whitelist = apply_filters( 'wc_payway_uninstall_option_whitelist', $whitelist );
+
+		foreach ( $whitelist as $option_name ) {
+			if ( is_string( $option_name ) && $option_name !== '' ) {
+				delete_option( $option_name );
+			}
 		}
 	}
 

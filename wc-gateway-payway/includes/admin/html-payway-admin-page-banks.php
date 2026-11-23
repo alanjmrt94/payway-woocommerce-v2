@@ -64,10 +64,10 @@ $title = $is_creation
 			<?php if ( $post_action === $ACTION_NAME_NEW ) : ?>
 				<?php check_admin_referer( 'payway-create-edit-bank', '_wpnonce_payway-create-edit-bank' ); ?>
 				<?php
-					$errors = new WP_Error();
 					$data   = WC_Payway_Admin_Sanitize::bank_from_post( wp_unslash( $_POST ) );
-				if ( '' === $data['name'] ) {
-					$errors->add( 'name', __( 'Name is a required field', 'wc-gateway-payway' ) );
+					$errors = WC_Payway_Bank_Factory::validate_bank_data( $data );
+				if ( true === $errors ) {
+					$errors = new WP_Error();
 				}
 				?>
 				<?php if ( ! $errors->has_errors() ) : ?>

@@ -45,6 +45,19 @@ class WC_Payway_Bank_Factory {
 	}
 
 	/**
+	 * @param array $data
+	 * @return WP_Error|true
+	 */
+	public static function validate_bank_data( $data ) {
+		$errors = new WP_Error();
+		$name   = isset( $data['name'] ) ? trim( (string) $data['name'] ) : '';
+		if ( '' === $name ) {
+			$errors->add( 'name', __( 'Name is a required field', 'wc-gateway-payway' ) );
+		}
+		return $errors->has_errors() ? $errors : true;
+	}
+
+	/**
 	 * Instance
 	 *
 	 * @static
@@ -64,23 +77,32 @@ class WC_Payway_Bank_Factory {
 	}
 
 	/**
-	 * Retrieves all records from the database
+	 * Retrieves bank records ordered by name (optional pagination).
 	 *
-	 * @return (array[stdClass]|null)
+	 * @param int|null $per_page    Page size; null = all.
+	 * @param int      $page_number 1-based page.
+	 * @return array<int,stdClass>|null
 	 */
-	public static function get_banks() {
+	public static function get_banks( $per_page = null, $page_number = 1 ) {
 		global $wpdb;
 
 		if ( class_exists( 'WC_Payway_Activator' ) ) {
 			WC_Payway_Activator::ensure_core_schema();
 		}
 
-		$query = "SELECT * FROM " . self::get_table_name();
+		$table = self::get_table_name();
+		$sql   = "SELECT * FROM {$table} ORDER BY name ASC";
 
-		return $wpdb->get_results(
-			// $wpdb->prepare()
-			$query
-		);
+		if ( null !== $per_page && (int) $per_page > 0 ) {
+			$offset = max( 0, ( (int) $page_number - 1 ) * (int) $per_page );
+			$sql    = $wpdb->prepare(
+				"SELECT * FROM {$table} ORDER BY name ASC LIMIT %d OFFSET %d",
+				(int) $per_page,
+				$offset
+			);
+		}
+
+		return $wpdb->get_results( $sql );
 	}
 
 	/**

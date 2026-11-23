@@ -1309,3 +1309,21 @@ msgstr "← Página anterior"
 
 msgid "Next page →"
 msgstr "Página siguiente →"
+
+msgid "Please complete all Payway payment fields."
+msgstr "Completá todos los campos de pago de Payway."
+
+msgid "Payment Token could not be generated at this time."
+msgstr "No se pudo generar el token de pago en este momento."
+
+msgid "Payway checkout core is not available."
+msgstr "El núcleo de checkout de Payway no está disponible."
+
+msgid "Payway is enabled but %1$s API keys are missing. The payment method will not work until you configure them under <a href=\"%2$s\">WooCommerce → Payments → Payway</a> or follow <a href=\"%3$s\">Setup</a>."
+msgstr "Payway está habilitado pero faltan las claves API de %1$s. El medio de pago no funcionará hasta que las configures en <a href=\"%2$s\">WooCommerce → Pagos → Payway</a> o sigas <a href=\"%3$s\">Instalación</a>."
+
+msgid "Payway is enabled and credentials are set, but no applicable promotions were found. The payment method stays hidden at checkout until you seed the catalog under <a href=\"%s\">Setup</a>."
+msgstr "Payway está habilitado y las credenciales están cargadas, pero no hay promociones aplicables. El medio permanece oculto en el checkout hasta que siembres el catálogo en <a href=\"%s\">Instalación</a>."
+
+msgid "CVV"
+msgstr "CVV"

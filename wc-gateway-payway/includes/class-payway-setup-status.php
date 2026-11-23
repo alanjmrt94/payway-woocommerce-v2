@@ -92,6 +92,8 @@ class WC_Payway_Setup_Status {
 		$shipping_ui_ok   = self::checkout_has_shipping_address_ui();
 		$cards_without_promo = self::cards_missing_applicable_promotion();
 		$cards_promo_ok      = empty( $cards_without_promo );
+		$debit_without_one   = self::debit_cards_missing_one_installment();
+		$debit_one_ok        = empty( $debit_without_one );
 
 		$default_title = __( 'Checkout Payway', 'wc-gateway-payway' );
 		$default_desc  = __( 'Pay with Payway using your card right from the store.', 'wc-gateway-payway' );
@@ -225,6 +227,22 @@ class WC_Payway_Setup_Status {
 				'blocking'     => true,
 				'group'        => 'blocking',
 				'proposed'     => __( 'Suggested: credit 1/3/6/9/12/18; debit/prepaid 1 installment; no expiry. Optional MiPyME: 3→13 / 6→16 when enabled in Mi Payway and eligible MCC.', 'wc-gateway-payway' ),
+			),
+			array(
+				'id'           => 'debit_one_installment',
+				'ok'           => $debit_one_ok,
+				'label'        => __( 'Debit / prepaid has 1 installment', 'wc-gateway-payway' ),
+				'message'      => $debit_one_ok
+					? __( 'Debit and prepaid cards that have promotions include a 1-installment plan.', 'wc-gateway-payway' )
+					: sprintf(
+						/* translators: %s: card labels */
+						__( 'These debit/prepaid cards lack a 1-installment plan: %s', 'wc-gateway-payway' ),
+						implode( ', ', $debit_without_one )
+					),
+				'action_url'   => $setup_url,
+				'action_label' => __( 'Go to Setup', 'wc-gateway-payway' ),
+				'blocking'     => false,
+				'group'        => 'recommended',
 			),
 			array(
 				'id'           => 'promotions',
@@ -448,6 +466,13 @@ class WC_Payway_Setup_Status {
 			WC_Payway_Config_Interface::FIELD_GATEWAY_TITLE        => __( 'Checkout Payway', 'wc-gateway-payway' ),
 			WC_Payway_Config_Interface::FIELD_GATEWAY_DESCRIPTION  => __( 'Pay with Payway using your card right from the store.', 'wc-gateway-payway' ),
 		);
+
+		$title_key     = WC_Payway_Config_Interface::FIELD_GATEWAY_TITLE;
+		$legacy_titles = array( '', 'keep-me', 'Credit Card', 'Credit card', 'credit card' );
+		if ( isset( $opts[ $title_key ] ) && in_array( (string) $opts[ $title_key ], $legacy_titles, true ) ) {
+			$opts[ $title_key ] = $defaults[ $title_key ];
+			$changed[]          = $title_key . '=Checkout Payway (legacy migrated)';
+		}
 
 		foreach ( $defaults as $key => $value ) {
 			$current = isset( $opts[ $key ] ) ? $opts[ $key ] : null;
@@ -683,6 +708,56 @@ class WC_Payway_Setup_Status {
 				(string) $card->card_name,
 				(string) $card->id_sps
 			);
+		}
+
+		return $missing;
+	}
+
+	/**
+	 * Debit/prepaid/maestro cards whose promotions lack fee_period=1.
+	 *
+	 * @return string[]
+	 */
+	private static function debit_cards_missing_one_installment() {
+		$catalog_single = array();
+		foreach ( WC_Payway_Default_Catalog::get_cards_catalog() as $row ) {
+			if ( WC_Payway_Default_Catalog::PLAN_SINGLE === $row['plan_type'] ) {
+				$catalog_single[ (int) $row['id_sps'] ] = true;
+			}
+		}
+
+		$cards = WC_Payway_Card_Factory::get_cards();
+		if ( empty( $cards ) ) {
+			return array();
+		}
+
+		$missing = array();
+		foreach ( $cards as $card ) {
+			$sps = (int) $card->id_sps;
+			if ( empty( $catalog_single[ $sps ] ) ) {
+				continue;
+			}
+			$promos = WC_Payway_Promotion_Factory::get_promotions();
+			$has_one = false;
+			foreach ( (array) $promos as $promo ) {
+				if ( (int) $promo->card_id !== (int) $card->id ) {
+					continue;
+				}
+				$plans = json_decode( (string) $promo->fee_plans, true );
+				if ( ! is_array( $plans ) ) {
+					continue;
+				}
+				foreach ( $plans as $plan ) {
+					$period = is_array( $plan ) ? ( $plan['fee_period'] ?? null ) : ( $plan->fee_period ?? null );
+					if ( '1' === (string) $period || 1 === (int) $period ) {
+						$has_one = true;
+						break 2;
+					}
+				}
+			}
+			if ( ! $has_one ) {
+				$missing[] = sprintf( '%s (SPS %s)', (string) $card->card_name, (string) $card->id_sps );
+			}
 		}
 
 		return $missing;

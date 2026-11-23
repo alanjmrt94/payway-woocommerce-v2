@@ -36,6 +36,11 @@
 
   var labelText = decodeEntities(settings.title || 'Checkout Payway');
 
+  function i18n(key, fallback) {
+    var bag = (config && config.i18n) || (settings && settings.i18n) || {};
+    return bag[key] || fallback;
+  }
+
   function asList(maybe) {
     if (!maybe) {
       return [];
@@ -76,7 +81,7 @@
     var emitResponse = props.emitResponse || {};
     var please = window.PaywayCheckoutCore
       ? window.PaywayCheckoutCore.getPleaseSelect(config)
-      : 'Please select...';
+      : i18n('please_select', 'Please select...');
 
     var promotions = config.promotions || { banks: [], cards: {}, plans: {} };
     var banks = asList(promotions.banks);
@@ -190,7 +195,7 @@
             !v.docNumber ||
             !v.doorNumber
           ) {
-            var msg = 'Please complete all Payway payment fields.';
+            var msg = i18n('complete_fields', 'Please complete all Payway payment fields.');
             setError(msg);
             return {
               type: emitResponse.responseTypes.ERROR,
@@ -201,7 +206,7 @@
           if (!window.PaywayCheckoutCore) {
             return {
               type: emitResponse.responseTypes.ERROR,
-              message: 'Payway checkout core is not available.'
+              message: i18n('core_unavailable', 'Payway checkout core is not available.')
             };
           }
 
@@ -234,7 +239,7 @@
               };
             })
             .catch(function () {
-              var tokenMsg = 'Payment Token could not be generated at this time.';
+              var tokenMsg = i18n('token_failed', 'Payment Token could not be generated at this time.');
               setError(tokenMsg);
               return {
                 type: emitResponse.responseTypes.ERROR,
@@ -266,7 +271,7 @@
         : null,
       errorVal ? el('div', { className: 'woocommerce-error', role: 'alert' }, errorVal) : null,
       fieldRow(
-        'Bank',
+        i18n('bank', 'Bank'),
         el(
           'select',
           {
@@ -283,7 +288,7 @@
         true
       ),
       fieldRow(
-        'Card',
+        i18n('card', 'Card'),
         el(
           'select',
           {
@@ -301,7 +306,7 @@
         true
       ),
       fieldRow(
-        'Installments',
+        i18n('installments', 'Installments'),
         el(
           'select',
           {
@@ -321,7 +326,7 @@
         true
       ),
       fieldRow(
-        'Credit Card Number',
+        i18n('credit_card_number', 'Credit Card Number'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -334,7 +339,7 @@
         true
       ),
       fieldRow(
-        'Card Expiration Month',
+        i18n('exp_month', 'Card Expiration Month'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -347,7 +352,7 @@
         true
       ),
       fieldRow(
-        'Card Expiration Year',
+        i18n('exp_year', 'Card Expiration Year'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -360,7 +365,7 @@
         true
       ),
       fieldRow(
-        'CVV',
+        i18n('cvv', 'CVV'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -372,7 +377,7 @@
         true
       ),
       fieldRow(
-        'Holder Name',
+        i18n('holder_name', 'Holder Name'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -384,7 +389,7 @@
         true
       ),
       fieldRow(
-        'Document Number',
+        i18n('doc_number', 'Document Number'),
         el('input', {
           type: 'text',
           className: 'input-text',
@@ -396,7 +401,7 @@
         true
       ),
       fieldRow(
-        'Street number (door number)',
+        i18n('door_number', 'Street number (door number)'),
         el('input', {
           type: 'text',
           className: 'input-text',
