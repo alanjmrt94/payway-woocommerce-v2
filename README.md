@@ -81,7 +81,7 @@ Más detalle: [`wc-gateway-payway/README.md`](wc-gateway-payway/README.md) · do
 
 ## Brand / assets
 
-Isotipo Community, favicon, banners GitHub y assets WordPress.org viven en [`assets/`](assets/) (fuente: `.tmp/assets`). Guía: [`assets/LEEME.md`](assets/LEEME.md).
+Isotipo Community, favicon y banners GitHub viven en [`assets/`](assets/). Kit WordPress.org: [`docs/wordpress-org/`](docs/wordpress-org/).
 
 Portada social de GitHub (subir a mano en **Settings → General → Social preview**): [`assets/github/social-preview-1280x640.png`](assets/github/social-preview-1280x640.png).
 
