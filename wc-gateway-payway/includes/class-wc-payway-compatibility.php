@@ -21,16 +21,11 @@
  * @package wc-gateway-payway
  * @license GPL-2.0-or-later
  */
-/**
- * Capa de compatibilidad (detección de capacidades).
- *
- * @package wc-gateway-payway
- */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Feature detection helpers.
+ * Capa de compatibilidad (detección de capacidades).
  */
 class WC_Payway_Compatibility {
 
@@ -49,7 +44,7 @@ class WC_Payway_Compatibility {
 	/**
 	 * Resolve WC_Order from id.
 	 *
-	 * @param int|WC_Order $order_or_id
+	 * @param int|WC_Order $order_or_id Order object or numeric order id.
 	 * @return WC_Order|false
 	 */
 	public static function get_order( $order_or_id ) {

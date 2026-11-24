@@ -21,16 +21,11 @@
  * @package wc-gateway-payway
  * @license GPL-2.0-or-later
  */
-/**
- * Valida en servidor promoción, plan de cuotas y payment_method_id.
- *
- * @package wc-gateway-payway
- */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Integrity validator for checkout payment data.
+ * Valida en servidor promoción, plan de cuotas y payment_method_id.
  */
 class WC_Payway_Integrity_Validator {
 
@@ -41,10 +36,10 @@ class WC_Payway_Integrity_Validator {
 	 * @return array|\WP_Error Datos normalizados o error.
 	 */
 	public static function validate_checkout_selection( array $posted_data ) {
-		$rule_id      = isset( $posted_data['rule_id'] ) ? absint( $posted_data['rule_id'] ) : 0;
-		$card_code    = isset( $posted_data['cc_type'] ) ? absint( $posted_data['cc_type'] ) : 0;
-		$fee_to_send  = isset( $posted_data['installments'] ) ? absint( $posted_data['installments'] ) : 0;
-		$token        = isset( $posted_data['token'] ) ? (string) $posted_data['token'] : '';
+		$rule_id     = isset( $posted_data['rule_id'] ) ? absint( $posted_data['rule_id'] ) : 0;
+		$card_code   = isset( $posted_data['cc_type'] ) ? absint( $posted_data['cc_type'] ) : 0;
+		$fee_to_send = isset( $posted_data['installments'] ) ? absint( $posted_data['installments'] ) : 0;
+		$token       = isset( $posted_data['token'] ) ? (string) $posted_data['token'] : '';
 
 		if ( ! $token ) {
 			return new WP_Error(
@@ -90,16 +85,16 @@ class WC_Payway_Integrity_Validator {
 		}
 
 		return array(
-			'rule_id'      => $rule_id,
-			'card_id'      => isset( $posted_data['card_id'] ) ? absint( $posted_data['card_id'] ) : (int) $matched->card_id,
-			'installments' => $fee_to_send,
-			'cc_type'      => $card_code,
-			'token'        => $token,
-			'bin'          => isset( $posted_data['bin'] ) ? preg_replace( '/\D/', '', (string) $posted_data['bin'] ) : '',
-			'last_digits'  => isset( $posted_data['last_digits'] ) ? preg_replace( '/\D/', '', (string) $posted_data['last_digits'] ) : '',
-			'door_number'  => isset( $posted_data['door_number'] ) ? absint( $posted_data['door_number'] ) : 0,
-			'fee_plan'     => $plan,
-			'promotion'    => $matched,
+			'rule_id'           => $rule_id,
+			'card_id'           => isset( $posted_data['card_id'] ) ? absint( $posted_data['card_id'] ) : (int) $matched->card_id,
+			'installments'      => $fee_to_send,
+			'cc_type'           => $card_code,
+			'token'             => $token,
+			'bin'               => isset( $posted_data['bin'] ) ? preg_replace( '/\D/', '', (string) $posted_data['bin'] ) : '',
+			'last_digits'       => isset( $posted_data['last_digits'] ) ? preg_replace( '/\D/', '', (string) $posted_data['last_digits'] ) : '',
+			'door_number'       => isset( $posted_data['door_number'] ) ? absint( $posted_data['door_number'] ) : 0,
+			'fee_plan'          => $plan,
+			'promotion'         => $matched,
 			'payment_method_id' => $card_code,
 		);
 	}

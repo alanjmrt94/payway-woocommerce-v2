@@ -191,15 +191,15 @@ final class PaywayWC {
 		require_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-config-interface.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/interfaces/class-wc-payway-meta-interface.php';
 
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-compatibility.php';
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-errors.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-wc-payway-compatibility.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-wc-payway-errors.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-logger.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-activator.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-core-functions.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-bank-factory.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-card-factory.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-promotion-factory.php';
-		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-integrity-validator.php';
+		require_once WC_PAYWAY_ABSPATH . 'includes/class-wc-payway-integrity-validator.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-meta.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-default-catalog.php';
 		require_once WC_PAYWAY_ABSPATH . 'includes/class-payway-setup-status.php';

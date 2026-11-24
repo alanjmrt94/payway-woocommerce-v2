@@ -1,6 +1,6 @@
 # 9. Diagnóstico, Status y Últimos pagos
 
-Códigos internos (prefijo `PPC_`): ver `includes/class-payway-errors.php`.
+Códigos internos (prefijo `PPC_`): ver `includes/class-wc-payway-errors.php`.
 
 ## Payway → Instalación
 

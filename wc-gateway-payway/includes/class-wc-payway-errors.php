@@ -21,16 +21,11 @@
  * @package wc-gateway-payway
  * @license GPL-2.0-or-later
  */
-/**
- * Catálogo de errores internos del plugin.
- *
- * @package wc-gateway-payway
- */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Códigos y mensajes comprensibles (sin secretos).
+ * Catálogo de errores internos del plugin (mensajes sin secretos).
  */
 class WC_Payway_Errors {
 
@@ -55,7 +50,7 @@ class WC_Payway_Errors {
 	/**
 	 * Mensaje orientado al comercio/comprador.
 	 *
-	 * @param string $code
+	 * @param string $code Internal PPC_* error code.
 	 * @return string
 	 */
 	public static function message( $code ) {
@@ -87,7 +82,7 @@ class WC_Payway_Errors {
 	/**
 	 * Mapea tipologías Decidir / HTTP a códigos internos.
 	 *
-	 * @param string|int $gateway_code
+	 * @param string|int $gateway_code Gateway error type or HTTP status.
 	 * @return string
 	 */
 	public static function from_gateway( $gateway_code ) {
@@ -132,12 +127,12 @@ class WC_Payway_Errors {
 			return self::message( self::PROCESSING );
 		}
 
-		// Shape: status_details.error { type, reason... }
+		// Payload shaped like status_details.error with a type field.
 		if ( ! empty( $raw['type'] ) && is_string( $raw['type'] ) ) {
 			return self::message( self::from_gateway( $raw['type'] ) );
 		}
 
-		// Shape: [ 'Gateway Error', '[{"code":"invalid_param","param":"fraud_detection..."}]' ]
+		// Mixed list: human label plus a JSON string of gateway validation rows.
 		foreach ( $raw as $item ) {
 			if ( is_array( $item ) && ! empty( $item['type'] ) && is_string( $item['type'] ) ) {
 				return self::message( self::from_gateway( $item['type'] ) );
@@ -152,11 +147,11 @@ class WC_Payway_Errors {
 			}
 		}
 
-		if ( is_array( $raw ) && ! empty( $raw['type'] ) && is_string( $raw['type'] ) ) {
+		if ( ! empty( $raw['type'] ) && is_string( $raw['type'] ) ) {
 			return self::message( self::from_gateway( $raw['type'] ) );
 		}
 
-		// Shape: validation_errors list
+		// Indexed list of validation_errors rows.
 		if ( isset( $raw[0] ) && is_array( $raw[0] ) && isset( $raw[0]['param'] ) ) {
 			$code = self::code_from_validation_params( $raw );
 			return self::message( $code );
@@ -172,7 +167,7 @@ class WC_Payway_Errors {
 	/**
 	 * Maps Decidir validation param paths to shopper-safe error codes (no raw API paths).
 	 *
-	 * @param array $rows validation_errors rows
+	 * @param array $rows validation_errors rows.
 	 * @return string
 	 */
 	private static function code_from_validation_params( array $rows ) {

@@ -1,6 +1,6 @@
 # 9. Diagnostics, Status, and Recent Payments
 
-Internal codes (`PPC_` prefix): see `includes/class-payway-errors.php`.
+Internal codes (`PPC_` prefix): see `includes/class-wc-payway-errors.php`.
 
 ## Payway → Setup
 
