@@ -1,7 +1,8 @@
 # 7. Checkout (clásico y Blocks) y pedidos
 
-<!-- pendiente: assets/07-checkout-classic.png -->
-<!-- pendiente: assets/08-checkout-blocks.png -->
+![Checkout clásico Payway](assets/07-checkout-classic.png)
+
+![Checkout Blocks Payway](assets/08-checkout-blocks.png)
 
 ![Pedido aprobado en admin (#14)](assets/09-order-admin.png)
 

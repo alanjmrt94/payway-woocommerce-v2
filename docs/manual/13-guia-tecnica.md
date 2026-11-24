@@ -43,8 +43,13 @@ El SDK PHP **2.0.10** no multiplica ×100. El plugin envía `amount` y `purchase
 
 ```bash
 ci/bin/package-plugin-zip.sh          # lee Version del header
-ci/bin/package-plugin-zip.sh 2.0.0    # fuerza versión en el nombre
-# → dist/wc-gateway-payway-2.0.0.zip
+ci/bin/package-plugin-zip.sh 2.0.2    # fuerza versión en el nombre
+# → ci/dist/wc-gateway-payway-2.0.2.zip
+
+# PDFs del manual:
+# cd ci && npm install && npx playwright install chromium
+# npm run build:manual-pdfs
+# → docs/payway-woo-v2-manual-es.pdf · docs/payway-woo-v2-manual-en.pdf
 ```
 
 El ZIP debe tener `wc-gateway-payway/` en la raíz.

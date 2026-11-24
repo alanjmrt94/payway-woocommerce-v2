@@ -1,6 +1,6 @@
 # Manual — Payway Payment Community 2.0.x
 
-> **Disclaimer:** desarrollo independiente. No es un producto oficial de Payway; no está desarrollado, mantenido, respaldado ni certificado por Payway. Responsabilidad: Alan Martinez (alanjmrt94).
+> **Disclaimer:** desarrollo independiente. No es un producto oficial de Payway; no está desarrollado, mantenido, respaldado ni certificado por Payway. Responsabilidad: Alan Martinez ([alanjmrt94](https://github.com/alanjmrt94)).
 
 Este directorio es la **fuente Markdown** del manual (ES). El espejo EN (`en/`), PDF y listing WP.org/Woo viven en la cola del plan único [`../../ci/.cursor/plans/dev-noviembre.plan.md`](../../ci/.cursor/plans/dev-noviembre.plan.md) (workspace: `.cursor/plans/dev-noviembre.plan.md`).
 
@@ -24,3 +24,5 @@ Este directorio es la **fuente Markdown** del manual (ES). El espejo EN (`en/`),
 14. [Changelog](14-changelog.md)
 
 Versión del plugin documentada: **2.0.x** (SDK PHP Decidir/Payway **2.0.10**). Montos en **centavos**; menú Instalación / Últimos pagos / Estado; notices de keys/promos; Cybersource 10734 documentado.
+
+PDFs compilados: [`../payway-woo-v2-manual-es.pdf`](../payway-woo-v2-manual-es.pdf) · [`../payway-woo-v2-manual-en.pdf`](../payway-woo-v2-manual-en.pdf).

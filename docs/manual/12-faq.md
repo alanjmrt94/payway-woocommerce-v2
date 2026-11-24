@@ -4,7 +4,7 @@
 No. Es un fork Community. Payway no brinda soporte sobre este plugin.
 
 **¿Quién da soporte?**  
-El autor del fork (alanjmrt94) vía el repositorio GitHub. No uses la tipificación del App Store / portal oficial de Payway pensada para el plugin 0.3.x.
+El autor del fork Alan Martinez ([alanjmrt94](https://github.com/alanjmrt94)) vía el repositorio GitHub. No uses la tipificación del App Store / portal oficial de Payway pensada para el plugin 0.3.x.
 
 **¿Soporta WooCommerce Blocks?**  
 Sí, desde 1.1.0 (con feature-detect de la API de payment methods).

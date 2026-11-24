@@ -3,7 +3,7 @@
 #
 # Se versiona:
 #   wc-gateway-payway/  LICENSE  README.md  CHANGELOG.md
-#   docs/ (básicos; manual ampliado puede quedar ignorado hasta revisión)
+#   docs/ (manual MD + PDF + wordpress-org)  assets/ (brand / github / wporg)
 #   ci/.gitkeep
 #
 # El tooling de desarrollo vive fuera de la superficie pública (carpeta ci/).
@@ -40,7 +40,7 @@ ci/
 *.key
 
 # --- Artefactos / caches / scratch ------------------------------------------
-/dist/
+# ZIPs de release: ci/dist/ (repo ci). No hay dist/ en la raíz del producto.
 *.zip
 check.txt
 .tmp/

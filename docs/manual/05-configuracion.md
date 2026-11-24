@@ -22,7 +22,7 @@ Sin **Enabled** y sin las tres claves del ambiente activo, el medio no opera. Es
 
 También obligatorio: **WooCommerce → Ajustes → General → Número de decimales = 2**.
 
-<!-- captura: assets/10-decimals-2.png -->
+![Decimales WooCommerce = 2](assets/10-decimals-2.png)
 
 Desde **Payway → Instalación** podés usar **Aplicar config. recomendada** (Enabled, Sandbox, Cybersource, Debug, título/descripción, decimales=2; migra títulos legacy tipo `Credit Card` / `keep-me`) sin tocar las keys.
 
