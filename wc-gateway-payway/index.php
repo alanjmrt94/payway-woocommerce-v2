@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
  * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
  * Version: 2.0.2
- * Author: Alan Martinez
+ * Author: Alan Martinez (alanjmrt94)
  * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
  * Domain Path: /i18n/languages
@@ -34,7 +34,7 @@
  * "WC tested up to" se conservan porque WordPress y WooCommerce las leen de forma
  * automática. Las líneas con nombre completo son documentación legible para humanos.
  *
- * Copyright (C) 2026 Alan Martinez
+ * Copyright (C) 2026 Alan Martinez (https://github.com/alanjmrt94)
  * Based on prior work © IURCO / Prisma SA where applicable.
  *
  * This program is free software; you can redistribute it and/or modify

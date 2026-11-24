@@ -54,9 +54,11 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 	public function __construct() {
 		$this->id					= self::PAYMENT_CODE;
 		$this->has_fields			= true;
+		// Solo en checkout: marca oficial Payway (reemplazar archivo si actualizan el asset).
+		// Admin / docs / store usan brand Community en assets/images/brand/.
 		$this->icon					= apply_filters(
 			'woocommerce_payway_icon',
-			plugins_url('assets/images/card-logos.png', WC_PAYWAY_PLUGIN_FILE)
+			plugins_url( 'assets/images/checkout/payway-official-48.png', WC_PAYWAY_PLUGIN_FILE )
 		);
 		$this->order_button_text	= __( 'Pay with Payway', 'wc-gateway-payway' );
 		$this->method_title			= __( 'Payway Payment Community', 'wc-gateway-payway' );
