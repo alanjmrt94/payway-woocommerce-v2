@@ -9,6 +9,10 @@
  * @license GPL-2.0-or-later
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $gateway_identifier = $this->id;
 $gateway_field_id   = $gateway_identifier . '_';
 $description        = $this->get_option( 'description' );

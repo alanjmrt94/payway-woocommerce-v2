@@ -44,7 +44,7 @@ $title = $is_creation
 ?>
 <div class="wrap">
 	<h1 class="wp-heading-inline">
-		<?php echo $title; ?>
+		<?php echo esc_html( $title ); ?>
 	</h1>
 	<?php if ( '' === $params['action'] ) : ?>
 		<?php if ( isset( $_GET['payway_deleted'] ) && '1' === $_GET['payway_deleted'] ) : ?>
@@ -54,7 +54,7 @@ $title = $is_creation
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
-		<?php echo $this->get_table(); ?>
+		<?php echo wp_kses_post( $this->get_table() ); ?>
 	<?php else : ?>
 		<?php if ( isset( $_POST['action'] ) ) : ?>
 			<?php

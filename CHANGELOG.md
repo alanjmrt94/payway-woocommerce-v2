@@ -5,6 +5,23 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [2.0.5] — 2026-11-24
+
+### Fixed
+
+- Cumplimiento Plugin Check (`plugin_repo`): escape de salida admin, `$wpdb->prepare` en factories, comentarios `translators:`, guards `ABSPATH`, text domain y notas de pedido.
+- `Tested up to` en `readme.txt` → **7.1**.
+
+### Changed
+
+- Versión del plugin a **2.0.5**.
+
+### Conteo SemVer
+
+`fix=1` desde `2.0.4` → **N=1** → **2.0.5**.
+
+---
+
 ## [2.0.4] — 2026-11-24
 
 ### Fixed
@@ -248,6 +265,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[2.0.5]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.5
 [2.0.4]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.4
 [2.0.3]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.3
 [2.0.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.2

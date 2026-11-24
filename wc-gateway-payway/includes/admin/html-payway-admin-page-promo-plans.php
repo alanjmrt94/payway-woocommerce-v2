@@ -59,19 +59,19 @@ if ( ! isset( $params ) || ! is_array( $params ) ) {
 			<table id="payway-admin-promotions-plans">
 				<thead>
 					<tr>
-						<th><?php echo __( 'Period' , 'wc-gateway-payway' ); ?></th>
-						<th><?php echo __( 'Coeficient' , 'wc-gateway-payway' ); ?></th>
-						<th><?php echo __( 'TEA' , 'wc-gateway-payway' ); ?></th>
-						<th><?php echo __( 'CFT' , 'wc-gateway-payway' ); ?></th>
-						<th><?php echo __( 'Fee to send' , 'wc-gateway-payway' ); ?></th>
-						<th><?php echo __( 'Delete' , 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'Period', 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'Coeficient', 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'TEA', 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'CFT', 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'Fee to send', 'wc-gateway-payway' ); ?></th>
+						<th><?php echo esc_html__( 'Delete', 'wc-gateway-payway' ); ?></th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
 						<td colspan="6">
-							<a href="#" id="fee-plans-add-new" title="<?php echo __( 'Add new plan', 'wc-gateway-payway' ); ?>">
-								<?php echo __( 'Add new plan', 'wc-gateway-payway' ); ?>
+							<a href="#" id="fee-plans-add-new" title="<?php echo esc_attr__( 'Add new plan', 'wc-gateway-payway' ); ?>">
+								<?php echo esc_html__( 'Add new plan', 'wc-gateway-payway' ); ?>
 							</a>
 						</td>
 					</tr>
@@ -92,7 +92,16 @@ jQuery( function( $ ) {
 
     // Denotes total number of rows
     var row_id = 0,
-		plans = <?php echo $promotion && $promotion->fee_plans != '' ? $promotion->fee_plans : json_encode([]); ?>;
+		plans = <?php
+		$fee_plans_data = array();
+		if ( $promotion && '' !== $promotion->fee_plans ) {
+			$decoded_plans = json_decode( $promotion->fee_plans, true );
+			if ( is_array( $decoded_plans ) ) {
+				$fee_plans_data = $decoded_plans;
+			}
+		}
+		echo wp_json_encode( $fee_plans_data );
+		?>;
 
 	function add_plan_row( data ) {
 		// append a new row into the Plans table
@@ -121,8 +130,8 @@ jQuery( function( $ ) {
 			<td><input type="text" name="fee_plans[${row_id}][fee_to_send]"
 				id="plan_${row_id}_fee_to_send" class="promotion-fee-plan-field field-fee-to-send" value="${row_fee_to_send}" /></td>
 			<td>
-				<a href="#" class="plans-remove-row" id="fee-plans-remove-row" title="<?php echo __( 'Delete', 'wc-gateway-payway' ); ?>">
-					<?php echo __( 'Delete', 'wc-gateway-payway' ); ?>
+				<a href="#" class="plans-remove-row" id="fee-plans-remove-row" title="<?php echo esc_attr__( 'Delete', 'wc-gateway-payway' ); ?>">
+					<?php echo esc_html__( 'Delete', 'wc-gateway-payway' ); ?>
 				</a>
 			</td>
 		</tr>`;

@@ -51,7 +51,7 @@ $title = $is_creation
 ?>
 <div class="wrap">
 	<h1 class="wp-heading-inline">
-		<?php echo $title; ?>
+		<?php echo esc_html( $title ); ?>
 	</h1>
 	<?php if ( '' === $params['action'] ) : ?>
 		<?php if ( isset( $_GET['payway_deleted'] ) && '1' === $_GET['payway_deleted'] ) : ?>
@@ -63,7 +63,7 @@ $title = $is_creation
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME . '&action=' . $ACTION_NAME_NEW ) ); ?>" class="page-title-action">
 			<?php echo esc_html__( 'Add New', 'wc-gateway-payway' ); ?>
 		</a>
-		<?php echo $this->get_table(); ?>
+		<?php echo wp_kses_post( $this->get_table() ); ?>
 	<?php else : ?>
 		<?php if ( isset( $_POST['action'] ) ) : ?>
 			<?php
@@ -196,7 +196,7 @@ $title = $is_creation
 					<table class="form-table" role="presentation">
 						<tr class="form-field form-required">
 							<th scope="row"><label for="rule_name">
-								<?php _e( 'Promotion Name', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'Promotion Name', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<input name="rule_name" type="text" id="rule_name" value="<?php echo esc_attr( $rule_name ); ?>" aria-required="true" autocapitalize="none" autocorrect="off" maxlength="100" />
@@ -204,12 +204,12 @@ $title = $is_creation
 						</tr>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="is_active">
-								<?php _e( 'Is Active', 'wc-gateway-payway' ); ?></label>
+								<?php esc_html_e( 'Is Active', 'wc-gateway-payway' ); ?></label>
 							</th>
 							<td>
 								<select name="is_active" type="text" id="is_active">
-									<option value="1" <?php echo $is_active === 1 ? 'selected' : '' ?>><?php echo __( 'Enabled', 'wc-gateway-payway' ) ?></option>
-									<option value="0" <?php echo $is_active === 0 ? 'selected' : '' ?>><?php echo __( 'Disabled', 'wc-gateway-payway' ) ?></option>
+									<option value="1" <?php selected( $is_active, 1 ); ?>><?php echo esc_html__( 'Enabled', 'wc-gateway-payway' ); ?></option>
+									<option value="0" <?php selected( $is_active, 0 ); ?>><?php echo esc_html__( 'Disabled', 'wc-gateway-payway' ); ?></option>
 								</select>
 							</td>
 						</tr>
@@ -226,31 +226,31 @@ $title = $is_creation
 						</tr>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="bank_id">
-								<?php _e( 'Bank', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'Bank', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<select name="bank_id" type="text" id="bank_id" aria-required="true">
-									<?php foreach ($this->get_banks() as $bank): ?>
-										<option value="<?php echo $bank['value']; ?>" <?php echo $bank_id === $bank['value'] ? 'selected' : '' ?>><?php echo $bank['label']; ?></option>
+									<?php foreach ( $this->get_banks() as $bank ) : ?>
+										<option value="<?php echo esc_attr( $bank['value'] ); ?>" <?php selected( $bank_id, $bank['value'] ); ?>><?php echo esc_html( $bank['label'] ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
 						</tr>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="card_id">
-								<?php _e( 'Card', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'Card', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<select name="card_id" type="text" id="card_id" aria-required="true">
-									<?php foreach ($this->get_cards() as $card): ?>
-										<option value="<?php echo $card['value']; ?>" <?php echo $card_id === $card['value'] ? 'selected' : '' ?>><?php echo $card['label']; ?></option>
+									<?php foreach ( $this->get_cards() as $card ) : ?>
+										<option value="<?php echo esc_attr( $card['value'] ); ?>" <?php selected( $card_id, $card['value'] ); ?>><?php echo esc_html( $card['label'] ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
 						</tr>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="from_date">
-								<?php _e( 'From Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'From Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<input type="datetime-local" name="from_date" id="from_date" value="<?php echo esc_attr( $from_date ); ?>" />
@@ -258,7 +258,7 @@ $title = $is_creation
 						</tr>
 						<tr class="form-field form-required" id="payway-to-date-row" <?php echo $no_expiry ? 'style="display:none"' : ''; ?>>
 							<th scope="row"><label for="to_date">
-								<?php _e( 'To Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required when expiry is enabled)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'To Date', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required when expiry is enabled)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<input type="datetime-local" name="to_date" id="to_date" value="<?php echo esc_attr( $to_date ); ?>"/>
@@ -273,7 +273,7 @@ $title = $is_creation
 						</script>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="priority">
-								<?php _e( 'Priority', 'wc-gateway-payway' ); ?></label>
+								<?php esc_html_e( 'Priority', 'wc-gateway-payway' ); ?></label>
 							</th>
 							<td>
 								<input name="priority" type="text" id="priority" value="<?php echo esc_attr( $priority ); ?>" maxlength="2" />
@@ -281,7 +281,7 @@ $title = $is_creation
 						</tr>
 						<tr class="form-field form-required">
 							<th scope="row"><label for="applicable_days">
-								<?php _e( 'Applicable days', 'wc-gateway-payway' ); ?> <span class="description"><?php echo __( '(required)', 'wc-gateway-payway' ); ?></span></label>
+								<?php esc_html_e( 'Applicable days', 'wc-gateway-payway' ); ?> <span class="description"><?php echo esc_html__( '(required)', 'wc-gateway-payway' ); ?></span></label>
 							</th>
 							<td>
 								<?php
@@ -292,8 +292,8 @@ $title = $is_creation
 								}
 								?>
 								<select multiple="true" name="applicable_days[]" id="applicable_days" aria-required="true">
-									<?php foreach ($this->get_weekdays_for_element() as $day): ?>
-										<option value="<?php echo $day['value']; ?>" <?php echo $this->is_day_in_promotion( $day['value'], $promotion_for_days ) ? 'selected' : '' ?>><?php echo $day['label']; ?></option>
+									<?php foreach ( $this->get_weekdays_for_element() as $day ) : ?>
+										<option value="<?php echo esc_attr( $day['value'] ); ?>" <?php selected( $this->is_day_in_promotion( $day['value'], $promotion_for_days ), true ); ?>><?php echo esc_html( $day['label'] ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
@@ -309,7 +309,7 @@ $title = $is_creation
 							<?php submit_button( __( 'Add', 'wc-gateway-payway' ), 'primary', 'createpromotion', true, array( 'id' => 'newpromotionsub' ) ); ?>
 						<?php endif; ?>
 					</div>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo __('Go back', 'wc-gateway-payway'); ?></a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $PAGE_KEY_NAME ) ); ?>"><?php echo esc_html__( 'Go back', 'wc-gateway-payway' ); ?></a>
 				</form>
 		<?php elseif ( $ACTION_NAME_DELETE === $params['action'] ) : ?>
 			<?php

@@ -247,7 +247,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			?>
 			<div class="inline error">
 				<p>
-					<strong><?php esc_html_e( 'Gateway disabled', 'woocommerce' ); ?></strong>: <?php esc_html_e( 'Payway Gateway does not support your store currency.', 'wc-gateway-payway' ); ?>
+					<strong><?php esc_html_e( 'Gateway disabled', 'wc-gateway-payway' ); ?></strong>: <?php esc_html_e( 'Payway Gateway does not support your store currency.', 'wc-gateway-payway' ); ?>
 				</p>
 			</div>
 			<?php
@@ -459,13 +459,13 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 			);
 
 			if ( $this->is_store_api_request() ) {
-				throw new Exception( $friendly );
+				throw new Exception( esc_html( $friendly ) );
 			}
 
 			return array(
 				'result'   => 'failure',
 				'refresh'  => true,
-				'messages' => $friendly,
+				'messages' => esc_html( $friendly ),
 			);
 		} finally {
 			delete_transient( $lock_key );
@@ -501,7 +501,7 @@ class WC_Payment_Gateway_Payway extends WC_Payment_Gateway {
 		}
 
 		if ( $error_message ) {
-			$note .= __(': ' . $error_message, 'wc-gateway-payway');
+			$note .= ': ' . $error_message;
 		}
 
 		$order->add_order_note( $note );

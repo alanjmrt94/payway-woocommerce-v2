@@ -91,18 +91,21 @@ class WC_Payway_Bank_Factory {
 		}
 
 		$table = self::get_table_name();
-		$sql   = "SELECT * FROM {$table} ORDER BY name ASC";
 
 		if ( null !== $per_page && (int) $per_page > 0 ) {
 			$offset = max( 0, ( (int) $page_number - 1 ) * (int) $per_page );
-			$sql    = $wpdb->prepare(
-				"SELECT * FROM {$table} ORDER BY name ASC LIMIT %d OFFSET %d",
-				(int) $per_page,
-				$offset
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+			return $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} ORDER BY name ASC LIMIT %d OFFSET %d",
+					(int) $per_page,
+					$offset
+				)
 			);
 		}
 
-		return $wpdb->get_results( $sql );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_results( "SELECT * FROM {$table} ORDER BY name ASC" );
 	}
 
 	/**
@@ -113,12 +116,14 @@ class WC_Payway_Bank_Factory {
 	public static function get_bank( $bank_id ) {
 		global $wpdb;
 
-		$query = $wpdb->prepare(
-			"SELECT * FROM " . self::get_table_name() . " WHERE id = %d",
-			$bank_id
+		$table = self::get_table_name();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE id = %d",
+				$bank_id
+			)
 		);
-
-		return $wpdb->get_row( $query );
 	}
 
 	/**
@@ -167,7 +172,7 @@ class WC_Payway_Bank_Factory {
 		);
 
 		if ( is_wp_error( $update ) ) {
-			throw new Exception( $update->get_error_message() );
+			throw new Exception( esc_html( $update->get_error_message() ) );
 		}
 
 		if ( class_exists( 'WC_Payway_Promotion_Factory' ) ) {
@@ -216,8 +221,8 @@ class WC_Payway_Bank_Factory {
 			WC_Payway_Activator::ensure_core_schema();
 		}
 
-		$query = "SELECT COUNT(*) FROM " . self::get_table_name();
-
-		return $wpdb->get_var( $query );
+		$table = self::get_table_name();
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 	}
 }

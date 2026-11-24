@@ -3,7 +3,7 @@
 Plugin WooCommerce para Payway/Decidir — **fork independiente** (no oficial de Payway).  
 Disclaimer y licencia: ver el [README del repositorio](../README.md). Mantenedor: Alan Martinez ([alanjmrt94](https://github.com/alanjmrt94)).
 
-**Versión:** **2.0.4** — header `Version:` de `index.php` (única fuente de verdad).  
+**Versión:** **2.0.5** — header `Version:` de `index.php` (única fuente de verdad).  
 **SDK PHP:** 2.0.10 (montos en **centavos**).
 
 **No lo uses en producción** sin probar antes en un clon del sitio.

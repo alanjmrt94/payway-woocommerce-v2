@@ -147,7 +147,7 @@ class WC_Payway_Promotion_Factory {
 		$bank_table      = self::get_banks_table_name();
 		$card_table      = self::get_cards_table_name();
 
-		$base = "SELECT promos.*,
+		$list_sql = "SELECT promos.*,
 			bank.name as 'bank_name',
 			card.card_name,
 			card.id_sps as 'card_code'
@@ -160,14 +160,27 @@ class WC_Payway_Promotion_Factory {
 
 		if ( null !== $per_page && (int) $per_page > 0 ) {
 			$offset = max( 0, ( (int) $page_number - 1 ) * (int) $per_page );
-			$base   = $wpdb->prepare(
-				$base . ' LIMIT %d OFFSET %d',
-				(int) $per_page,
-				$offset
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+			return $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT promos.*,
+			bank.name as 'bank_name',
+			card.card_name,
+			card.id_sps as 'card_code'
+			FROM {$promotion_table} AS promos
+			INNER JOIN {$bank_table} AS bank
+				ON promos.bank_id = bank.id
+			INNER JOIN {$card_table} AS card
+				ON promos.card_id = card.id
+		ORDER BY promos.rule_name ASC LIMIT %d OFFSET %d",
+					(int) $per_page,
+					$offset
+				)
 			);
 		}
 
-		return $wpdb->get_results( $base );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_results( $list_sql );
 	}
 
 	/**
@@ -222,7 +235,11 @@ class WC_Payway_Promotion_Factory {
 		$bank_table      = self::get_banks_table_name();
 		$card_table      = self::get_cards_table_name();
 
-		$query = "SELECT promos.*,
+		$current_day = (int) $current_day;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		$results     = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT promos.*,
 			bank.name as 'bank_name',
 			card.card_name,
 			card.id_sps as 'card_code'
@@ -238,13 +255,13 @@ class WC_Payway_Promotion_Factory {
 				promos.no_expiry = 1
 				OR promos.to_date >= NOW()
 			)
-			AND find_in_set( {$current_day}, promos.applicable_days )
+			AND find_in_set( %d, promos.applicable_days )
 		ORDER BY promos.priority ASC,
 			promos.bank_id ASC,
-			promos.card_id ASC;
-		";
-
-		$results = $wpdb->get_results( $query );
+			promos.card_id ASC",
+				$current_day
+			)
+		);
 		if ( ! is_array( $results ) ) {
 			$results = array();
 		}
@@ -296,12 +313,14 @@ class WC_Payway_Promotion_Factory {
 			WC_Payway_Activator::ensure_core_schema();
 		}
 
-		$query = $wpdb->prepare(
-			"SELECT * FROM " . self::get_promotion_table_name() . " WHERE id = %d",
-			$promotion_id
+		$table = self::get_promotion_table_name();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE id = %d",
+				$promotion_id
+			)
 		);
-
-		return $wpdb->get_row( $query );
 	}
 
 	/**
@@ -447,7 +466,7 @@ class WC_Payway_Promotion_Factory {
 		);
 
 		if ( is_wp_error( $update ) ) {
-			throw new Exception( $update->get_error_message() );
+			throw new Exception( esc_html( $update->get_error_message() ) );
 		}
 
 		self::invalidate_applicable_promotions_cache();
@@ -491,9 +510,9 @@ class WC_Payway_Promotion_Factory {
 	public static function record_count() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM " . self::get_promotion_table_name();
-
-		return $wpdb->get_var( $query );
+		$table = self::get_promotion_table_name();
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Trusted plugin table name.
+		return $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 	}
 
 	/**

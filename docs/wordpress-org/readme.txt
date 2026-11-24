@@ -3,9 +3,9 @@ Contributors: alanjmrt94
 Donate link: https://github.com/alanjmrt94
 Tags: woocommerce, payments, payway, decidir, argentina
 Requires at least: 5.8.3
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,10 @@ Not yet. The gateway does not declare `refunds` in `supports` in 2.0.x.
 4. Status / diagnostics
 
 == Changelog ==
+
+= 2.0.5 =
+* Plugin Check plugin_repo readiness: escaping, prepared SQL, translators comments, ABSPATH guards
+* Bump Tested up to WordPress 7.1
 
 = 2.0.4 =
 * WordPress Coding Standards file names for scoped includes (class-wc-payway-*)

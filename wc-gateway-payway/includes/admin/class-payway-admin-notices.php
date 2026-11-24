@@ -83,9 +83,9 @@ class WC_Payway_Admin_Notices {
 		if ( $enabled && ! $has_keys ) {
 			$notices[] = array(
 				'type'    => 'error',
-				/* translators: 1: environment name 2: payments settings URL 3: setup URL */
 				'message' => sprintf(
 					wp_kses(
+						/* translators: 1: environment name 2: payments settings URL 3: setup URL */
 						__( 'Payway is enabled but %1$s API keys are missing. The payment method will not work until you configure them under <a href="%2$s">WooCommerce → Payments → Payway</a> or follow <a href="%3$s">Setup</a>.', 'wc-gateway-payway' ),
 						array( 'a' => array( 'href' => array() ) )
 					),
@@ -97,9 +97,9 @@ class WC_Payway_Admin_Notices {
 		} elseif ( ! $has_keys ) {
 			$notices[] = array(
 				'type'    => 'warning',
-				/* translators: 1: environment name 2: payments settings URL 3: setup URL */
 				'message' => sprintf(
 					wp_kses(
+						/* translators: 1: environment name 2: payments settings URL 3: setup URL */
 						__( 'Payway: %1$s API keys are missing for the active environment. Configure them under <a href="%2$s">WooCommerce → Payments → Payway</a> or follow <a href="%3$s">Setup</a>.', 'wc-gateway-payway' ),
 						array( 'a' => array( 'href' => array() ) )
 					),
@@ -116,9 +116,9 @@ class WC_Payway_Admin_Notices {
 			if ( ! $promotions ) {
 				$notices[] = array(
 					'type'    => 'error',
-					/* translators: %s: Setup admin URL */
 					'message' => sprintf(
 						wp_kses(
+							/* translators: %s: Setup admin URL */
 							__( 'Payway is enabled and credentials are set, but no applicable promotions were found. The payment method stays hidden at checkout until you seed the catalog under <a href="%s">Setup</a>.', 'wc-gateway-payway' ),
 							array( 'a' => array( 'href' => array() ) )
 						),
