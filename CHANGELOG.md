@@ -5,6 +5,23 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [2.0.4] — 2026-11-24
+
+### Fixed
+
+- Nombres de archivo WPCS para `WC_Payway_Errors` / Compatibility / Integrity Validator (`class-wc-payway-*`).
+- Ajuste menor en `format_gateway_failure()` para PHPStan 2 (`is_array` redundante).
+
+### Changed
+
+- Versión del plugin a **2.0.4**.
+
+### Conteo SemVer
+
+`fix=1` desde `2.0.3` → **N=1** → **2.0.4**.
+
+---
+
 ## [2.0.3] — 2026-11-23
 
 ### Added
@@ -231,6 +248,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[2.0.4]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.4
 [2.0.3]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.3
 [2.0.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.2
 [2.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.0
