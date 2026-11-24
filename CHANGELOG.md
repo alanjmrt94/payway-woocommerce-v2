@@ -5,6 +5,25 @@ Cambios notables de **Payway Payment Community** respecto del plugin original
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/) y [SemVer](https://semver.org/).
 
+## [2.0.3] — 2026-11-23
+
+### Added
+
+- Brand Community (`assets/`) + favicon/isotipo en plugin; logo oficial Payway solo en checkout.
+- Manuales PDF oficiales `docs/payway-woo-v2-manual-{es,en}.pdf` + espejo EN + capturas 07/08/10.
+- Kit WordPress.org (`docs/wordpress-org/`, `readme.txt`).
+
+### Changed
+
+- Menú admin usa brand Community; se eliminan assets legacy de `img/` y `card-logos.png`.
+- Versión del plugin a **2.0.3**.
+
+### Conteo SemVer
+
+`feat=1` desde `2.0.2` → **N=1** → **2.0.3**.
+
+---
+
 ## [2.0.2] — 2026-11-23
 
 ### Added
@@ -212,6 +231,7 @@ Settings y tablas (`woocommerce_payway_gateway_settings`, `prisma_payway_*`) se 
 
 ---
 
+[2.0.3]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.3
 [2.0.2]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.2
 [2.0.0]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v2.0.0
 [1.1.5]: https://github.com/alanjmrt94/payway-woocommerce-v2/releases/tag/v1.1.5

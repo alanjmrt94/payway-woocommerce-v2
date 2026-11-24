@@ -4,6 +4,13 @@ Resumen orientado al comercio. Detalle completo: [`CHANGELOG.md`](../../CHANGELO
 
 Cambios notables respecto del plugin original [payway-ar/plugin-woocommerce](https://github.com/payway-ar/plugin-woocommerce) **0.3.3**.
 
+## [2.0.3] — 2026-11-23
+
+### Added
+
+- Brand Community + logo oficial Payway en checkout; PDF/manual EN; kit WP.org.
+- Versión **2.0.3**.
+
 ## [2.0.2] — 2026-11-23
 
 ### Added / Fixed (lote noviembre)

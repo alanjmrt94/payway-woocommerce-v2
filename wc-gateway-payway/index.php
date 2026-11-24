@@ -3,7 +3,7 @@
  * Plugin Name: Payway Payment Community
  * Plugin URI: https://github.com/alanjmrt94/payway-woocommerce-v2
  * Description: Gateway de pago independiente para WooCommerce basado en la integración Payway/Decidir. No es un producto oficial de Payway.
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: Alan Martinez (alanjmrt94)
  * Author URI: https://github.com/alanjmrt94
  * Text Domain: wc-gateway-payway
